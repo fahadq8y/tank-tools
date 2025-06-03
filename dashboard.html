@@ -663,7 +663,7 @@
       setInterval(refreshData, 120000);
     });
 
-    // Strict Admin Access Check
+    // Strict Admin Access Check - Enhanced
     function checkAdminAccess() {
       const session = sessionStorage.getItem('tanktools_session');
       const userData = localStorage.getItem('tanktools_current_user');
@@ -676,14 +676,17 @@
       try {
         currentUser = JSON.parse(userData);
         
-        // ONLY fam030 is allowed
-        if (currentUser.username !== 'fam030') {
+        // ONLY fam030 or admin role is allowed
+        if (currentUser.username !== 'fam030' && currentUser.role !== 'admin') {
+          console.log('Access denied - User:', currentUser.username, 'Role:', currentUser.role);
           showAccessDenied();
           return;
         }
         
+        console.log('Admin access granted to:', currentUser.username);
         logActivity('admin_dashboard_access', currentUser.username);
       } catch (error) {
+        console.error('Session parsing error:', error);
         showAccessDenied();
       }
     }
@@ -750,7 +753,7 @@
       users.forEach(user => {
         const row = document.createElement('tr');
         
-        const roleClass = user.username === 'fam030' ? 'badge-admin' : 'badge-user';
+        const roleClass = user.username === 'fam030' || user.role === 'admin' ? 'badge-admin' : 'badge-user';
         const statusClass = user.isActive ? 'badge-user' : 'badge-inactive';
         const verifiedClass = user.emailVerified ? 'badge-user' : 'badge-inactive';
         const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
@@ -759,7 +762,7 @@
           <td>${user.fullName || user.username}</td>
           <td>${user.username}</td>
           <td>${user.email}</td>
-          <td><span class="user-badge ${roleClass}">${user.username === 'fam030' ? 'admin' : 'user'}</span></td>
+          <td><span class="user-badge ${roleClass}">${user.username === 'fam030' || user.role === 'admin' ? 'admin' : 'user'}</span></td>
           <td><span class="user-badge ${statusClass}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
           <td><span class="user-badge ${verifiedClass}">${user.emailVerified ? 'Verified' : 'Pending'}</span></td>
           <td>${lastLogin}</td>
@@ -806,7 +809,12 @@
         'user_login': '🚪',
         'user_registered': '👤',
         'admin_dashboard_access': '👑',
-        'app_opened': '🚀',
+        'pbcr_accessed': '🏭',
+        'plcr_accessed': '⚗️',
+        'nmogas_accessed': '🔧',
+        'tank_calculation': '📊',
+        'plcr_calculation': '⚗️',
+        'nmogas_calculation': '🔧',
         'user_logout': '🔴',
         'user_activated': '✅',
         'user_deactivated': '❌'
@@ -819,7 +827,12 @@
         'user_login': `${activity.username} logged in`,
         'user_registered': `New user ${activity.username} registered`,
         'admin_dashboard_access': `${activity.username} accessed admin dashboard`,
-        'app_opened': `${activity.username} opened application`,
+        'pbcr_accessed': `${activity.username} opened PBCR & WASHERY`,
+        'plcr_accessed': `${activity.username} opened PLCR Calculator`,
+        'nmogas_accessed': `${activity.username} opened NMOGAS Blender`,
+        'tank_calculation': `${activity.username} performed tank calculation`,
+        'plcr_calculation': `${activity.username} performed PLCR calculation`,
+        'nmogas_calculation': `${activity.username} performed NMOGAS calculation`,
         'user_logout': `${activity.username} logged out`,
         'user_activated': `User ${activity.username} was activated`,
         'user_deactivated': `User ${activity.username} was deactivated`
@@ -942,3 +955,6 @@
     console.log('%c🔒 TANK TOOLS - ADMIN DASHBOARD', 'color: red; font-size: 20px; font-weight: bold;');
     console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
     console.log('%cADMIN ACCESS: fam030 ONLY', 'color: gold; font-size: 16px; font-weight: bold;');
+  </script>
+</body>
+</html>

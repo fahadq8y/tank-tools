@@ -570,9 +570,12 @@
         const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
         document.getElementById('userAvatar').textContent = firstLetter;
         
-        // Show admin link only for fam030
-        if (currentUser.username === 'fam030') {
+        // Show admin link for fam030 or admin role
+        if (currentUser.username === 'fam030' || currentUser.role === 'admin') {
           document.getElementById('adminLink').style.display = 'inline-block';
+          console.log('Admin link shown for user:', currentUser.username, 'Role:', currentUser.role);
+        } else {
+          console.log('Admin link hidden for user:', currentUser.username, 'Role:', currentUser.role);
         }
       }
 
