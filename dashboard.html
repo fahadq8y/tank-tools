@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tank Tools - Dashboard</title>
+  <title>Tank Tools - Admin Dashboard</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="icon.png" type="image/png">
   <meta name="theme-color" content="#003366">
@@ -56,11 +56,12 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: linear-gradient(45deg, #4CAF50, #45a049);
+      background: linear-gradient(45deg, #FFD700, #FFA500);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      color: #003366;
     }
 
     .nav-btn, .logout-btn {
@@ -111,10 +112,12 @@
       display: inline-block;
       background: linear-gradient(45deg, #FFD700, #FFA500);
       color: #003366;
-      padding: 5px 15px;
-      border-radius: 20px;
+      padding: 8px 20px;
+      border-radius: 25px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
     }
 
     /* Statistics Grid */
@@ -202,9 +205,6 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: bold;
-    }
-
-    .status-active {
       background: rgba(76, 175, 80, 0.3);
       color: #4CAF50;
       border: 1px solid #4CAF50;
@@ -351,6 +351,65 @@
       font-size: 1.2rem;
     }
 
+    /* Access Denied Screen */
+    .access-denied {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .access-denied-content {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .access-denied-icon {
+      font-size: 5rem;
+      color: #f44336;
+      margin-bottom: 20px;
+    }
+
+    .access-denied-title {
+      font-size: 2rem;
+      color: #f44336;
+      margin-bottom: 15px;
+    }
+
+    .access-denied-text {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .back-btn {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .navbar {
@@ -399,215 +458,179 @@
       transform: scale(1.1);
     }
 
-    /* Theme Toggle */
-    .theme-toggle {
-      position: fixed;
-      top: 100px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
-
     /* Connection Status */
     .connection-status {
       position: fixed;
-      top: 20px;
+      top: 80px;
       right: 20px;
       padding: 10px 15px;
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: bold;
-    }
-
-    .online {
       background: rgba(76, 175, 80, 0.3);
       color: #4CAF50;
       border: 1px solid #4CAF50;
     }
-
-    .offline {
-      background: rgba(244, 67, 54, 0.3);
-      color: #f44336;
-      border: 1px solid #f44336;
-    }
-
-    /* Dark Mode */
-    .dark-mode {
-      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg') !important;
-    }
-
-    .dark-mode .users-table {
-      background: rgba(40, 40, 60, 0.85) !important;
-      color: #eee !important;
-    }
-
-    .dark-mode .users-table th {
-      background: #2a2a4a !important;
-      color: #eee !important;
-    }
-
-    .dark-mode .users-table td {
-      border-bottom: 1px solid #555 !important;
-      color: #eee !important;
-    }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="navbar-brand">🛠️ Tank Tools</div>
-    <div class="user-info">
-      <a href="index.html" class="nav-btn">📊 PBCR</a>
-      <a href="plcr.html" class="nav-btn">⚗️ PLCR</a>
-      <a href="NMOGASBL.html" class="nav-btn">🔧 NMOGAS</a>
-      <div class="user-avatar" id="userAvatar">F</div>
-      <div>
-        <div id="userName">Fahad - 17877</div>
-        <div style="font-size: 0.8rem; opacity: 0.7;" id="userEmail">fah877@knpc.com</div>
+  <!-- Access Denied Screen (hidden by default) -->
+  <div id="accessDenied" class="access-denied" style="display: none;">
+    <div class="access-denied-content">
+      <div class="access-denied-icon">🚫</div>
+      <div class="access-denied-title">Access Denied</div>
+      <div class="access-denied-text">
+        This dashboard is restricted to authorized administrators only.<br>
+        Contact system administrator for access.
       </div>
-      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      <button class="back-btn" onclick="goHome()">Go to Applications</button>
     </div>
-  </nav>
-
-  <!-- Connection Status -->
-  <div class="connection-status online" id="connectionStatus">
-    🟢 Online
   </div>
 
-  <!-- Theme Toggle -->
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+  <!-- Main Dashboard Content -->
+  <div id="mainContent">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-brand">🛠️ Tank Tools Admin</div>
+      <div class="user-info">
+        <a href="index.html" class="nav-btn">📊 PBCR</a>
+        <a href="plcr.html" class="nav-btn">⚗️ PLCR</a>
+        <a href="NMOGASBL.html" class="nav-btn">🔧 NMOGAS</a>
+        <div class="user-avatar" id="userAvatar">F</div>
+        <div>
+          <div id="userName">Fahad - fam030</div>
+          <div style="font-size: 0.8rem; opacity: 0.7;" id="userEmail">fam030@knpc.com</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </nav>
 
-  <div class="container">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="admin-badge">👑 ADMIN DASHBOARD</div>
-      <h2>🎉 Welcome to Tank Tools System</h2>
-      <p>Enhanced version with full protection and control</p>
-      <p id="currentTime"></p>
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+      🟢 Online
     </div>
 
-    <!-- Quick Statistics -->
-    <div class="stats-section">
-      <div class="stat-card">
-        <div class="stat-number" id="totalUsers">0</div>
-        <div class="stat-label">Total Users</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="activeUsers">0</div>
-        <div class="stat-label">Active Users</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="todayLogins">0</div>
-        <div class="stat-label">Today's Logins</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="lastUpdate">12:30</div>
-        <div class="stat-label">Last Update</div>
-      </div>
-    </div>
-
-    <!-- System Notifications -->
-    <div class="notifications">
-      <h3>📢 System Notifications</h3>
-      <div class="notification-item">
-        <span class="notification-icon">✅</span>
-        <span>System updated successfully - All applications running efficiently</span>
-      </div>
-      <div class="notification-item">
-        <span class="notification-icon">🔒</span>
-        <span>Security system active - All sessions monitored</span>
-      </div>
-      <div class="notification-item">
-        <span class="notification-icon">⚡</span>
-        <span>Server running at optimal performance - Response time: 45ms</span>
-      </div>
-    </div>
-
-    <!-- Applications Grid -->
-    <div class="apps-grid">
-      <div class="app-card" onclick="openApp('pbcr')">
-        <div class="app-icon">🏭</div>
-        <div class="app-title">PBCR & WASHERY</div>
-        <div class="app-description">Calculate tank levels and flow rates</div>
-        <div class="app-status status-active">🟢 Active</div>
+    <div class="container">
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <div class="admin-badge">👑 MASTER ADMIN DASHBOARD</div>
+        <h2>🎉 Welcome to Tank Tools Control Center</h2>
+        <p>Complete system management and monitoring - fam030 Exclusive Access</p>
+        <p id="currentTime"></p>
       </div>
 
-      <div class="app-card" onclick="openApp('plcr')">
-        <div class="app-icon">⚗️</div>
-        <div class="app-title">PLCR Calculator</div>
-        <div class="app-description">Convert levels to barrels and vice versa</div>
-        <div class="app-status status-active">🟢 Active</div>
-      </div>
-
-      <div class="app-card" onclick="openApp('nmogas')">
-        <div class="app-icon">🔧</div>
-        <div class="app-title">NMOGAS Blender</div>
-        <div class="app-description">Calculate blending rates and loops</div>
-        <div class="app-status status-active">🟢 Active</div>
-      </div>
-    </div>
-
-    <!-- Users Management -->
-    <div class="users-section">
-      <div class="section-header">
-        <h3 class="section-title">👥 User Management</h3>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn btn-primary" onclick="refreshUsers()">🔄 Refresh</button>
-          <button class="btn btn-danger" onclick="clearInactiveUsers()">🗑️ Clear Inactive</button>
+      <!-- Quick Statistics -->
+      <div class="stats-section">
+        <div class="stat-card">
+          <div class="stat-number" id="totalUsers">0</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="activeUsers">0</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="todayLogins">0</div>
+          <div class="stat-label">Today's Logins</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="lastUpdate">12:30</div>
+          <div class="stat-label">Last Update</div>
         </div>
       </div>
-      <div style="overflow-x: auto;">
-        <table class="users-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Last Login</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTableBody">
-            <!-- Users will be loaded here -->
-          </tbody>
-        </table>
+
+      <!-- System Notifications -->
+      <div class="notifications">
+        <h3>📢 System Status</h3>
+        <div class="notification-item">
+          <span class="notification-icon">✅</span>
+          <span>All applications running optimally - Security active</span>
+        </div>
+        <div class="notification-item">
+          <span class="notification-icon">🔒</span>
+          <span>Admin access restricted to fam030 only - All sessions monitored</span>
+        </div>
+        <div class="notification-item">
+          <span class="notification-icon">⚡</span>
+          <span>Server performance excellent - Email verification system active</span>
+        </div>
+      </div>
+
+      <!-- Applications Grid -->
+      <div class="apps-grid">
+        <div class="app-card" onclick="openApp('pbcr')">
+          <div class="app-icon">🏭</div>
+          <div class="app-title">PBCR & WASHERY</div>
+          <div class="app-description">Tank level calculations and flow rate management</div>
+          <div class="app-status">🟢 Protected & Active</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('plcr')">
+          <div class="app-icon">⚗️</div>
+          <div class="app-title">PLCR Calculator</div>
+          <div class="app-description">Convert levels to barrels and metric tons</div>
+          <div class="app-status">🟢 Protected & Active</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('nmogas')">
+          <div class="app-icon">🔧</div>
+          <div class="app-title">NMOGAS Blender</div>
+          <div class="app-description">Calculate blending rates and pump configurations</div>
+          <div class="app-status">🟢 Protected & Active</div>
+        </div>
+      </div>
+
+      <!-- Users Management -->
+      <div class="users-section">
+        <div class="section-header">
+          <h3 class="section-title">👥 User Management</h3>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="refreshUsers()">🔄 Refresh</button>
+            <button class="btn btn-danger" onclick="clearInactiveUsers()">🗑️ Clear Inactive</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Email Verified</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Users will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="activity-section">
+        <h3 class="section-title">📝 Recent Activity</h3>
+        <div id="activityLog">
+          <!-- Activities will be loaded here -->
+        </div>
       </div>
     </div>
 
-    <!-- Activity Log -->
-    <div class="activity-section">
-      <h3 class="section-title">📝 Recent Activity</h3>
-      <div id="activityLog">
-        <!-- Activities will be loaded here -->
-      </div>
-    </div>
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshData()" title="Refresh Data">
+      🔄
+    </button>
   </div>
 
-  <!-- Refresh Button -->
-  <button class="refresh-btn" onclick="refreshData()" title="Refresh Data">
-    🔄
-  </button>
-
   <script>
-    // 🔒 Security Protection - Fahad 17877
+    // 🔒 Enhanced Security Protection - fam030 Only
     (function() {
       'use strict';
       
-      // حماية ضد النسخ والفحص
+      // Disable developer tools
       document.addEventListener('contextmenu', e => e.preventDefault());
       document.addEventListener('selectstart', e => e.preventDefault());
       document.addEventListener('keydown', e => {
@@ -616,67 +639,76 @@
         }
       });
       
-      // كشف أدوات المطور
+      // Detect developer tools
       setInterval(() => {
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>Admin System by Fahad - 17877</div>';
         }
       }, 1000);
     })();
 
-    // Global variables
     let currentUser = null;
-    let currentTheme = localStorage.getItem('tanktools_theme') || 'dark';
 
     // Initialize
     window.addEventListener('load', () => {
-      checkAccess();
+      checkAdminAccess();
       loadUserData();
       updateCurrentTime();
       loadStatistics();
       loadUsers();
       loadRecentActivity();
       monitorConnection();
-      applyTheme();
       
-      // Update time every minute
       setInterval(updateCurrentTime, 60000);
-      
-      // Auto refresh every 2 minutes
       setInterval(refreshData, 120000);
     });
 
-    // Check access
-    function checkAccess() {
+    // Strict Admin Access Check
+    function checkAdminAccess() {
       const session = sessionStorage.getItem('tanktools_session');
       const userData = localStorage.getItem('tanktools_current_user');
       
       if (session !== 'active' || !userData) {
-        window.location.href = 'login.html';
+        showAccessDenied();
         return;
       }
       
       try {
         currentUser = JSON.parse(userData);
-        logActivity('dashboard_access', currentUser.username);
+        
+        // ONLY fam030 is allowed
+        if (currentUser.username !== 'fam030') {
+          showAccessDenied();
+          return;
+        }
+        
+        logActivity('admin_dashboard_access', currentUser.username);
       } catch (error) {
-        window.location.href = 'login.html';
+        showAccessDenied();
       }
     }
 
-    // Load user data
+    // Show access denied screen
+    function showAccessDenied() {
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('accessDenied').style.display = 'flex';
+    }
+
+    // Go back to applications
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
     function loadUserData() {
       if (!currentUser) return;
       
       document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
       document.getElementById('userEmail').textContent = currentUser.email;
       
-      // Update user avatar
       const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
       document.getElementById('userAvatar').textContent = firstLetter;
     }
 
-    // Update current time
     function updateCurrentTime() {
       const now = new Date();
       const timeString = now.toLocaleString('en-US', {
@@ -691,29 +723,24 @@
       document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
     }
 
-    // Load statistics
     function loadStatistics() {
       const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
       const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
       
-      // Calculate stats
       const totalUsers = users.length;
       const activeUsers = users.filter(u => u.isActive).length;
       
-      // Count today's logins
       const today = new Date().toDateString();
       const todayLogins = activities.filter(a => 
         a.action === 'user_login' && 
         new Date(a.timestamp).toDateString() === today
       ).length;
       
-      // Update UI
       document.getElementById('totalUsers').textContent = totalUsers;
       document.getElementById('activeUsers').textContent = activeUsers;
       document.getElementById('todayLogins').textContent = todayLogins;
     }
 
-    // Load users table
     function loadUsers() {
       const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
       const tbody = document.getElementById('usersTableBody');
@@ -723,23 +750,27 @@
       users.forEach(user => {
         const row = document.createElement('tr');
         
-        const roleClass = user.role === 'admin' || user.username === 'fah877' ? 'badge-admin' : 'badge-user';
+        const roleClass = user.username === 'fam030' ? 'badge-admin' : 'badge-user';
         const statusClass = user.isActive ? 'badge-user' : 'badge-inactive';
+        const verifiedClass = user.emailVerified ? 'badge-user' : 'badge-inactive';
         const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
         
         row.innerHTML = `
           <td>${user.fullName || user.username}</td>
           <td>${user.username}</td>
           <td>${user.email}</td>
-          <td><span class="user-badge ${roleClass}">${user.role || 'user'}</span></td>
+          <td><span class="user-badge ${roleClass}">${user.username === 'fam030' ? 'admin' : 'user'}</span></td>
           <td><span class="user-badge ${statusClass}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td><span class="user-badge ${verifiedClass}">${user.emailVerified ? 'Verified' : 'Pending'}</span></td>
           <td>${lastLogin}</td>
           <td>
-            <button class="btn ${user.isActive ? 'btn-danger' : 'btn-primary'}" 
-                    onclick="toggleUserStatus('${user.username}')" 
-                    style="font-size: 12px; padding: 4px 8px;">
-              ${user.isActive ? 'Deactivate' : 'Activate'}
-            </button>
+            ${user.username !== 'fam030' ? `
+              <button class="btn ${user.isActive ? 'btn-danger' : 'btn-primary'}" 
+                      onclick="toggleUserStatus('${user.username}')" 
+                      style="font-size: 12px; padding: 4px 8px;">
+                ${user.isActive ? 'Deactivate' : 'Activate'}
+              </button>
+            ` : '<span style="color: #FFD700;">ADMIN</span>'}
           </td>
         `;
         
@@ -747,14 +778,12 @@
       });
     }
 
-    // Load recent activity
     function loadRecentActivity() {
       const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
       const activityLog = document.getElementById('activityLog');
       
       activityLog.innerHTML = '';
       
-      // Show last 10 activities
       activities.slice(0, 10).forEach(activity => {
         const item = document.createElement('div');
         item.className = 'activity-item';
@@ -772,31 +801,32 @@
       });
     }
 
-    // Get activity icon
     function getActivityIcon(action) {
       const icons = {
         'user_login': '🚪',
         'user_registered': '👤',
-        'dashboard_access': '📊',
+        'admin_dashboard_access': '👑',
         'app_opened': '🚀',
-        'user_logout': '🔴'
+        'user_logout': '🔴',
+        'user_activated': '✅',
+        'user_deactivated': '❌'
       };
       return icons[action] || '📝';
     }
 
-    // Get activity description
     function getActivityDescription(activity) {
       const descriptions = {
         'user_login': `${activity.username} logged in`,
         'user_registered': `New user ${activity.username} registered`,
-        'dashboard_access': `${activity.username} accessed dashboard`,
+        'admin_dashboard_access': `${activity.username} accessed admin dashboard`,
         'app_opened': `${activity.username} opened application`,
-        'user_logout': `${activity.username} logged out`
+        'user_logout': `${activity.username} logged out`,
+        'user_activated': `User ${activity.username} was activated`,
+        'user_deactivated': `User ${activity.username} was deactivated`
       };
       return descriptions[activity.action] || `${activity.username} performed ${activity.action}`;
     }
 
-    // Open application
     function openApp(appName) {
       logActivity('app_opened', currentUser.username);
       
@@ -810,17 +840,14 @@
         case 'nmogas':
           window.location.href = 'NMOGASBL.html';
           break;
-        default:
-          alert('Application not found');
       }
     }
 
-    // Toggle user status
     function toggleUserStatus(username) {
       const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
       const user = users.find(u => u.username === username);
       
-      if (user) {
+      if (user && user.username !== 'fam030') {
         user.isActive = !user.isActive;
         localStorage.setItem('tanktools_users', JSON.stringify(users));
         
@@ -831,18 +858,16 @@
       }
     }
 
-    // Refresh users
     function refreshUsers() {
       loadUsers();
       loadStatistics();
       loadRecentActivity();
     }
 
-    // Clear inactive users
     function clearInactiveUsers() {
       if (confirm('Are you sure you want to delete all inactive users?')) {
         const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        const activeUsers = users.filter(u => u.isActive);
+        const activeUsers = users.filter(u => u.isActive || u.username === 'fam030');
         
         localStorage.setItem('tanktools_users', JSON.stringify(activeUsers));
         
@@ -853,39 +878,35 @@
       }
     }
 
-    // Refresh data
-    async function refreshData() {
+    function refreshData() {
       const refreshBtn = document.querySelector('.refresh-btn');
       refreshBtn.style.transform = 'rotate(360deg)';
       
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+      setTimeout(() => {
         loadStatistics();
         loadUsers();
         loadRecentActivity();
         updateCurrentTime();
-        
-      } catch (error) {
-        console.error('Error refreshing data:', error);
-      } finally {
-        setTimeout(() => {
-          refreshBtn.style.transform = 'rotate(0deg)';
-        }, 500);
-      }
+        refreshBtn.style.transform = 'rotate(0deg)';
+      }, 1000);
     }
 
-    // Monitor connection
     function monitorConnection() {
       const statusElement = document.getElementById('connectionStatus');
       
       function updateStatus() {
         if (navigator.onLine) {
           statusElement.textContent = '🟢 Online';
-          statusElement.className = 'connection-status online';
+          statusElement.className = 'connection-status';
+          statusElement.style.background = 'rgba(76, 175, 80, 0.3)';
+          statusElement.style.color = '#4CAF50';
+          statusElement.style.border = '1px solid #4CAF50';
         } else {
           statusElement.textContent = '🔴 Offline';
-          statusElement.className = 'connection-status offline';
+          statusElement.className = 'connection-status';
+          statusElement.style.background = 'rgba(244, 67, 54, 0.3)';
+          statusElement.style.color = '#f44336';
+          statusElement.style.border = '1px solid #f44336';
         }
       }
       
@@ -894,30 +915,6 @@
       window.addEventListener('offline', updateStatus);
     }
 
-    // Toggle theme
-    function toggleTheme() {
-      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('tanktools_theme', currentTheme);
-      applyTheme();
-    }
-
-    // Apply theme
-    function applyTheme() {
-      const toggle = document.getElementById('themeToggle');
-      if (currentTheme === 'light') {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url("background.jpg")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundAttachment = 'fixed';
-        toggle.textContent = '🌙';
-      } else {
-        document.body.classList.add('dark-mode');
-        toggle.textContent = '☀️';
-      }
-    }
-
-    // Log activity
     function logActivity(action, username) {
       const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
       
@@ -930,33 +927,18 @@
         userAgent: navigator.userAgent.substring(0, 100)
       });
       
-      // Keep only last 100 activities
       activities.splice(100);
-      
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
-    // Logout
     function logout() {
       logActivity('user_logout', currentUser.username);
-      
-      // Clear session data
       sessionStorage.removeItem('tanktools_session');
       localStorage.removeItem('tanktools_current_user');
-      
-      // Redirect to login
       window.location.href = 'login.html';
     }
-
-    // Prevent going back without logout
-    window.addEventListener('beforeunload', (e) => {
-      logActivity('page_unload', currentUser?.username || 'unknown');
-    });
 
     // Console protection message
     console.log('%c🔒 TANK TOOLS - ADMIN DASHBOARD', 'color: red; font-size: 20px; font-weight: bold;');
     console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
-    console.log('%cUnauthorized access is prohibited and monitored', 'color: red; font-size: 14px;');
-  </script>
-</body>
-</html>
+    console.log('%cADMIN ACCESS: fam030 ONLY', 'color: gold; font-size: 16px; font-weight: bold;');

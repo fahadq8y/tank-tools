@@ -5,242 +5,670 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PLCR - Tank Calculator</title>
   <link href="icon.png" rel="icon" type="image/png"/>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#003366">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <style>
-    body{font-family:Arial,sans-serif;margin:0;padding:20px;background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;color:white;direction:ltr}h2{color:white;text-align:center}.nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background-color:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px}.nav-logo{font-size:24px;font-weight:bold;color:white}.nav-links{display:flex;gap:20px}.nav-link{color:white;text-decoration:none;padding:5px 10px;border-radius:5px;transition:background-color 0.3s}.nav-link:hover{background-color:rgba(255,255,255,0.2)}.nav-link.active{background-color:rgba(255,255,255,0.3);font-weight:bold}.nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 15px;text-decoration:none;transition:all 0.3s ease}.nav-admin:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,215,0,0.4)}.container{background:rgba(255,255,255,0.1);padding:20px;border-radius:10px;max-width:600px;margin:auto;box-shadow:0 0 10px rgba(0,0,0,0.3)}label,input,select{display:block;width:100%;margin:10px 0;text-align:left}input,select{padding:10px;border-radius:8px;border:none;background-color:rgba(255,255,255,0.9);color:#003366}.result{margin-top:20px;font-weight:bold;text-align:center;color:#00ffff;padding:15px;background-color:rgba(0,0,0,0.3);border-radius:8px}footer{margin-top:40px;color:#ccc;text-align:center}.whatsapp-link{color:#25D366;text-decoration:none;font-weight:bold;transition:all 0.3s ease;cursor:pointer}.whatsapp-link:hover{color:#128C7E;text-shadow:0 0 5px rgba(37,211,102,0.5);transform:scale(1.05)}.action-button{position:fixed;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.3);border:none;font-size:20px;color:white;box-shadow:0 2px 5px rgba(0,0,0,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center}#darkModeButton{top:10px;right:10px}.dark-mode{background:linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)),url('background.jpg')!important}.dark-mode .result{color:#ffcc00!important}.dark-mode input,.dark-mode select{background-color:rgba(50,50,70,0.9)!important;color:#eee!important}.dark-mode .container{background:rgba(40,40,60,0.3)!important}.dark-mode .whatsapp-link{color:#25D366!important}.dark-mode .whatsapp-link:hover{color:#128C7E!important}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: white;
+      direction: ltr;
+      min-height: 100vh;
+    }
+
+    h2 {
+      color: white;
+      text-align: center;
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav-logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: bold;
+    }
+
+    .nav-admin {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #003366;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px 15px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-admin:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 15px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 0, 0, 0.4);
+    }
+
+    /* Container */
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    label, input, select {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #003366;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      color: #00ffff;
+      padding: 15px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 40px;
+      color: #ccc;
+      text-align: center;
+    }
+
+    .whatsapp-link {
+      color: #25D366;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .whatsapp-link:hover {
+      color: #128C7E;
+      text-shadow: 0 0 5px rgba(37, 211, 102, 0.5);
+      transform: scale(1.05);
+    }
+
+    .action-button {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #darkModeButton {
+      top: 10px;
+      right: 10px;
+    }
+
+    .dark-mode {
+      background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('background.jpg') !important;
+    }
+
+    .dark-mode .result {
+      color: #ffcc00 !important;
+    }
+
+    .dark-mode input, .dark-mode select {
+      background-color: rgba(50, 50, 70, 0.9) !important;
+      color: #eee !important;
+    }
+
+    .dark-mode .container {
+      background: rgba(40, 40, 60, 0.3) !important;
+    }
+
+    .dark-mode .whatsapp-link {
+      color: #25D366 !important;
+    }
+
+    .dark-mode .whatsapp-link:hover {
+      color: #128C7E !important;
+    }
+
+    /* Access Denied Screen */
+    .access-denied {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .access-denied-content {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .access-denied-icon {
+      font-size: 5rem;
+      color: #f44336;
+      margin-bottom: 20px;
+    }
+
+    .access-denied-title {
+      font-size: 2rem;
+      color: #f44336;
+      margin-bottom: 15px;
+    }
+
+    .access-denied-text {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .login-btn {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 600px) {
+      .nav-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav-links {
+        order: 1;
+      }
+
+      .nav-user {
+        order: 2;
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .container {
+        padding: 15px;
+        margin: 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- شريط التنقل -->
-  <div class="nav-bar">
-    <div class="nav-logo">Tank Tools</div>
-    <div class="nav-links">
-      <a class="nav-link" href="index.html">PBCR</a>
-      <a class="nav-link active" href="plcr.html">PLCR</a>
-      <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
-      <a class="nav-admin" href="login.html" id="adminLink">🔐 Dashboard</a>
+  <!-- Access Denied Screen (hidden by default) -->
+  <div id="accessDenied" class="access-denied" style="display: none;">
+    <div class="access-denied-content">
+      <div class="access-denied-icon">🔒</div>
+      <div class="access-denied-title">Login Required</div>
+      <div class="access-denied-text">
+        You need to login to access PLCR Calculator.<br>
+        Please login with your KNPC credentials.
+      </div>
+      <button class="login-btn" onclick="goToLogin()">Go to Login</button>
     </div>
   </div>
 
-  <div class="container">
-    <h2>PLCR - Tank Calculator (Version 3.0)</h2>
-    <label for="mode">Select Mode:</label>
-    <select id="mode">
-      <option value="levelToBarrels">Level to Barrels</option>
-      <option value="barrelsToLevel">Barrels to Level</option>
-      <option value="tonToLevel">Metric Ton to Level</option>
-      <option value="levelToTon">Level to Metric Ton</option>
-    </select>
+  <!-- Main Content -->
+  <div id="mainContent">
+    <!-- شريط التنقل -->
+    <div class="nav-bar">
+      <div class="nav-logo">Tank Tools</div>
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">PBCR</a>
+        <a class="nav-link active" href="plcr.html">PLCR</a>
+        <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+        <a class="nav-admin" href="dashboard.html" id="adminLink" style="display: none;">🔐 Dashboard</a>
+      </div>
+      <div class="nav-user" id="navUser">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div id="userName">User</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>PLCR - Tank Calculator (Version 3.0)</h2>
+      
+      <label for="mode">Select Mode:</label>
+      <select id="mode">
+        <option value="levelToBarrels">Level to Barrels</option>
+        <option value="barrelsToLevel">Barrels to Level</option>
+        <option value="tonToLevel">Metric Ton to Level</option>
+        <option value="levelToTon">Level to Metric Ton</option>
+      </select>
+      
+      <label for="tk">Tank Number:</label>
+      <input type="number" id="tk" placeholder="e.g. 424" oninput="calculate()">
+
+      <label id="inputLabel" for="value">Enter Value:</label>
+      <input type="number" id="value" placeholder="Enter number" oninput="calculate()">
+
+      <div class="result" id="result"></div>
+    </div>
     
-    <label for="tk">Tank Number:</label>
-    <input type="number" id="tk" placeholder="e.g. 424" oninput="calculate()">
-
-    <label id="inputLabel" for="value">Enter Value:</label>
-    <input type="number" id="value" placeholder="Enter number" oninput="calculate()">
-
-    <div class="result" id="result"></div>
+    <!-- أزرار الواجهة -->
+    <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
+    
+    <footer>
+      By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
+      <br>
+      <small style="color: #999; font-size: 10px; margin-top: 5px; display: block;">
+        📱 WhatsApp: +965 55222550
+      </small>
+    </footer>
   </div>
   
-  <!-- أزرار الواجهة -->
-  <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
-  
-  <footer>
-    By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
-    <br>
-    <small style="color: #999; font-size: 10px; margin-top: 5px; display: block;">
-      📱 WhatsApp: +965 55222550
-    </small>
-  </footer>
-  
   <script>
-    // 🔒 كود محمي - حقوق حصرية لفهد 17877
+    // 🔒 Enhanced Security Protection
     (function(){
       'use strict';
       
       // حماية ضد النسخ والفحص
-      document.addEventListener('contextmenu',e=>e.preventDefault());
-      document.addEventListener('selectstart',e=>e.preventDefault());
-      document.addEventListener('keydown',e=>{if(e.ctrlKey&&(e.key==='u'||e.key==='s'||e.key==='a'||e.key==='c'||e.key==='v')||e.key==='F12')e.preventDefault();});
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('selectstart', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
+          e.preventDefault();
+        }
+      });
       
       // كشف أدوات المطور
-      setInterval(()=>{
-        if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160){
-          document.body.innerHTML='<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ غير مسموح بفتح أدوات المطور<br>النظام محمي بحقوق حصرية</div>';
+      setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ غير مسموح بفتح أدوات المطور<br>النظام محمي بحقوق حصرية<br><br>System by Fahad - 17877</div>';
         }
-      },1000);
+      }, 1000);
       
-      const WHATSAPP_NUMBER="96555222550";
-      
-      // بيانات التحويل المشفرة - PLCR
-      const tankConversions={
-        "101":{factor:0.206,gross:7.746},"204":{factor:0.605,gross:7.266},
-        "255":{factor:1.528,gross:9.047},"256":{factor:1.528,gross:9.047},
-        "272":{factor:0.759,gross:9.506},"273":{factor:0.437,gross:9.506},
-        "274":{factor:0.437,gross:9.506},"275":{factor:0.999,gross:8.874},
-        "281":{factor:0.282,gross:7.881},"282":{factor:0.282,gross:7.881},
-        "424":{factor:2.272,gross:9.843},"425":{factor:2.414,gross:9.047},
-        "426":{factor:2.414,gross:9.047},"456":{factor:1.321,gross:8.873},
-        "460":{factor:1.640,gross:8.860},"461":{factor:1.640,gross:8.860},
-        "462":{factor:1.494,gross:8.874},"467":{factor:1.358,gross:9.054},
-        "468":{factor:1.358,gross:9.054},"469":{factor:1.358,gross:9.054},
-        "470":{factor:1.358,gross:9.054},"521":{factor:0.508,gross:8.168},
-        "522":{factor:1.476,gross:8.168},"531":{factor:1.506,gross:8.168},
-        "532":{factor:1.506,gross:8.168},"533":{factor:1.506,gross:8.168},
-        "534":{factor:1.506,gross:8.168},"600":{factor:1.227,gross:7.736},
-        "601":{factor:1.227,gross:7.736},"603":{factor:1.519,gross:7.700},
-        "620":{factor:4.560,gross:7.640},"621":{factor:4.560,gross:7.640},
-        "622":{factor:0.645,gross:7.764},"664":{factor:0.914,gross:7.727},
-        "665":{factor:0.914,gross:7.727},"668":{factor:2.154,gross:7.740},
-        "669":{factor:2.154,gross:7.740},"670":{factor:2.154,gross:7.740},
-        "671":{factor:2.011,gross:7.830},"672":{factor:2.011,gross:7.830},
-        "702":{factor:1.917,gross:6.763},"703":{factor:1.917,gross:6.763},
-        "757":{factor:1.626,gross:7.000},"758":{factor:3.040,gross:6.787},
-        "833":{factor:0.960,gross:7.768},"834":{factor:0.960,gross:7.768},
-        "302":{factor:0.860,gross:7.758},"301":{factor:0.860,gross:7.758},
-        "835":{factor:0.960,gross:7.748},"836":{factor:0.960,gross:7.748}
+      const WHATSAPP_NUMBER = "96555222550";
+      let currentUser = null;
+
+      // Check login status on page load
+      window.addEventListener('load', () => {
+        checkLoginStatus();
+      });
+
+      // Check if user is logged in
+      function checkLoginStatus() {
+        const session = sessionStorage.getItem('tanktools_session');
+        const userData = localStorage.getItem('tanktools_current_user');
+        
+        if (session !== 'active' || !userData) {
+          showAccessDenied();
+          return;
+        }
+        
+        try {
+          currentUser = JSON.parse(userData);
+          initializeApp();
+          logActivity('plcr_accessed', currentUser.username);
+        } catch (error) {
+          showAccessDenied();
+        }
+      }
+
+      // Show access denied screen
+      function showAccessDenied() {
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('accessDenied').style.display = 'flex';
+      }
+
+      // Go to login page
+      window.goToLogin = function() {
+        sessionStorage.setItem('tanktools_redirect', 'plcr.html');
+        window.location.href = 'login.html';
       };
 
-      const modeSelect=document.getElementById("mode");
-      const inputLabel=document.getElementById("inputLabel");
+      // Initialize app after login verification
+      function initializeApp() {
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('accessDenied').style.display = 'none';
+        
+        loadUserInfo();
+        loadDataFromLocalStorage();
+        setupDarkMode();
+      }
 
-      modeSelect.addEventListener("change",()=>{
-        const mode=modeSelect.value;
-        const labelMap={
-          levelToBarrels:"Current Level:",
-          barrelsToLevel:"Current Barrels:",
-          tonToLevel:"Weight (MT):",
-          levelToTon:"Current Level:"
+      // Load user information
+      function loadUserInfo() {
+        if (!currentUser) return;
+        
+        document.getElementById('userName').textContent = currentUser.username;
+        
+        const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = firstLetter;
+        
+        // Show admin link only for fam030
+        if (currentUser.username === 'fam030') {
+          document.getElementById('adminLink').style.display = 'inline-block';
+        }
+      }
+
+      // Logout function
+      window.logout = function() {
+        logActivity('user_logout', currentUser.username);
+        sessionStorage.removeItem('tanktools_session');
+        localStorage.removeItem('tanktools_current_user');
+        window.location.href = 'login.html';
+      };
+      
+      // بيانات التحويل المشفرة - PLCR
+      const tankConversions = {
+        "101": {factor: 0.206, gross: 7.746}, "204": {factor: 0.605, gross: 7.266},
+        "255": {factor: 1.528, gross: 9.047}, "256": {factor: 1.528, gross: 9.047},
+        "272": {factor: 0.759, gross: 9.506}, "273": {factor: 0.437, gross: 9.506},
+        "274": {factor: 0.437, gross: 9.506}, "275": {factor: 0.999, gross: 8.874},
+        "281": {factor: 0.282, gross: 7.881}, "282": {factor: 0.282, gross: 7.881},
+        "424": {factor: 2.272, gross: 9.843}, "425": {factor: 2.414, gross: 9.047},
+        "426": {factor: 2.414, gross: 9.047}, "456": {factor: 1.321, gross: 8.873},
+        "460": {factor: 1.640, gross: 8.860}, "461": {factor: 1.640, gross: 8.860},
+        "462": {factor: 1.494, gross: 8.874}, "467": {factor: 1.358, gross: 9.054},
+        "468": {factor: 1.358, gross: 9.054}, "469": {factor: 1.358, gross: 9.054},
+        "470": {factor: 1.358, gross: 9.054}, "521": {factor: 0.508, gross: 8.168},
+        "522": {factor: 1.476, gross: 8.168}, "531": {factor: 1.506, gross: 8.168},
+        "532": {factor: 1.506, gross: 8.168}, "533": {factor: 1.506, gross: 8.168},
+        "534": {factor: 1.506, gross: 8.168}, "600": {factor: 1.227, gross: 7.736},
+        "601": {factor: 1.227, gross: 7.736}, "603": {factor: 1.519, gross: 7.700},
+        "620": {factor: 4.560, gross: 7.640}, "621": {factor: 4.560, gross: 7.640},
+        "622": {factor: 0.645, gross: 7.764}, "664": {factor: 0.914, gross: 7.727},
+        "665": {factor: 0.914, gross: 7.727}, "668": {factor: 2.154, gross: 7.740},
+        "669": {factor: 2.154, gross: 7.740}, "670": {factor: 2.154, gross: 7.740},
+        "671": {factor: 2.011, gross: 7.830}, "672": {factor: 2.011, gross: 7.830},
+        "702": {factor: 1.917, gross: 6.763}, "703": {factor: 1.917, gross: 6.763},
+        "757": {factor: 1.626, gross: 7.000}, "758": {factor: 3.040, gross: 6.787},
+        "833": {factor: 0.960, gross: 7.768}, "834": {factor: 0.960, gross: 7.768},
+        "302": {factor: 0.860, gross: 7.758}, "301": {factor: 0.860, gross: 7.758},
+        "835": {factor: 0.960, gross: 7.748}, "836": {factor: 0.960, gross: 7.748}
+      };
+
+      const modeSelect = document.getElementById("mode");
+      const inputLabel = document.getElementById("inputLabel");
+
+      modeSelect.addEventListener("change", () => {
+        const mode = modeSelect.value;
+        const labelMap = {
+          levelToBarrels: "Current Level:",
+          barrelsToLevel: "Current Barrels:",
+          tonToLevel: "Weight (MT):",
+          levelToTon: "Current Level:"
         };
-        inputLabel.textContent=labelMap[mode]||"Enter value:";
+        inputLabel.textContent = labelMap[mode] || "Enter value:";
         calculate();
       });
 
-      window.calculate=function(){
-        const tk=document.getElementById("tk").value.trim();
-        const value=parseFloat(document.getElementById("value").value);
-        const resultDiv=document.getElementById("result");
+      window.calculate = function() {
+        const tk = document.getElementById("tk").value.trim();
+        const value = parseFloat(document.getElementById("value").value);
+        const resultDiv = document.getElementById("result");
 
-        if(!tankConversions[tk]){
-          resultDiv.textContent="Tank number not found in database.";
+        if (!tankConversions[tk]) {
+          resultDiv.textContent = "Tank number not found in database.";
           return;
         }
 
-        const tank=tankConversions[tk];
-        const mode=modeSelect.value;
-        let metricTon,barrels,level;
+        const tank = tankConversions[tk];
+        const mode = modeSelect.value;
+        let metricTon, barrels, level;
 
-        switch(mode){
+        switch (mode) {
           case "levelToBarrels":
-            metricTon=value*tank.factor;
-            barrels=metricTon*tank.gross;
-            resultDiv.textContent=`Weight: ${metricTon.toFixed(2)} MT | Barrels: ${barrels.toFixed(2)} BBL`;
+            metricTon = value * tank.factor;
+            barrels = metricTon * tank.gross;
+            resultDiv.textContent = `Weight: ${metricTon.toFixed(2)} MT | Barrels: ${barrels.toFixed(2)} BBL`;
             break;
           case "barrelsToLevel":
-            metricTon=value/tank.gross;
-            level=metricTon/tank.factor;
-            resultDiv.textContent=`Weight: ${metricTon.toFixed(2)} MT | Approx. Level: ${level.toFixed(2)}`;
+            metricTon = value / tank.gross;
+            level = metricTon / tank.factor;
+            resultDiv.textContent = `Weight: ${metricTon.toFixed(2)} MT | Approx. Level: ${level.toFixed(2)}`;
             break;
           case "tonToLevel":
-            level=value/tank.factor;
-            resultDiv.textContent=`Approx. Level: ${level.toFixed(2)}`;
+            level = value / tank.factor;
+            resultDiv.textContent = `Approx. Level: ${level.toFixed(2)}`;
             break;
           case "levelToTon":
-            metricTon=value*tank.factor;
-            resultDiv.textContent=`Weight: ${metricTon.toFixed(2)} MT`;
+            metricTon = value * tank.factor;
+            resultDiv.textContent = `Weight: ${metricTon.toFixed(2)} MT`;
             break;
           default:
-            resultDiv.textContent="Please select a valid mode and enter data.";
+            resultDiv.textContent = "Please select a valid mode and enter data.";
         }
         
         saveDataToLocalStorage();
+        
+        // Log calculation
+        logActivity('plcr_calculation', currentUser.username);
       };
       
-      function saveDataToLocalStorage(){
-        const data={
-          tk:document.getElementById("tk").value,
-          value:document.getElementById("value").value,
-          mode:document.getElementById("mode").value
+      function saveDataToLocalStorage() {
+        const data = {
+          tk: document.getElementById("tk").value,
+          value: document.getElementById("value").value,
+          mode: document.getElementById("mode").value
         };
-        localStorage.setItem('plcrData',JSON.stringify(data));
+        localStorage.setItem('plcrData', JSON.stringify(data));
       }
 
-      function loadDataFromLocalStorage(){
-        const dataStr=localStorage.getItem('plcrData');
-        if(dataStr){
-          const data=JSON.parse(dataStr);
+      function loadDataFromLocalStorage() {
+        const dataStr = localStorage.getItem('plcrData');
+        if (dataStr) {
+          const data = JSON.parse(dataStr);
           
-          document.getElementById("tk").value=data.tk||'';
-          document.getElementById("value").value=data.value||'';
-          document.getElementById("mode").value=data.mode||'levelToBarrels';
+          document.getElementById("tk").value = data.tk || '';
+          document.getElementById("value").value = data.value || '';
+          document.getElementById("mode").value = data.mode || 'levelToBarrels';
           
-          const mode=data.mode;
-          const labelMap={
-            levelToBarrels:"Current Level:",
-            barrelsToLevel:"Current Barrels:",
-            tonToLevel:"Weight (MT):",
-            levelToTon:"Current Level:"
+          const mode = data.mode;
+          const labelMap = {
+            levelToBarrels: "Current Level:",
+            barrelsToLevel: "Current Barrels:",
+            tonToLevel: "Weight (MT):",
+            levelToTon: "Current Level:"
           };
-          inputLabel.textContent=labelMap[mode]||"Enter value:";
+          inputLabel.textContent = labelMap[mode] || "Enter value:";
           
-          if(data.tk&&data.value){
+          if (data.tk && data.value) {
             calculate();
           }
         }
       }
 
-      window.openWhatsApp=function(){
-        const message="مرحبا، أتواصل معك من خلال تطبيق PLCR Tank Calculator";
-        const whatsappURL=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.openWhatsApp = function() {
+        const message = "مرحبا، أتواصل معك من خلال تطبيق PLCR Tank Calculator";
+        const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
         
-        try{
-          const newWindow=window.open(whatsappURL,'_blank','noopener,noreferrer');
-          if(!newWindow)window.location.href=whatsappURL;
-        }catch(error){
-          navigator.clipboard.writeText(whatsappURL).then(()=>{
+        try {
+          const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+          if (!newWindow) window.location.href = whatsappURL;
+        } catch (error) {
+          navigator.clipboard.writeText(whatsappURL).then(() => {
             alert(`تم نسخ رابط الواتساب:\n${whatsappURL}\n\nالصق الرابط في المتصفح للتواصل`);
-          }).catch(()=>{
+          }).catch(() => {
             alert(`رابط الواتساب:\n${whatsappURL}\n\nانسخ الرابط والصقه في المتصفح`);
           });
         }
       };
 
-      function setupDarkMode(){
-        let isDarkMode=localStorage.getItem('darkMode')==='true';
-        const darkModeButton=document.getElementById('darkModeButton');
+      function setupDarkMode() {
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        const darkModeButton = document.getElementById('darkModeButton');
         
-        function updateColorMode(){
-          if(isDarkMode){
+        function updateColorMode() {
+          if (isDarkMode) {
             document.body.classList.add('dark-mode');
-            darkModeButton.innerHTML='☀️';
-          }else{
+            darkModeButton.innerHTML = '☀️';
+          } else {
             document.body.classList.remove('dark-mode');
-            darkModeButton.innerHTML='🌙';
+            darkModeButton.innerHTML = '🌙';
           }
         }
         
-        darkModeButton.addEventListener('click',()=>{
-          isDarkMode=!isDarkMode;
-          localStorage.setItem('darkMode',isDarkMode);
+        darkModeButton.addEventListener('click', () => {
+          isDarkMode = !isDarkMode;
+          localStorage.setItem('darkMode', isDarkMode);
           updateColorMode();
         });
         
         updateColorMode();
       }
 
-      ['input','change'].forEach(eventType=>{
-        document.querySelectorAll('input,select').forEach(element=>{
-          element.addEventListener(eventType,saveDataToLocalStorage);
+      // Log activity function
+      function logActivity(action, username) {
+        const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+        
+        activities.unshift({
+          id: Date.now(),
+          action,
+          username,
+          timestamp: new Date().toISOString(),
+          ip: 'local',
+          userAgent: navigator.userAgent.substring(0, 100)
+        });
+        
+        activities.splice(100);
+        localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+      }
+
+      // Auto-save data
+      ['input', 'change'].forEach(eventType => {
+        document.addEventListener(eventType, (e) => {
+          if (e.target.matches('input, select')) {
+            saveDataToLocalStorage();
+          }
         });
       });
 
-      document.addEventListener('DOMContentLoaded',function(){
-        loadDataFromLocalStorage();
-        setupDarkMode();
+      document.addEventListener('DOMContentLoaded', function() {
+        if (currentUser) {
+          setupDarkMode();
+        }
       });
       
     })();
     
     console.log('%c⚠️ تحذير: هذا النظام محمي بحقوق حصرية','color:red;font-size:20px;font-weight:bold;');
     console.log('%cمطور النظام: فهد - 17877','color:green;font-size:16px;');
+    console.log('%cPROTECTED PLCR SYSTEM - LOGIN REQUIRED','color:blue;font-size:14px;');
   </script>
 </body>
 </html>

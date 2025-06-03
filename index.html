@@ -5,7 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PBCR &amp; WASHERY</title>
   <link href="icon.png" rel="icon" type="image/png"/>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#003366">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     /* أنماط عامة */
     body {
       background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('background.jpg');
@@ -18,6 +31,7 @@
       padding: 20px;
       text-align: center;
       margin: 0;
+      min-height: 100vh;
     }
     
     /* شريط التنقل */
@@ -72,6 +86,43 @@
     .nav-admin:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 15px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 0, 0, 0.4);
     }
     
     /* أنماط الإدخال */
@@ -203,6 +254,21 @@
         margin: 0 !important;
         flex: 1;
       }
+
+      .nav-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav-links {
+        order: 1;
+      }
+
+      .nav-user {
+        order: 2;
+        width: 100%;
+        justify-content: space-between;
+      }
     }
 
     /* أزرار التطبيق */
@@ -258,94 +324,175 @@
     .dark-mode .whatsapp-link:hover {
       color: #128C7E !important;
     }
+
+    /* Access Denied Screen */
+    .access-denied {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .access-denied-content {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .access-denied-icon {
+      font-size: 5rem;
+      color: #f44336;
+      margin-bottom: 20px;
+    }
+
+    .access-denied-title {
+      font-size: 2rem;
+      color: #f44336;
+      margin-bottom: 15px;
+    }
+
+    .access-denied-text {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .login-btn {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 
 <body>
-  <!-- شريط التنقل -->
-  <div class="nav-bar">
-    <div class="nav-logo">Tank Tools</div>
-    <div class="nav-links">
-      <a class="nav-link active" href="index.html">PBCR</a>
-      <a class="nav-link" href="plcr.html">PLCR</a>
-      <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
-      <a class="nav-admin" href="login.html" id="adminLink">🔐 Dashboard</a>
+  <!-- Access Denied Screen (hidden by default) -->
+  <div id="accessDenied" class="access-denied" style="display: none;">
+    <div class="access-denied-content">
+      <div class="access-denied-icon">🔒</div>
+      <div class="access-denied-title">Login Required</div>
+      <div class="access-denied-text">
+        You need to login to access PBCR & WASHERY application.<br>
+        Please login with your KNPC credentials.
+      </div>
+      <button class="login-btn" onclick="goToLogin()">Go to Login</button>
     </div>
   </div>
 
-  <h2>PBCR &amp; WASHERY (Version 3.0)</h2>
-  
-  <!-- رقم التانك -->
-  <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
-  
-  <!-- المستوى الحالي -->
-  <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
-  <div class="result" id="availablePumpable"></div>
-  <div class="result" id="currentUllage"></div>
-  
-  <!-- الهدف والوضع -->
-  <div class="row">
-    <input id="target" oninput="calculate()" placeholder="Target Value" type="number"/>
-    <select id="mode" onchange="calculate()">
-      <option value="pumpable">Pumpable</option>
-      <option value="ullage">Ullage</option>
-      <option value="level">Level</option>
-    </select>
-  </div>
-  <div class="result" id="valueDiff"></div>
-  <div class="result" id="levelEstimate"></div>
-  
-  <!-- معدل التدفق والوحدة -->
-  <div class="row">
-    <input id="flowrate" oninput="calculate()" placeholder="Flowrate" type="number"/>
-    <select id="flowUnit" onchange="calculate()">
-      <option value="bbl">bbl/hr</option>
-      <option value="m3">m³/hr</option>
-      <option value="mtr">meter/hr</option>
-    </select>
-  </div>
-  
-  <!-- النتيجة -->
-  <div class="result" id="output"></div>
-  
-  <!-- إضافة تذكير -->
-  <div style="margin-top: 20px;">
-    <a href="#" id="calendarLink" target="_blank">
-      <button class="reminder-btn">Add Reminder</button>
-    </a>
-    <button onclick="addToTable()" class="add-btn">Add to Table</button>
-  </div>
+  <!-- Main Content -->
+  <div id="mainContent">
+    <!-- شريط التنقل -->
+    <div class="nav-bar">
+      <div class="nav-logo">Tank Tools</div>
+      <div class="nav-links">
+        <a class="nav-link active" href="index.html">PBCR</a>
+        <a class="nav-link" href="plcr.html">PLCR</a>
+        <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+        <a class="nav-admin" href="dashboard.html" id="adminLink" style="display: none;">🔐 Dashboard</a>
+      </div>
+      <div class="nav-user" id="navUser">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div id="userName">User</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
 
-  <!-- جدول الخزانات التي ستنتهي في الوردية الحالية -->
-  <h3 style="margin-top: 40px;">Tanks finishing in current shift:</h3>
-  <table id="tankTable">
-    <thead>
-      <tr>
-        <th>Tank Number</th>
-        <th>Finish Date</th>
-        <th>Finish Time</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  
-  <!-- ملف الصوت للإنذار -->
-  <audio id="alarmSound" preload="auto" src=""></audio>
-  
-  <!-- أزرار الواجهة -->
-  <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
-  
-  <footer>
-    By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
-    <br>
-    <small style="color: #999; font-size: 10px; margin-top: 5px; display: block;">
-      📱 WhatsApp: +965 55222550
-    </small>
-  </footer>
+    <h2>PBCR &amp; WASHERY (Version 3.0)</h2>
+    
+    <!-- رقم التانك -->
+    <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
+    
+    <!-- المستوى الحالي -->
+    <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
+    <div class="result" id="availablePumpable"></div>
+    <div class="result" id="currentUllage"></div>
+    
+    <!-- الهدف والوضع -->
+    <div class="row">
+      <input id="target" oninput="calculate()" placeholder="Target Value" type="number"/>
+      <select id="mode" onchange="calculate()">
+        <option value="pumpable">Pumpable</option>
+        <option value="ullage">Ullage</option>
+        <option value="level">Level</option>
+      </select>
+    </div>
+    <div class="result" id="valueDiff"></div>
+    <div class="result" id="levelEstimate"></div>
+    
+    <!-- معدل التدفق والوحدة -->
+    <div class="row">
+      <input id="flowrate" oninput="calculate()" placeholder="Flowrate" type="number"/>
+      <select id="flowUnit" onchange="calculate()">
+        <option value="bbl">bbl/hr</option>
+        <option value="m3">m³/hr</option>
+        <option value="mtr">meter/hr</option>
+      </select>
+    </div>
+    
+    <!-- النتيجة -->
+    <div class="result" id="output"></div>
+    
+    <!-- إضافة تذكير -->
+    <div style="margin-top: 20px;">
+      <a href="#" id="calendarLink" target="_blank">
+        <button class="reminder-btn">Add Reminder</button>
+      </a>
+      <button onclick="addToTable()" class="add-btn">Add to Table</button>
+    </div>
+
+    <!-- جدول الخزانات التي ستنتهي في الوردية الحالية -->
+    <h3 style="margin-top: 40px;">Tanks finishing in current shift:</h3>
+    <table id="tankTable">
+      <thead>
+        <tr>
+          <th>Tank Number</th>
+          <th>Finish Date</th>
+          <th>Finish Time</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <!-- ملف الصوت للإنذار -->
+    <audio id="alarmSound" preload="auto" src=""></audio>
+    
+    <!-- أزرار الواجهة -->
+    <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
+    
+    <footer>
+      By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
+      <br>
+      <small style="color: #999; font-size: 10px; margin-top: 5px; display: block;">
+        📱 WhatsApp: +965 55222550
+      </small>
+    </footer>
+  </div>
 
   <script>
-    // 🔒 كود محمي - حقوق حصرية لفهد 17877
+    // 🔒 Enhanced Security Protection
     (function(){
       'use strict';
       
@@ -361,11 +508,81 @@
       // كشف أدوات المطور
       setInterval(() => {
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ غير مسموح بفتح أدوات المطور<br>النظام محمي بحقوق حصرية</div>';
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ غير مسموح بفتح أدوات المطور<br>النظام محمي بحقوق حصرية<br><br>System by Fahad - 17877</div>';
         }
       }, 1000);
 
       const WHATSAPP_NUMBER = "96555222550";
+      let currentUser = null;
+
+      // Check login status on page load
+      window.addEventListener('load', () => {
+        checkLoginStatus();
+      });
+
+      // Check if user is logged in
+      function checkLoginStatus() {
+        const session = sessionStorage.getItem('tanktools_session');
+        const userData = localStorage.getItem('tanktools_current_user');
+        
+        if (session !== 'active' || !userData) {
+          showAccessDenied();
+          return;
+        }
+        
+        try {
+          currentUser = JSON.parse(userData);
+          initializeApp();
+          logActivity('pbcr_accessed', currentUser.username);
+        } catch (error) {
+          showAccessDenied();
+        }
+      }
+
+      // Show access denied screen
+      function showAccessDenied() {
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('accessDenied').style.display = 'flex';
+      }
+
+      // Go to login page
+      window.goToLogin = function() {
+        sessionStorage.setItem('tanktools_redirect', 'index.html');
+        window.location.href = 'login.html';
+      };
+
+      // Initialize app after login verification
+      function initializeApp() {
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('accessDenied').style.display = 'none';
+        
+        loadUserInfo();
+        loadDataFromLocalStorage();
+        setupDarkMode();
+      }
+
+      // Load user information
+      function loadUserInfo() {
+        if (!currentUser) return;
+        
+        document.getElementById('userName').textContent = currentUser.username;
+        
+        const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = firstLetter;
+        
+        // Show admin link only for fam030
+        if (currentUser.username === 'fam030') {
+          document.getElementById('adminLink').style.display = 'inline-block';
+        }
+      }
+
+      // Logout function
+      window.logout = function() {
+        logActivity('user_logout', currentUser.username);
+        sessionStorage.removeItem('tanktools_session');
+        localStorage.removeItem('tanktools_current_user');
+        window.location.href = 'login.html';
+      };
 
       // بيانات الخزانات المحمية
       const tanks = {
@@ -500,9 +717,9 @@
 
       // تعديل معدل التدفق حسب الوحدة
       function getAdjustedFlowrate(unit, raw) {
-        if (unit === "m3") return raw * 6.28; // تحويل من م³/ساعة إلى برميل/ساعة
-        else if (unit === "mtr") return raw;  // وحدة متر/ساعة
-        return raw; // برميل/ساعة
+        if (unit === "m3") return raw * 6.28;
+        else if (unit === "mtr") return raw;
+        return raw;
       }
 
       // حساب القيم
@@ -520,19 +737,16 @@
         const output = document.getElementById("output");
         const calendar = document.getElementById("calendarLink");
 
-        // التحقق من البيانات
         if (!c || isNaN(level)) {
           available.innerText = ullageDiv.innerText = valueDiff.innerText = levelEst.innerText = output.innerHTML = "";
           return;
         }
 
-        // حساب القيم الأساسية
         const availablePumpable = (level - m) * c;
         const currentUllage = (x - level) * c;
         available.innerText = `Available Pumpable: ${availablePumpable.toFixed(2)} bbl`;
         ullageDiv.innerText = `Current Ullage: ${currentUllage.toFixed(2)} bbl`;
 
-        // حساب التقديرات والفروق
         if (!isNaN(target)) {
           let estLevel = 0;
           if (mode === "pumpable") {
@@ -546,16 +760,14 @@
           const levelDiff = estLevel - level;
           let estText = `Level Estimate: ${estLevel.toFixed(2)} m\nLevel Difference: ${levelDiff.toFixed(2)} m`;
           
-          // تحديد لون النتيجة حسب المستوى
           if (estLevel >= x - 0.5 || estLevel < m) {
-            levelEst.style.color = "#ff5555"; // أحمر للتحذير
+            levelEst.style.color = "#ff5555";
             estText += `\nHigh Level = ${x.toFixed(2)} m`;
           } else {
-            levelEst.style.color = "#00ffff"; // أزرق للقيم الطبيعية
+            levelEst.style.color = "#00ffff";
           }
           levelEst.innerText = estText;
 
-          // حساب الفرق حسب الوضع المختار
           let diff = 0;
           if (mode === "pumpable") {
             diff = target - availablePumpable;
@@ -569,7 +781,6 @@
             valueDiff.innerText = `Level Difference: ${Math.abs(meters).toFixed(2)} m`;
           }
 
-          // حساب الوقت المتبقي
           const flow = getAdjustedFlowrate(unit, flowRaw);
           let time = 0;
 
@@ -583,7 +794,6 @@
             time = Math.abs(diff) / flow;
           }
 
-          // عرض توقعات الوقت والتاريخ
           if (!isNaN(time) && time > 0) {
             const hrs = Math.floor(time);
             const mins = Math.round((time % 1) * 60);
@@ -593,21 +803,18 @@
             const fd = finish.toLocaleDateString();
             output.innerHTML = `Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;
             
-            // تكوين رابط التقويم (جوجل كالندر)
             const s = new Date(finish.getTime() - 600000);
             const e = new Date(s.getTime() + 900000);
             const S = s.toISOString().replace(/[-:]|\.\d{3}/g, "");
             const E = e.toISOString().replace(/[-:]|\.\d{3}/g, "");
             calendar.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+Reminder&details=Completion+Alert&dates=${S}/${E}`;
             
-            // تحديد لون النتيجة حسب الوردية
             const now2 = new Date();
             const sameShift = isSameShift(now2, finish);
             output.style.color = sameShift ? "red" : "lightgreen";
           }
         }
         
-        // حفظ البيانات
         saveDataToLocalStorage();
       };
 
@@ -627,7 +834,6 @@
         const table = document.querySelector("#tankTable tbody");
         const row = table.insertRow();
 
-        // إنشاء خلايا الصف
         const cell1 = row.insertCell();
         cell1.textContent = tankNum;
 
@@ -649,28 +855,26 @@
         };
         cell4.appendChild(delBtn);
 
-        // تطبيق اللون حسب الوردية
         const finishDate = new Date(date + " " + time);
         const now = new Date();
         
         const sameShift = isSameShift(now, finishDate);
         row.style.color = sameShift ? "red" : "green";
         
-        // ترتيب الجدول
         sortAndColorTable();
-        // حفظ البيانات
         saveDataToLocalStorage();
+        
+        // Log tank calculation
+        logActivity('tank_calculation', currentUser.username);
       };
 
-      // تحديد الوردية من الساعة والدقيقة
       function getShiftCode(hour, minute) {
         const totalMins = hour * 60 + minute;
-        if (totalMins >= 360 && totalMins < 840) return "morning";     // 06:00 – 13:59
-        if (totalMins >= 840 && totalMins < 1320) return "evening";    // 14:00 – 21:59
-        return "night";                                                // 22:00 – 05:59
+        if (totalMins >= 360 && totalMins < 840) return "morning";
+        if (totalMins >= 840 && totalMins < 1320) return "evening";
+        return "night";
       }
 
-      // تحديد ما إذا كان التوقيت في نفس الشفت
       function isSameShift(nowDate, finishDate) {
         const nowHour = nowDate.getHours();
         const nowMinutes = nowDate.getMinutes();
@@ -707,7 +911,6 @@
         return nowDate.toDateString() === finishDate.toDateString();
       }
 
-      // ترتيب وتلوين الجدول
       function sortAndColorTable() {
         const table = document.querySelector("#tankTable tbody");
         const rows = Array.from(table.rows);
@@ -730,7 +933,6 @@
         });
       }
 
-      // حفظ البيانات في التخزين المحلي
       function saveDataToLocalStorage() {
         const tankInput = document.getElementById('tankInput').value;
         const level = document.getElementById('level').value;
@@ -750,7 +952,6 @@
         
         localStorage.setItem('pbcrData', JSON.stringify(data));
         
-        // حفظ جدول الخزانات
         const table = document.getElementById('tankTable');
         const rows = Array.from(table.getElementsByTagName('tbody')[0].rows);
         const tableData = rows.map(row => {
@@ -764,7 +965,6 @@
         localStorage.setItem('pbcrTableData', JSON.stringify(tableData));
       }
 
-      // استرجاع البيانات المحفوظة
       function loadDataFromLocalStorage() {
         const dataStr = localStorage.getItem('pbcrData');
         if (dataStr) {
@@ -782,7 +982,6 @@
           }
         }
         
-        // استرجاع بيانات الجدول
         const tableDataStr = localStorage.getItem('pbcrTableData');
         if (tableDataStr) {
           const tableData = JSON.parse(tableDataStr);
@@ -817,7 +1016,6 @@
         }
       }
 
-      // الوضع الداكن
       function setupDarkMode() {
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         const darkModeButton = document.getElementById('darkModeButton');
@@ -859,25 +1057,36 @@
         }
       };
 
-      // تهيئة الصفحة
-      document.addEventListener('DOMContentLoaded', function() {
-        loadDataFromLocalStorage();
+      // Log activity function
+      function logActivity(action, username) {
+        const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
         
+        activities.unshift({
+          id: Date.now(),
+          action,
+          username,
+          timestamp: new Date().toISOString(),
+          ip: 'local',
+          userAgent: navigator.userAgent.substring(0, 100)
+        });
+        
+        activities.splice(100);
+        localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
         ['input', 'change'].forEach(eventType => {
           document.querySelectorAll('input, select').forEach(element => {
             element.addEventListener(eventType, saveDataToLocalStorage);
           });
         });
-
-        setupDarkMode();
       });
       
     })();
     
-    // رسالة حقوق الطبع والنشر
     console.log('%c⚠️ تحذير: هذا النظام محمي بحقوق حصرية','color:red;font-size:20px;font-weight:bold;');
     console.log('%cمطور النظام: فهد - 17877','color:green;font-size:16px;');
-    console.log('%cأي محاولة لنسخ أو تعديل الكود محظورة قانونياً','color:red;font-size:14px;');
+    console.log('%cPROTECTED PBCR SYSTEM - LOGIN REQUIRED','color:blue;font-size:14px;');
   </script>
 </body>
 </html>

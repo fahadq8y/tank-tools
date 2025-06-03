@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tank Tools - Login</title>
+  <title>Tank Tools</title>
+  
+  <!-- PWA Meta Tags -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="icon.png" type="image/png">
   <meta name="theme-color" content="#003366">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tank Tools">
+  
+  <!-- Hide browser UI for app-like experience -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  
   <style>
     * {
       margin: 0;
@@ -131,10 +139,6 @@
       margin-bottom: 8px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.9);
-    }
-
-    .input-container {
-      position: relative;
     }
 
     input {
@@ -312,6 +316,12 @@
       color: #ff6b6b;
     }
 
+    .message.info {
+      background: rgba(33, 150, 243, 0.2);
+      border: 1px solid rgba(33, 150, 243, 0.5);
+      color: #2196F3;
+    }
+
     .footer {
       margin-top: 30px;
       font-size: 12px;
@@ -339,54 +349,47 @@
       100% { transform: rotate(360deg); }
     }
 
-    .user-count {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px 15px;
-      border-radius: 20px;
-      font-size: 12px;
-      backdrop-filter: blur(10px);
+    /* Email Verification Styles */
+    .verification-container {
+      display: none;
+      text-align: center;
     }
 
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
+    .verification-container.active {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    .verification-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #2196F3;
+    }
+
+    .verification-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #2196F3;
+    }
+
+    .verification-text {
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .resend-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       color: white;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 20px;
       transition: all 0.3s ease;
+      margin-top: 10px;
     }
 
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
-
-    /* Dark mode styles */
-    .dark-mode {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') !important;
-    }
-
-    .dark-mode input, .dark-mode .username-container {
-      background: rgba(50, 50, 70, 0.9) !important;
-      color: #eee !important;
-    }
-
-    .dark-mode .email-suffix {
-      background: rgba(70, 70, 90, 0.9) !important;
-      color: #eee !important;
-    }
-
-    .dark-mode input::placeholder {
-      color: rgba(238, 238, 238, 0.6) !important;
+    .resend-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     /* Mobile responsive */
@@ -405,103 +408,122 @@
         font-size: 14px;
       }
     }
+
+    /* Hide address bar on mobile */
+    @media (max-width: 768px) and (display-mode: standalone) {
+      body {
+        padding-top: env(safe-area-inset-top);
+      }
+    }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-  
-  <div class="user-count">
-    <div>👥 Users: <span id="userCount">0</span></div>
-  </div>
-
   <div class="container">
     <div class="logo">🛠️ Tank Tools</div>
     <div class="subtitle">Kuwait National Petroleum Company</div>
     
-    <div class="tab-container">
-      <button class="tab active" onclick="switchTab('login')">Login</button>
-      <button class="tab" onclick="switchTab('register')">Register</button>
+    <!-- Login/Register Tabs -->
+    <div id="mainContainer">
+      <div class="tab-container">
+        <button class="tab active" onclick="switchTab('login')">Login</button>
+        <button class="tab" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm" class="form-container active">
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="loginUsername">👤 Username:</label>
+            <div class="username-container">
+              <input type="text" id="loginUsername" class="username-input" placeholder="abc123" required 
+                     pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
+              <div class="email-suffix">@knpc.com</div>
+            </div>
+            <div class="validation-message" id="loginUsernameMsg"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="loginPassword">🔒 Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          </div>
+          
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="rememberMe" style="width: auto; margin-right: 8px;">
+              Remember me
+            </label>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" id="loginBtn">
+            🚀 Login
+          </button>
+          
+          <div class="loading" id="loginLoading">
+            <div class="spinner"></div>
+            <div>Logging in...</div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Registration Form -->
+      <div id="registerForm" class="form-container">
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="fullName">👤 Full Name:</label>
+            <input type="text" id="fullName" placeholder="Enter your full name" required minlength="3">
+            <div class="validation-message" id="fullNameMsg"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="username">📧 Username (Email):</label>
+            <div class="username-container">
+              <input type="text" id="username" class="username-input" placeholder="abc123" required 
+                     pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
+              <div class="email-suffix">@knpc.com</div>
+            </div>
+            <div class="validation-message" id="usernameMsg"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">🔒 Password:</label>
+            <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
+            <div class="password-strength">
+              <div class="password-strength-bar" id="strengthBar"></div>
+            </div>
+            <div class="validation-message" id="passwordMsg"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">🔒 Confirm Password:</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+            <div class="validation-message" id="confirmPasswordMsg"></div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" id="registerBtn">
+            ✨ Create Account
+          </button>
+          
+          <div class="loading" id="registerLoading">
+            <div class="spinner"></div>
+            <div>Creating account...</div>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- Login Form -->
-    <div id="loginForm" class="form-container active">
-      <form onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label for="loginUsername">👤 Username:</label>
-          <div class="username-container">
-            <input type="text" id="loginUsername" class="username-input" placeholder="abc123" required 
-                   pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
-            <div class="email-suffix">@knpc.com</div>
-          </div>
-          <div class="validation-message" id="loginUsernameMsg"></div>
-        </div>
-        
-        <div class="form-group">
-          <label for="loginPassword">🔒 Password:</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" required>
-        </div>
-        
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="rememberMe" style="width: auto; margin-right: 8px;">
-            Remember me
-          </label>
-        </div>
-        
-        <button type="submit" class="btn btn-primary" id="loginBtn">
-          🚀 Login
-        </button>
-        
-        <div class="loading" id="loginLoading">
-          <div class="spinner"></div>
-          <div>Logging in...</div>
-        </div>
-      </form>
-    </div>
-
-    <!-- Registration Form -->
-    <div id="registerForm" class="form-container">
-      <form onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label for="fullName">👤 Full Name:</label>
-          <input type="text" id="fullName" placeholder="Enter your full name" required minlength="3">
-          <div class="validation-message" id="fullNameMsg"></div>
-        </div>
-        
-        <div class="form-group">
-          <label for="username">📧 Username (Email):</label>
-          <div class="username-container">
-            <input type="text" id="username" class="username-input" placeholder="abc123" required 
-                   pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
-            <div class="email-suffix">@knpc.com</div>
-          </div>
-          <div class="validation-message" id="usernameMsg"></div>
-        </div>
-        
-        <div class="form-group">
-          <label for="password">🔒 Password:</label>
-          <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
-          <div class="password-strength">
-            <div class="password-strength-bar" id="strengthBar"></div>
-          </div>
-          <div class="validation-message" id="passwordMsg"></div>
-        </div>
-        
-        <div class="form-group">
-          <label for="confirmPassword">🔒 Confirm Password:</label>
-          <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
-          <div class="validation-message" id="confirmPasswordMsg"></div>
-        </div>
-        
-        <button type="submit" class="btn btn-primary" id="registerBtn">
-          ✨ Create Account
-        </button>
-        
-        <div class="loading" id="registerLoading">
-          <div class="spinner"></div>
-          <div>Creating account...</div>
-        </div>
-      </form>
+    <!-- Email Verification Screen -->
+    <div id="verificationContainer" class="verification-container">
+      <div class="verification-icon">📧</div>
+      <div class="verification-title">Check Your Email</div>
+      <div class="verification-text">
+        We've sent a verification link to:<br>
+        <strong id="verificationEmail"></strong>
+      </div>
+      <div class="verification-text">
+        Click the link in your email to activate your account.
+      </div>
+      <button class="resend-btn" onclick="resendVerification()">Resend Email</button>
+      <button class="resend-btn" onclick="backToLogin()" style="margin-left: 10px;">Back to Login</button>
     </div>
 
     <div id="messageContainer"></div>
@@ -513,12 +535,15 @@
     </div>
   </div>
 
+  <!-- EmailJS Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
   <script>
-    // 🔒 Security Protection - Fahad 17877
+    // 🔒 Security Protection - Enhanced for PWA
     (function() {
       'use strict';
       
-      // حماية ضد النسخ والفحص
+      // Disable developer tools and context menu
       document.addEventListener('contextmenu', e => e.preventDefault());
       document.addEventListener('selectstart', e => e.preventDefault());
       document.addEventListener('keydown', e => {
@@ -528,23 +553,32 @@
         }
       });
       
-      // كشف أدوات المطور
+      // Detect developer tools
       setInterval(() => {
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
           document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
         }
       }, 1000);
+
+      // PWA Install prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // Show install prompt after successful login
+      });
     })();
 
+    // EmailJS Configuration
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+    
     // Global variables
-    let currentTheme = localStorage.getItem('tanktools_theme') || 'dark';
+    let pendingUser = null;
     
     // Initialize
     window.addEventListener('load', () => {
-      updateUserCount();
       loadSavedCredentials();
       checkExistingSession();
-      applyTheme();
       
       // Add input event listeners
       document.getElementById('username').addEventListener('input', validateUsername);
@@ -552,7 +586,57 @@
       document.getElementById('password').addEventListener('input', validatePassword);
       document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
       document.getElementById('fullName').addEventListener('input', validateFullName);
+
+      // Check if coming from verification link
+      checkVerificationToken();
     });
+
+    // Check verification token from URL
+    function checkVerificationToken() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('verify');
+      
+      if (token) {
+        verifyEmailToken(token);
+      }
+    }
+
+    // Verify email token
+    function verifyEmailToken(token) {
+      try {
+        const decodedToken = atob(token);
+        const [username, timestamp] = decodedToken.split('|');
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const user = users.find(u => u.username === username);
+        
+        if (user && !user.emailVerified) {
+          // Check if token is not expired (24 hours)
+          const tokenTime = parseInt(timestamp);
+          const now = Date.now();
+          const hoursDiff = (now - tokenTime) / (1000 * 60 * 60);
+          
+          if (hoursDiff <= 24) {
+            user.emailVerified = true;
+            user.isActive = true;
+            localStorage.setItem('tanktools_users', JSON.stringify(users));
+            
+            showMessage('✅ Email verified successfully! You can now login.', 'success');
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else {
+            showMessage('❌ Verification link has expired. Please register again.', 'error');
+          }
+        } else {
+          showMessage('❌ Invalid or already verified token.', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ Invalid verification link.', 'error');
+      }
+    }
 
     // Tab switching
     function switchTab(tab) {
@@ -565,7 +649,52 @@
       clearMessages();
     }
 
-    // Validation functions
+    // Show verification screen
+    function showVerificationScreen(email) {
+      document.getElementById('mainContainer').style.display = 'none';
+      document.getElementById('verificationContainer').classList.add('active');
+      document.getElementById('verificationEmail').textContent = email;
+    }
+
+    // Back to login
+    function backToLogin() {
+      document.getElementById('verificationContainer').classList.remove('active');
+      document.getElementById('mainContainer').style.display = 'block';
+      switchTab('login');
+    }
+
+    // Resend verification email
+    async function resendVerification() {
+      if (!pendingUser) {
+        showMessage('❌ No pending verification found.', 'error');
+        return;
+      }
+
+      try {
+        await sendVerificationEmail(pendingUser);
+        showMessage('📧 Verification email sent again!', 'success');
+      } catch (error) {
+        showMessage('❌ Failed to resend email. Please try again.', 'error');
+      }
+    }
+
+    // Send verification email
+    async function sendVerificationEmail(user) {
+      const token = btoa(`${user.username}|${Date.now()}`);
+      const verificationLink = `${window.location.origin}${window.location.pathname}?verify=${token}`;
+      
+      const templateParams = {
+        to_name: user.fullName,
+        to_email: user.email,
+        verification_link: verificationLink,
+        username: user.username
+      };
+
+      // Replace with your EmailJS service ID and template ID
+      return emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+    }
+
+    // Validation functions (same as before)
     function validateUsername() {
       const username = document.getElementById('username').value;
       const msg = document.getElementById('usernameMsg');
@@ -581,7 +710,6 @@
         return false;
       }
       
-      // Check if username exists
       const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
       if (users.find(u => u.username === username)) {
         showValidation(msg, '❌ Username already exists', 'error');
@@ -631,7 +759,6 @@
       if (/[0-9]/.test(password)) strength++; else issues.push('number');
       if (/[^A-Za-z0-9]/.test(password)) strength++; else issues.push('special character');
       
-      // Update strength bar
       strengthBar.className = 'password-strength-bar';
       if (strength <= 2) strengthBar.classList.add('strength-weak');
       else if (strength === 3) strengthBar.classList.add('strength-fair');
@@ -698,7 +825,7 @@
       element.className = 'validation-message';
     }
 
-    // Registration handler
+    // Registration handler with email verification
     async function handleRegister(event) {
       event.preventDefault();
       
@@ -721,40 +848,52 @@
       showLoading('register', true);
       
       try {
-        // Simulate registration delay
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Get existing users
         const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
         
-        // Create new user
         const newUser = {
           id: Date.now(),
           fullName,
           username,
           email: `${username}@knpc.com`,
-          password: btoa(password), // Simple encoding
+          password: btoa(password),
           createdAt: new Date().toISOString(),
-          isActive: true,
+          isActive: false, // Will be activated after email verification
+          emailVerified: false,
           lastLogin: null,
-          role: 'user'
+          role: username === 'fam030' ? 'admin' : 'user' // Set admin role for fam030
         };
         
-        // Add to users array
         users.push(newUser);
         localStorage.setItem('tanktools_users', JSON.stringify(users));
         
-        // Log the registration
-        logActivity('user_registered', newUser.username);
+        // Store pending user for resend functionality
+        pendingUser = newUser;
         
-        showMessage('✅ Account created successfully! You can now login.', 'success');
-        
-        // Switch to login tab and pre-fill username
-        setTimeout(() => {
-          switchTab('login');
-          document.getElementById('loginUsername').value = username;
+        // Send verification email
+        try {
+          await sendVerificationEmail(newUser);
+          
+          logActivity('user_registered', newUser.username);
+          
+          showVerificationScreen(newUser.email);
           clearForm('register');
-        }, 2000);
+          
+        } catch (emailError) {
+          // If email fails, show alternative message
+          showMessage('✅ Account created! For now, your account is activated automatically. Email verification will be enabled soon.', 'info');
+          
+          // Activate user immediately if email fails
+          newUser.isActive = true;
+          newUser.emailVerified = true;
+          localStorage.setItem('tanktools_users', JSON.stringify(users));
+          
+          setTimeout(() => {
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+          }, 3000);
+        }
         
       } catch (error) {
         showMessage('❌ Registration failed. Please try again.', 'error');
@@ -784,13 +923,9 @@
       showLoading('login', true);
       
       try {
-        // Simulate login delay
         await new Promise(resolve => setTimeout(resolve, 1200));
         
-        // Get users
         const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        
-        // Find user
         const user = users.find(u => u.username === username && u.password === btoa(password));
         
         if (!user) {
@@ -798,7 +933,7 @@
         }
         
         if (!user.isActive) {
-          throw new Error('Account is disabled. Contact administrator.');
+          throw new Error('Account is not activated. Please check your email for verification link.');
         }
         
         // Update last login
@@ -818,7 +953,6 @@
         localStorage.setItem('tanktools_current_user', JSON.stringify(sessionData));
         sessionStorage.setItem('tanktools_session', 'active');
         
-        // Save credentials if remember me
         if (rememberMe) {
           localStorage.setItem('tanktools_remember', JSON.stringify({
             username: username,
@@ -826,19 +960,16 @@
           }));
         }
         
-        // Log the login
         logActivity('user_login', user.username);
         
         showMessage('✅ Login successful! Redirecting...', 'success');
         
         // Redirect based on role
         setTimeout(() => {
-          if (user.role === 'admin' || username === 'fah877') {
+          if (user.username === 'fam030') {
             window.location.href = 'dashboard.html';
           } else {
-            // Check if user wants to go to specific app
-            const redirectTo = sessionStorage.getItem('tanktools_redirect') || 'dashboard.html';
-            window.location.href = redirectTo;
+            window.location.href = 'index.html';
           }
         }, 1500);
         
@@ -914,24 +1045,17 @@
           const user = JSON.parse(userData);
           showMessage('✅ Active session found, redirecting...', 'success');
           setTimeout(() => {
-            if (user.role === 'admin' || user.username === 'fah877') {
+            if (user.username === 'fam030') {
               window.location.href = 'dashboard.html';
             } else {
-              window.location.href = 'dashboard.html';
+              window.location.href = 'index.html';
             }
           }, 1000);
         } catch (error) {
-          // Clear invalid session
           sessionStorage.removeItem('tanktools_session');
           localStorage.removeItem('tanktools_current_user');
         }
       }
-    }
-
-    function updateUserCount() {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const activeUsers = users.filter(u => u.isActive).length;
-      document.getElementById('userCount').textContent = activeUsers;
     }
 
     function logActivity(action, username) {
@@ -946,42 +1070,9 @@
         userAgent: navigator.userAgent.substring(0, 100)
       });
       
-      // Keep only last 100 activities
       activities.splice(100);
-      
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
-
-    function toggleTheme() {
-      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('tanktools_theme', currentTheme);
-      applyTheme();
-    }
-
-    function applyTheme() {
-      const toggle = document.querySelector('.theme-toggle');
-      if (currentTheme === 'light') {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url("background.jpg")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundAttachment = 'fixed';
-        toggle.textContent = '🌙';
-      } else {
-        document.body.classList.add('dark-mode');
-        toggle.textContent = '☀️';
-      }
-    }
-
-    // Auto-save form data
-    setInterval(() => {
-      const formData = {
-        loginUsername: document.getElementById('loginUsername').value,
-        fullName: document.getElementById('fullName').value,
-        username: document.getElementById('username').value
-      };
-      localStorage.setItem('tanktools_form_backup', JSON.stringify(formData));
-    }, 5000);
 
     // Console protection message
     console.log('%c🔒 TANK TOOLS - SECURE SYSTEM', 'color: red; font-size: 20px; font-weight: bold;');
