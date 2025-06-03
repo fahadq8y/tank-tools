@@ -871,29 +871,20 @@
         // Store pending user for resend functionality
         pendingUser = newUser;
         
-        // Send verification email
-        try {
-          await sendVerificationEmail(newUser);
-          
-          logActivity('user_registered', newUser.username);
-          
-          showVerificationScreen(newUser.email);
+        // For now, activate user immediately (email verification disabled temporarily)
+        newUser.isActive = true;
+        newUser.emailVerified = true;
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        logActivity('user_registered', newUser.username);
+        
+        showMessage('✅ Account created successfully! You can now login.', 'success');
+        
+        setTimeout(() => {
+          switchTab('login');
+          document.getElementById('loginUsername').value = username;
           clearForm('register');
-          
-        } catch (emailError) {
-          // If email fails, show alternative message
-          showMessage('✅ Account created! For now, your account is activated automatically. Email verification will be enabled soon.', 'info');
-          
-          // Activate user immediately if email fails
-          newUser.isActive = true;
-          newUser.emailVerified = true;
-          localStorage.setItem('tanktools_users', JSON.stringify(users));
-          
-          setTimeout(() => {
-            switchTab('login');
-            document.getElementById('loginUsername').value = username;
-          }, 3000);
-        }
+        }, 2000);
         
       } catch (error) {
         showMessage('❌ Registration failed. Please try again.', 'error');
