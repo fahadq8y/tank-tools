@@ -22,7 +22,7 @@
       background-position: center;
       background-attachment: fixed;
       background-repeat: no-repeat;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -30,32 +30,95 @@
       color: white;
     }
 
-    .login-container {
+    .container {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
-      border-radius: 20px;
+      border-radius: 15px;
       padding: 40px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.2);
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: 0.5s;
+    }
+
+    .container:hover::before {
+      left: 100%;
     }
 
     .logo {
-      font-size: 2.5rem;
-      font-weight: bold;
+      font-size: 3rem;
       margin-bottom: 10px;
       background: linear-gradient(45deg, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .subtitle {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       margin-bottom: 30px;
       opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .tab-container {
+      display: flex;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .form-container {
+      display: none;
+    }
+
+    .form-container.active {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .form-group {
@@ -66,8 +129,8 @@
     label {
       display: block;
       margin-bottom: 8px;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .input-container {
@@ -80,93 +143,180 @@
       border: none;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.9);
-      color: #333;
+      color: #003366;
       font-size: 16px;
       transition: all 0.3s ease;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    input::placeholder {
+      color: rgba(0, 51, 102, 0.6);
     }
 
     input:focus {
       outline: none;
       background: rgba(255, 255, 255, 1);
+      border-color: #4CAF50;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
+    .username-container {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .username-container:focus-within {
+      background: rgba(255, 255, 255, 1);
+      border-color: #4CAF50;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .username-input {
+      background: transparent;
+      border: none;
+      padding: 15px;
+      flex: 1;
+      box-shadow: none;
+      transform: none;
+      color: #003366;
+    }
+
+    .username-input:focus {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      transform: none;
+    }
+
     .email-suffix {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #666;
-      font-size: 14px;
-      pointer-events: none;
+      padding: 15px;
+      color: #003366;
+      font-weight: 500;
+      background: rgba(0, 51, 102, 0.1);
+      border-radius: 0 8px 8px 0;
     }
 
-    .email-input {
-      padding-right: 120px;
+    .validation-message {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #ff6b6b;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
-    .login-btn {
+    .validation-message.show {
+      opacity: 1;
+    }
+
+    .validation-message.success {
+      color: #4CAF50;
+    }
+
+    .password-strength {
+      margin-top: 8px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .strength-weak { background: #ff6b6b; width: 25%; }
+    .strength-fair { background: #ffa726; width: 50%; }
+    .strength-good { background: #42a5f5; width: 75%; }
+    .strength-strong { background: #4CAF50; width: 100%; }
+
+    .btn {
       width: 100%;
       padding: 15px;
-      background: linear-gradient(45deg, #4CAF50, #45a049);
-      color: white;
       border: none;
       border-radius: 10px;
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-top: 10px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .login-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    .btn-primary {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
     }
 
-    .login-btn:disabled {
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-primary:disabled {
       background: #ccc;
       cursor: not-allowed;
       transform: none;
     }
 
-    .error-message {
-      background: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      color: #ff6b6b;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 15px;
-      font-size: 14px;
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
     }
 
-    .success-message {
-      background: rgba(0, 255, 0, 0.1);
-      border: 1px solid rgba(0, 255, 0, 0.3);
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .message.success {
+      background: rgba(76, 175, 80, 0.2);
+      border: 1px solid rgba(76, 175, 80, 0.5);
       color: #4CAF50;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 15px;
-      font-size: 14px;
     }
 
-    .remember-me {
-      display: flex;
-      align-items: center;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-
-    .remember-me input[type="checkbox"] {
-      width: auto;
-      margin-right: 8px;
+    .message.error {
+      background: rgba(255, 107, 107, 0.2);
+      border: 1px solid rgba(255, 107, 107, 0.5);
+      color: #ff6b6b;
     }
 
     .footer {
       margin-top: 30px;
       font-size: 12px;
       opacity: 0.7;
+      text-align: center;
     }
 
     .loading {
@@ -189,273 +339,654 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* تحسينات للجوال */
+    .user-count {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    /* Dark mode styles */
+    .dark-mode {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') !important;
+    }
+
+    .dark-mode input, .dark-mode .username-container {
+      background: rgba(50, 50, 70, 0.9) !important;
+      color: #eee !important;
+    }
+
+    .dark-mode .email-suffix {
+      background: rgba(70, 70, 90, 0.9) !important;
+      color: #eee !important;
+    }
+
+    .dark-mode input::placeholder {
+      color: rgba(238, 238, 238, 0.6) !important;
+    }
+
+    /* Mobile responsive */
     @media (max-width: 480px) {
-      .login-container {
+      .container {
         padding: 30px 20px;
         margin: 20px;
       }
       
       .logo {
-        font-size: 2rem;
+        font-size: 2.5rem;
+      }
+
+      .tab {
+        padding: 10px 15px;
+        font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
+  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+  
+  <div class="user-count">
+    <div>👥 Users: <span id="userCount">0</span></div>
+  </div>
+
+  <div class="container">
     <div class="logo">🛠️ Tank Tools</div>
-    <div class="subtitle">Tank Systems Management - KNPC</div>
+    <div class="subtitle">Kuwait National Petroleum Company</div>
     
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="username">👤 Username:</label>
-        <input type="text" id="username" name="username" placeholder="Enter username" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="email">📧 Email:</label>
-        <div class="input-container">
-          <input type="text" id="email" name="email" class="email-input" placeholder="username" required>
-          <span class="email-suffix">@knpc.com</span>
+    <div class="tab-container">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="form-container active">
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginUsername">👤 Username:</label>
+          <div class="username-container">
+            <input type="text" id="loginUsername" class="username-input" placeholder="abc123" required 
+                   pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
+            <div class="email-suffix">@knpc.com</div>
+          </div>
+          <div class="validation-message" id="loginUsernameMsg"></div>
         </div>
-      </div>
-      
-      <div class="remember-me">
-        <input type="checkbox" id="rememberMe" name="rememberMe">
-        <label for="rememberMe">Remember me</label>
-      </div>
-      
-      <button type="submit" class="login-btn" id="loginBtn">
-        🚀 Login
-      </button>
-      
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div>Verifying credentials...</div>
-      </div>
-    </form>
-    
+        
+        <div class="form-group">
+          <label for="loginPassword">🔒 Password:</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="rememberMe" style="width: auto; margin-right: 8px;">
+            Remember me
+          </label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="loginBtn">
+          🚀 Login
+        </button>
+        
+        <div class="loading" id="loginLoading">
+          <div class="spinner"></div>
+          <div>Logging in...</div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Registration Form -->
+    <div id="registerForm" class="form-container">
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="fullName">👤 Full Name:</label>
+          <input type="text" id="fullName" placeholder="Enter your full name" required minlength="3">
+          <div class="validation-message" id="fullNameMsg"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="username">📧 Username (Email):</label>
+          <div class="username-container">
+            <input type="text" id="username" class="username-input" placeholder="abc123" required 
+                   pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
+            <div class="email-suffix">@knpc.com</div>
+          </div>
+          <div class="validation-message" id="usernameMsg"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">🔒 Password:</label>
+          <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
+          <div class="password-strength">
+            <div class="password-strength-bar" id="strengthBar"></div>
+          </div>
+          <div class="validation-message" id="passwordMsg"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">🔒 Confirm Password:</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+          <div class="validation-message" id="confirmPasswordMsg"></div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="registerBtn">
+          ✨ Create Account
+        </button>
+        
+        <div class="loading" id="registerLoading">
+          <div class="spinner"></div>
+          <div>Creating account...</div>
+        </div>
+      </form>
+    </div>
+
     <div id="messageContainer"></div>
     
     <div class="footer">
+      <strong>🔒 Secure System</strong><br>
       By <strong>Fahad - 17877</strong> | Version 3.0<br>
-      Secure & Monitored System 🔒
+      <small>All activities are monitored and logged</small>
     </div>
   </div>
 
   <script>
-    // تكوين PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(registration => console.log('SW registered'))
-          .catch(error => console.log('SW registration failed'));
+    // 🔒 Security Protection - Fahad 17877
+    (function() {
+      'use strict';
+      
+      // حماية ضد النسخ والفحص
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('selectstart', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
+          e.preventDefault();
+          showMessage('⚠️ Developer tools are disabled for security', 'error');
+        }
       });
-    }
+      
+      // كشف أدوات المطور
+      setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
+        }
+      }, 1000);
+    })();
 
-    // عناصر الصفحة
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const loading = document.getElementById('loading');
-    const messageContainer = document.getElementById('messageContainer');
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    const rememberMe = document.getElementById('rememberMe');
-
-    // رابط السيرفر - سنضعه لاحقاً
-    const SERVER_URL = 'https://your-server.digitalocean.com/api';
-
-    // تحميل البيانات المحفوظة
-    loadSavedCredentials();
-
-    // التعامل مع تسجيل الدخول
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await handleLogin();
+    // Global variables
+    let currentTheme = localStorage.getItem('tanktools_theme') || 'dark';
+    
+    // Initialize
+    window.addEventListener('load', () => {
+      updateUserCount();
+      loadSavedCredentials();
+      checkExistingSession();
+      applyTheme();
+      
+      // Add input event listeners
+      document.getElementById('username').addEventListener('input', validateUsername);
+      document.getElementById('loginUsername').addEventListener('input', validateLoginUsername);
+      document.getElementById('password').addEventListener('input', validatePassword);
+      document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
+      document.getElementById('fullName').addEventListener('input', validateFullName);
     });
 
-    // دالة تسجيل الدخول
-    async function handleLogin() {
-      const username = usernameInput.value.trim();
-      const email = emailInput.value.trim();
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(tab + 'Form').classList.add('active');
+      
+      clearMessages();
+    }
 
-      // التحقق من البيانات
-      const validation = validateInput(username, email);
-      if (!validation.valid) {
-        showMessage(validation.message, 'error');
+    // Validation functions
+    function validateUsername() {
+      const username = document.getElementById('username').value;
+      const msg = document.getElementById('usernameMsg');
+      const pattern = /^[a-zA-Z]{3}[0-9]{3}$/;
+      
+      if (username.length === 0) {
+        hideValidation(msg);
+        return false;
+      }
+      
+      if (!pattern.test(username)) {
+        showValidation(msg, '❌ Must be 3 letters + 3 numbers (e.g., abc123)', 'error');
+        return false;
+      }
+      
+      // Check if username exists
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      if (users.find(u => u.username === username)) {
+        showValidation(msg, '❌ Username already exists', 'error');
+        return false;
+      }
+      
+      showValidation(msg, '✅ Username available', 'success');
+      return true;
+    }
+
+    function validateLoginUsername() {
+      const username = document.getElementById('loginUsername').value;
+      const msg = document.getElementById('loginUsernameMsg');
+      const pattern = /^[a-zA-Z]{3}[0-9]{3}$/;
+      
+      if (username.length === 0) {
+        hideValidation(msg);
+        return false;
+      }
+      
+      if (!pattern.test(username)) {
+        showValidation(msg, '❌ Must be 3 letters + 3 numbers', 'error');
+        return false;
+      }
+      
+      hideValidation(msg);
+      return true;
+    }
+
+    function validatePassword() {
+      const password = document.getElementById('password').value;
+      const msg = document.getElementById('passwordMsg');
+      const strengthBar = document.getElementById('strengthBar');
+      
+      if (password.length === 0) {
+        hideValidation(msg);
+        strengthBar.className = 'password-strength-bar';
+        return false;
+      }
+      
+      let strength = 0;
+      let issues = [];
+      
+      if (password.length >= 8) strength++; else issues.push('8+ characters');
+      if (/[A-Z]/.test(password)) strength++; else issues.push('uppercase letter');
+      if (/[a-z]/.test(password)) strength++; else issues.push('lowercase letter');
+      if (/[0-9]/.test(password)) strength++; else issues.push('number');
+      if (/[^A-Za-z0-9]/.test(password)) strength++; else issues.push('special character');
+      
+      // Update strength bar
+      strengthBar.className = 'password-strength-bar';
+      if (strength <= 2) strengthBar.classList.add('strength-weak');
+      else if (strength === 3) strengthBar.classList.add('strength-fair');
+      else if (strength === 4) strengthBar.classList.add('strength-good');
+      else strengthBar.classList.add('strength-strong');
+      
+      if (strength < 3) {
+        showValidation(msg, `❌ Need: ${issues.join(', ')}`, 'error');
+        return false;
+      }
+      
+      if (strength >= 4) {
+        showValidation(msg, '✅ Strong password!', 'success');
+      } else {
+        showValidation(msg, '⚡ Good password', 'success');
+      }
+      
+      return true;
+    }
+
+    function validateConfirmPassword() {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const msg = document.getElementById('confirmPasswordMsg');
+      
+      if (confirmPassword.length === 0) {
+        hideValidation(msg);
+        return false;
+      }
+      
+      if (password !== confirmPassword) {
+        showValidation(msg, '❌ Passwords do not match', 'error');
+        return false;
+      }
+      
+      showValidation(msg, '✅ Passwords match', 'success');
+      return true;
+    }
+
+    function validateFullName() {
+      const fullName = document.getElementById('fullName').value;
+      const msg = document.getElementById('fullNameMsg');
+      
+      if (fullName.length === 0) {
+        hideValidation(msg);
+        return false;
+      }
+      
+      if (fullName.length < 3) {
+        showValidation(msg, '❌ Name must be at least 3 characters', 'error');
+        return false;
+      }
+      
+      showValidation(msg, '✅ Valid name', 'success');
+      return true;
+    }
+
+    function showValidation(element, message, type) {
+      element.textContent = message;
+      element.className = `validation-message show ${type}`;
+    }
+
+    function hideValidation(element) {
+      element.className = 'validation-message';
+    }
+
+    // Registration handler
+    async function handleRegister(event) {
+      event.preventDefault();
+      
+      const fullName = document.getElementById('fullName').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validate all fields
+      const isValidName = validateFullName();
+      const isValidUsername = validateUsername();
+      const isValidPassword = validatePassword();
+      const isValidConfirm = validateConfirmPassword();
+      
+      if (!isValidName || !isValidUsername || !isValidPassword || !isValidConfirm) {
+        showMessage('❌ Please fix all validation errors', 'error');
         return;
       }
-
-      // إظهار شاشة التحميل
-      showLoading(true);
-
+      
+      showLoading('register', true);
+      
       try {
-        // محاكاة طلب للسيرفر (سنربطه لاحقاً)
-        const response = await authenticateUser(username, email);
+        // Simulate registration delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        if (response.success) {
-          // حفظ بيانات المستخدم
-          saveUserData(username, email);
-          
-          // حفظ الجلسة
-          if (rememberMe.checked) {
-            saveCrede‌ntials(username, email);
-          }
-          
-          showMessage('✅ Login successful! Redirecting...', 'success');
-          
-          // Redirect to dashboard
-          setTimeout(() => {
-            window.location.href = '/dashboard.html';
-          }, 1500);
-          
-        } else {
-          throw new Error(response.message);
+        // Get existing users
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        
+        // Create new user
+        const newUser = {
+          id: Date.now(),
+          fullName,
+          username,
+          email: `${username}@knpc.com`,
+          password: btoa(password), // Simple encoding
+          createdAt: new Date().toISOString(),
+          isActive: true,
+          lastLogin: null,
+          role: 'user'
+        };
+        
+        // Add to users array
+        users.push(newUser);
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        // Log the registration
+        logActivity('user_registered', newUser.username);
+        
+        showMessage('✅ Account created successfully! You can now login.', 'success');
+        
+        // Switch to login tab and pre-fill username
+        setTimeout(() => {
+          switchTab('login');
+          document.getElementById('loginUsername').value = username;
+          clearForm('register');
+        }, 2000);
+        
+      } catch (error) {
+        showMessage('❌ Registration failed. Please try again.', 'error');
+      } finally {
+        showLoading('register', false);
+      }
+    }
+
+    // Login handler
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      if (!validateLoginUsername()) {
+        showMessage('❌ Please enter a valid username format', 'error');
+        return;
+      }
+      
+      if (!password) {
+        showMessage('❌ Please enter your password', 'error');
+        return;
+      }
+      
+      showLoading('login', true);
+      
+      try {
+        // Simulate login delay
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        
+        // Get users
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        
+        // Find user
+        const user = users.find(u => u.username === username && u.password === btoa(password));
+        
+        if (!user) {
+          throw new Error('Invalid username or password');
         }
+        
+        if (!user.isActive) {
+          throw new Error('Account is disabled. Contact administrator.');
+        }
+        
+        // Update last login
+        user.lastLogin = new Date().toISOString();
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        // Save session
+        const sessionData = {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role || 'user',
+          loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('tanktools_current_user', JSON.stringify(sessionData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        // Save credentials if remember me
+        if (rememberMe) {
+          localStorage.setItem('tanktools_remember', JSON.stringify({
+            username: username,
+            rememberMe: true
+          }));
+        }
+        
+        // Log the login
+        logActivity('user_login', user.username);
+        
+        showMessage('✅ Login successful! Redirecting...', 'success');
+        
+        // Redirect based on role
+        setTimeout(() => {
+          if (user.role === 'admin' || username === 'fah877') {
+            window.location.href = 'dashboard.html';
+          } else {
+            // Check if user wants to go to specific app
+            const redirectTo = sessionStorage.getItem('tanktools_redirect') || 'dashboard.html';
+            window.location.href = redirectTo;
+          }
+        }, 1500);
         
       } catch (error) {
         showMessage(`❌ ${error.message}`, 'error');
       } finally {
-        showLoading(false);
+        showLoading('login', false);
       }
     }
 
-    // Input validation
-    function validateInput(username, email) {
-      if (!username || username.length < 3) {
-        return { valid: false, message: 'Username must be at least 3 characters long' };
-      }
-
-      if (!email || email.length < 2) {
-        return { valid: false, message: 'Please enter email username' };
-      }
-
-      // Username validation (letters and numbers only)
-      const usernameRegex = /^[a-zA-Z0-9._]+$/;
-      if (!usernameRegex.test(username)) {
-        return { valid: false, message: 'Username must contain only letters and numbers' };
-      }
-
-      const emailRegex = /^[a-zA-Z0-9._]+$/;
-      if (!emailRegex.test(email)) {
-        return { valid: false, message: 'Email contains invalid characters' };
-      }
-
-      return { valid: true };
-    }
-
-    // محاكاة طلب المصادقة (سنربطه بالسيرفر لاحقاً)
-    async function authenticateUser(username, email) {
-      // محاكاة تأخير الشبكة
-      await new Promise(resolve => setTimeout(resolve, 1500));
+    // Utility functions
+    function showLoading(form, show) {
+      const btn = document.getElementById(form + 'Btn');
+      const loading = document.getElementById(form + 'Loading');
       
-      // في الوقت الحالي، نقبل أي مستخدم صحيح
-      // سنربطه بقاعدة البيانات لاحقاً
-      return {
-        success: true,
-        user: { username, email: `${email}@knpc.com` },
-        token: 'temp_token_' + Date.now()
-      };
-    }
-
-    // حفظ بيانات المستخدم في الجلسة
-    function saveUserData(username, email) {
-      const userData = {
-        username,
-        email: `${email}@knpc.com`,
-        loginTime: new Date().toISOString(),
-        lastActivity: new Date().toISOString()
-      };
-      
-      localStorage.setItem('tanktools_user', JSON.stringify(userData));
-      sessionStorage.setItem('tanktools_session', 'active');
-    }
-
-    // حفظ بيانات تسجيل الدخول
-    function saveCrede‌ntials(username, email) {
-      if (rememberMe.checked) {
-        localStorage.setItem('tanktools_remember', JSON.stringify({
-          username,
-          email
-        }));
-      }
-    }
-
-    // تحميل البيانات المحفوظة
-    function loadSavedCredentials() {
-      const saved = localStorage.getItem('tanktools_remember');
-      if (saved) {
-        try {
-          const { username, email } = JSON.parse(saved);
-          usernameInput.value = username || '';
-          emailInput.value = email || '';
-          rememberMe.checked = true;
-        } catch (error) {
-          console.log('خطأ في تحميل البيانات المحفوظة');
-        }
-      }
-    }
-
-    // إظهار الرسائل
-    function showMessage(message, type) {
-      messageContainer.innerHTML = `
-        <div class="${type}-message">
-          ${message}
-        </div>
-      `;
-      
-      // إخفاء الرسالة بعد 5 ثوان
-      setTimeout(() => {
-        messageContainer.innerHTML = '';
-      }, 5000);
-    }
-
-    // إظهار/إخفاء شاشة التحميل
-    function showLoading(show) {
       if (show) {
-        loginBtn.style.display = 'none';
+        btn.style.display = 'none';
         loading.style.display = 'block';
       } else {
-        loginBtn.style.display = 'block';
+        btn.style.display = 'block';
         loading.style.display = 'none';
       }
     }
 
-    // تحسين تجربة المستخدم
-    emailInput.addEventListener('input', (e) => {
-      // منع إدخال @ أو مسافات
-      e.target.value = e.target.value.replace(/[@\s]/g, '');
-    });
-
-    usernameInput.addEventListener('input', (e) => {
-      // منع المسافات في اسم المستخدم
-      e.target.value = e.target.value.replace(/\s/g, '');
-    });
-
-    // فحص الجلسة الحالية
-    function checkExistingSession() {
-      const session = sessionStorage.getItem('tanktools_session');
-      const userData = localStorage.getItem('tanktools_user');
+    function showMessage(message, type) {
+      const container = document.getElementById('messageContainer');
+      container.innerHTML = `<div class="message ${type}">${message}</div>`;
       
-      if (session === 'active' && userData) {
-        // Redirect user directly to dashboard
-        showMessage('Active session found, redirecting...', 'success');
-        setTimeout(() => {
-          window.location.href = '/dashboard.html';
-        }, 1000);
+      setTimeout(() => {
+        container.querySelector('.message').classList.add('show');
+      }, 100);
+      
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    function clearMessages() {
+      document.getElementById('messageContainer').innerHTML = '';
+      document.querySelectorAll('.validation-message').forEach(msg => {
+        msg.className = 'validation-message';
+      });
+    }
+
+    function clearForm(form) {
+      document.getElementById(form + 'Form').querySelectorAll('input').forEach(input => {
+        if (input.type !== 'checkbox') input.value = '';
+      });
+      clearMessages();
+    }
+
+    function loadSavedCredentials() {
+      const saved = localStorage.getItem('tanktools_remember');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.rememberMe) {
+            document.getElementById('loginUsername').value = data.username;
+            document.getElementById('rememberMe').checked = true;
+          }
+        } catch (error) {
+          console.log('Error loading saved credentials');
+        }
       }
     }
 
-    // فحص الجلسة عند تحميل الصفحة
-    window.addEventListener('load', checkExistingSession);
-
-    // إضافة دعم Enter للتسجيل
-    document.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !loginBtn.disabled) {
-        handleLogin();
+    function checkExistingSession() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
+      
+      if (session === 'active' && userData) {
+        try {
+          const user = JSON.parse(userData);
+          showMessage('✅ Active session found, redirecting...', 'success');
+          setTimeout(() => {
+            if (user.role === 'admin' || user.username === 'fah877') {
+              window.location.href = 'dashboard.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 1000);
+        } catch (error) {
+          // Clear invalid session
+          sessionStorage.removeItem('tanktools_session');
+          localStorage.removeItem('tanktools_current_user');
+        }
       }
-    });
+    }
+
+    function updateUserCount() {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      const activeUsers = users.filter(u => u.isActive).length;
+      document.getElementById('userCount').textContent = activeUsers;
+    }
+
+    function logActivity(action, username) {
+      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+      
+      activities.unshift({
+        id: Date.now(),
+        action,
+        username,
+        timestamp: new Date().toISOString(),
+        ip: 'local',
+        userAgent: navigator.userAgent.substring(0, 100)
+      });
+      
+      // Keep only last 100 activities
+      activities.splice(100);
+      
+      localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('tanktools_theme', currentTheme);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      const toggle = document.querySelector('.theme-toggle');
+      if (currentTheme === 'light') {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url("background.jpg")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        toggle.textContent = '🌙';
+      } else {
+        document.body.classList.add('dark-mode');
+        toggle.textContent = '☀️';
+      }
+    }
+
+    // Auto-save form data
+    setInterval(() => {
+      const formData = {
+        loginUsername: document.getElementById('loginUsername').value,
+        fullName: document.getElementById('fullName').value,
+        username: document.getElementById('username').value
+      };
+      localStorage.setItem('tanktools_form_backup', JSON.stringify(formData));
+    }, 5000);
+
+    // Console protection message
+    console.log('%c🔒 TANK TOOLS - SECURE SYSTEM', 'color: red; font-size: 20px; font-weight: bold;');
+    console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
+    console.log('%cUnauthorized access is prohibited and monitored', 'color: red; font-size: 14px;');
   </script>
 </body>
 </html>

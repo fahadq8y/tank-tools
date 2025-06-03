@@ -20,6 +20,7 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      background-repeat: no-repeat;
       font-family: Arial, sans-serif;
       color: white;
       min-height: 100vh;
@@ -33,12 +34,16 @@
       justify-content: space-between;
       align-items: center;
       backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     .navbar-brand {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #FFD700;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .user-info {
@@ -58,27 +63,40 @@
       font-weight: bold;
     }
 
-    .logout-btn {
-      background: rgba(255, 0, 0, 0.2);
-      border: 1px solid rgba(255, 0, 0, 0.5);
+    .nav-btn, .logout-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       color: white;
       padding: 8px 15px;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .logout-btn {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: rgba(255, 0, 0, 0.5);
     }
 
     .logout-btn:hover {
       background: rgba(255, 0, 0, 0.4);
     }
 
-    /* Content Area */
+    /* Container */
     .container {
       max-width: 1200px;
       margin: 20px auto;
       padding: 0 20px;
     }
 
+    /* Welcome Section */
     .welcome-section {
       text-align: center;
       margin-bottom: 30px;
@@ -86,8 +104,57 @@
       padding: 20px;
       border-radius: 15px;
       backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
+    .admin-badge {
+      display: inline-block;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #003366;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* Statistics Grid */
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Applications Grid */
     .apps-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -143,37 +210,122 @@
       border: 1px solid #4CAF50;
     }
 
-    .status-maintenance {
-      background: rgba(255, 193, 7, 0.3);
-      color: #FFC107;
-      border: 1px solid #FFC107;
-    }
-
-    /* Quick Statistics */
-    .stats-section {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
+    /* Users Section */
+    .users-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
       margin-bottom: 30px;
     }
 
-    .stat-card {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      backdrop-filter: blur(10px);
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
 
-    .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
+    .section-title {
+      font-size: 1.3rem;
       color: #FFD700;
     }
 
-    .stat-label {
-      font-size: 0.9rem;
-      opacity: 0.8;
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(45deg, #f44336, #d32f2f);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .users-table {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      overflow: hidden;
+      color: #003366;
+    }
+
+    .users-table th,
+    .users-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 51, 102, 0.1);
+    }
+
+    .users-table th {
+      background: #003366;
+      color: white;
+      font-weight: bold;
+    }
+
+    .user-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .badge-admin {
+      background: #FFD700;
+      color: #003366;
+    }
+
+    .badge-user {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .badge-inactive {
+      background: #ccc;
+      color: #666;
+    }
+
+    /* Activity Log */
+    .activity-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 30px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .activity-icon {
+      font-size: 1.2rem;
+    }
+
+    .activity-time {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-left: auto;
     }
 
     /* System Notifications */
@@ -199,7 +351,7 @@
       font-size: 1.2rem;
     }
 
-    /* Mobile Mode */
+    /* Mobile Responsive */
     @media (max-width: 768px) {
       .navbar {
         flex-direction: column;
@@ -211,16 +363,22 @@
         justify-content: space-between;
       }
 
+      .stats-section {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .apps-grid {
         grid-template-columns: 1fr;
       }
 
-      .stats-section {
-        grid-template-columns: repeat(2, 1fr);
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
     }
 
-    /* Refresh Button */
+    /* Action Buttons */
     .refresh-btn {
       position: fixed;
       bottom: 20px;
@@ -241,10 +399,31 @@
       transform: scale(1.1);
     }
 
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
     /* Connection Status */
     .connection-status {
       position: fixed;
-      top: 80px;
+      top: 20px;
       right: 20px;
       padding: 10px 15px;
       border-radius: 20px;
@@ -263,6 +442,26 @@
       color: #f44336;
       border: 1px solid #f44336;
     }
+
+    /* Dark Mode */
+    .dark-mode {
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg') !important;
+    }
+
+    .dark-mode .users-table {
+      background: rgba(40, 40, 60, 0.85) !important;
+      color: #eee !important;
+    }
+
+    .dark-mode .users-table th {
+      background: #2a2a4a !important;
+      color: #eee !important;
+    }
+
+    .dark-mode .users-table td {
+      border-bottom: 1px solid #555 !important;
+      color: #eee !important;
+    }
   </style>
 </head>
 <body>
@@ -270,10 +469,13 @@
   <nav class="navbar">
     <div class="navbar-brand">🛠️ Tank Tools</div>
     <div class="user-info">
+      <a href="index.html" class="nav-btn">📊 PBCR</a>
+      <a href="plcr.html" class="nav-btn">⚗️ PLCR</a>
+      <a href="NMOGASBL.html" class="nav-btn">🔧 NMOGAS</a>
       <div class="user-avatar" id="userAvatar">F</div>
       <div>
         <div id="userName">Fahad - 17877</div>
-        <div style="font-size: 0.8rem; opacity: 0.7;" id="userEmail">fahad@knpc.com</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;" id="userEmail">fah877@knpc.com</div>
       </div>
       <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
@@ -284,9 +486,13 @@
     🟢 Online
   </div>
 
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+
   <div class="container">
     <!-- Welcome Section -->
     <div class="welcome-section">
+      <div class="admin-badge">👑 ADMIN DASHBOARD</div>
       <h2>🎉 Welcome to Tank Tools System</h2>
       <p>Enhanced version with full protection and control</p>
       <p id="currentTime"></p>
@@ -295,16 +501,16 @@
     <!-- Quick Statistics -->
     <div class="stats-section">
       <div class="stat-card">
-        <div class="stat-number" id="todayUsage">23</div>
-        <div class="stat-label">Today's Operations</div>
+        <div class="stat-number" id="totalUsers">0</div>
+        <div class="stat-label">Total Users</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="activeUsers">5</div>
+        <div class="stat-number" id="activeUsers">0</div>
         <div class="stat-label">Active Users</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="systemStatus">99%</div>
-        <div class="stat-label">System Status</div>
+        <div class="stat-number" id="todayLogins">0</div>
+        <div class="stat-label">Today's Logins</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" id="lastUpdate">12:30</div>
@@ -352,6 +558,43 @@
         <div class="app-status status-active">🟢 Active</div>
       </div>
     </div>
+
+    <!-- Users Management -->
+    <div class="users-section">
+      <div class="section-header">
+        <h3 class="section-title">👥 User Management</h3>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" onclick="refreshUsers()">🔄 Refresh</button>
+          <button class="btn btn-danger" onclick="clearInactiveUsers()">🗑️ Clear Inactive</button>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Last Login</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Users will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="activity-section">
+      <h3 class="section-title">📝 Recent Activity</h3>
+      <div id="activityLog">
+        <!-- Activities will be loaded here -->
+      </div>
+    </div>
   </div>
 
   <!-- Refresh Button -->
@@ -360,36 +603,76 @@
   </button>
 
   <script>
-    // User data
+    // 🔒 Security Protection - Fahad 17877
+    (function() {
+      'use strict';
+      
+      // حماية ضد النسخ والفحص
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('selectstart', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
+          e.preventDefault();
+        }
+      });
+      
+      // كشف أدوات المطور
+      setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
+        }
+      }, 1000);
+    })();
+
+    // Global variables
     let currentUser = null;
-    let systemStatus = {
-      pbcr: true,
-      plcr: true,
-      nmogas: true
-    };
+    let currentTheme = localStorage.getItem('tanktools_theme') || 'dark';
+
+    // Initialize
+    window.addEventListener('load', () => {
+      checkAccess();
+      loadUserData();
+      updateCurrentTime();
+      loadStatistics();
+      loadUsers();
+      loadRecentActivity();
+      monitorConnection();
+      applyTheme();
+      
+      // Update time every minute
+      setInterval(updateCurrentTime, 60000);
+      
+      // Auto refresh every 2 minutes
+      setInterval(refreshData, 120000);
+    });
+
+    // Check access
+    function checkAccess() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
+      
+      if (session !== 'active' || !userData) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      try {
+        currentUser = JSON.parse(userData);
+        logActivity('dashboard_access', currentUser.username);
+      } catch (error) {
+        window.location.href = 'login.html';
+      }
+    }
 
     // Load user data
     function loadUserData() {
-      const userData = localStorage.getItem('tanktools_user');
-      if (!userData) {
-        // Redirect to login page
-        window.location.href = '/login.html';
-        return;
-      }
-
-      currentUser = JSON.parse(userData);
-      updateUserDisplay();
-    }
-
-    // Update user display
-    function updateUserDisplay() {
       if (!currentUser) return;
-
-      document.getElementById('userName').textContent = currentUser.username;
+      
+      document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
       document.getElementById('userEmail').textContent = currentUser.email;
       
-      // Update user avatar (first letter of username)
-      const firstLetter = currentUser.username.charAt(0).toUpperCase();
+      // Update user avatar
+      const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
       document.getElementById('userAvatar').textContent = firstLetter;
     }
 
@@ -405,71 +688,186 @@
         minute: '2-digit'
       });
       document.getElementById('currentTime').textContent = timeString;
+      document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+    }
+
+    // Load statistics
+    function loadStatistics() {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+      
+      // Calculate stats
+      const totalUsers = users.length;
+      const activeUsers = users.filter(u => u.isActive).length;
+      
+      // Count today's logins
+      const today = new Date().toDateString();
+      const todayLogins = activities.filter(a => 
+        a.action === 'user_login' && 
+        new Date(a.timestamp).toDateString() === today
+      ).length;
+      
+      // Update UI
+      document.getElementById('totalUsers').textContent = totalUsers;
+      document.getElementById('activeUsers').textContent = activeUsers;
+      document.getElementById('todayLogins').textContent = todayLogins;
+    }
+
+    // Load users table
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      const tbody = document.getElementById('usersTableBody');
+      
+      tbody.innerHTML = '';
+      
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        
+        const roleClass = user.role === 'admin' || user.username === 'fah877' ? 'badge-admin' : 'badge-user';
+        const statusClass = user.isActive ? 'badge-user' : 'badge-inactive';
+        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+        
+        row.innerHTML = `
+          <td>${user.fullName || user.username}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td><span class="user-badge ${roleClass}">${user.role || 'user'}</span></td>
+          <td><span class="user-badge ${statusClass}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td>${lastLogin}</td>
+          <td>
+            <button class="btn ${user.isActive ? 'btn-danger' : 'btn-primary'}" 
+                    onclick="toggleUserStatus('${user.username}')" 
+                    style="font-size: 12px; padding: 4px 8px;">
+              ${user.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    // Load recent activity
+    function loadRecentActivity() {
+      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+      const activityLog = document.getElementById('activityLog');
+      
+      activityLog.innerHTML = '';
+      
+      // Show last 10 activities
+      activities.slice(0, 10).forEach(activity => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        
+        const icon = getActivityIcon(activity.action);
+        const time = new Date(activity.timestamp).toLocaleString();
+        
+        item.innerHTML = `
+          <span class="activity-icon">${icon}</span>
+          <span>${getActivityDescription(activity)}</span>
+          <span class="activity-time">${time}</span>
+        `;
+        
+        activityLog.appendChild(item);
+      });
+    }
+
+    // Get activity icon
+    function getActivityIcon(action) {
+      const icons = {
+        'user_login': '🚪',
+        'user_registered': '👤',
+        'dashboard_access': '📊',
+        'app_opened': '🚀',
+        'user_logout': '🔴'
+      };
+      return icons[action] || '📝';
+    }
+
+    // Get activity description
+    function getActivityDescription(activity) {
+      const descriptions = {
+        'user_login': `${activity.username} logged in`,
+        'user_registered': `New user ${activity.username} registered`,
+        'dashboard_access': `${activity.username} accessed dashboard`,
+        'app_opened': `${activity.username} opened application`,
+        'user_logout': `${activity.username} logged out`
+      };
+      return descriptions[activity.action] || `${activity.username} performed ${activity.action}`;
     }
 
     // Open application
     function openApp(appName) {
-      // Check application status
-      if (!systemStatus[appName]) {
-        alert('❌ This application is currently unavailable');
-        return;
-      }
-
-      // Log user activity
-      logUserActivity(`opened_${appName}`);
-
-      // Open application
+      logActivity('app_opened', currentUser.username);
+      
       switch(appName) {
         case 'pbcr':
-          window.location.href = '/pbcr.html';
+          window.location.href = 'index.html';
           break;
         case 'plcr':
-          window.location.href = '/plcr.html';
+          window.location.href = 'plcr.html';
           break;
         case 'nmogas':
-          window.location.href = '/nmogas.html';
+          window.location.href = 'NMOGASBL.html';
           break;
         default:
           alert('Application not found');
       }
     }
 
-    // Log user activity
-    function logUserActivity(action) {
-      const activity = {
-        user: currentUser.username,
-        action: action,
-        timestamp: new Date().toISOString(),
-        ip: 'auto-detect' // Will be updated from server
-      };
-
-      // Send to server (will be connected later)
-      console.log('User Activity:', activity);
+    // Toggle user status
+    function toggleUserStatus(username) {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      const user = users.find(u => u.username === username);
       
-      // Update last activity
-      currentUser.lastActivity = new Date().toISOString();
-      localStorage.setItem('tanktools_user', JSON.stringify(currentUser));
+      if (user) {
+        user.isActive = !user.isActive;
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        logActivity(`user_${user.isActive ? 'activated' : 'deactivated'}`, currentUser.username);
+        
+        loadUsers();
+        loadStatistics();
+      }
     }
 
-    // Refresh data from server
+    // Refresh users
+    function refreshUsers() {
+      loadUsers();
+      loadStatistics();
+      loadRecentActivity();
+    }
+
+    // Clear inactive users
+    function clearInactiveUsers() {
+      if (confirm('Are you sure you want to delete all inactive users?')) {
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const activeUsers = users.filter(u => u.isActive);
+        
+        localStorage.setItem('tanktools_users', JSON.stringify(activeUsers));
+        
+        logActivity('inactive_users_cleared', currentUser.username);
+        
+        loadUsers();
+        loadStatistics();
+      }
+    }
+
+    // Refresh data
     async function refreshData() {
       const refreshBtn = document.querySelector('.refresh-btn');
       refreshBtn.style.transform = 'rotate(360deg)';
       
       try {
-        // Simulate server request
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Update statistics (will be connected to server later)
-        updateStats();
-        
-        // Check application status
-        await checkAppStatus();
-        
-        console.log('✅ Data updated successfully');
+        loadStatistics();
+        loadUsers();
+        loadRecentActivity();
+        updateCurrentTime();
         
       } catch (error) {
-        console.error('Error updating data:', error);
+        console.error('Error refreshing data:', error);
       } finally {
         setTimeout(() => {
           refreshBtn.style.transform = 'rotate(0deg)';
@@ -477,131 +875,88 @@
       }
     }
 
-    // Update statistics
-    function updateStats() {
-      // Sample statistics (will be connected to database)
-      const stats = {
-        todayUsage: Math.floor(Math.random() * 50) + 20,
-        activeUsers: Math.floor(Math.random() * 10) + 3,
-        systemStatus: '99%',
-        lastUpdate: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})
-      };
-
-      document.getElementById('todayUsage').textContent = stats.todayUsage;
-      document.getElementById('activeUsers').textContent = stats.activeUsers;
-      document.getElementById('lastUpdate').textContent = stats.lastUpdate;
-    }
-
-    // Check application status from server
-    async function checkAppStatus() {
-      try {
-        // Simulate application status check (will be connected to server)
-        const statusResponse = {
-          pbcr: true,
-          plcr: true,
-          nmogas: true
-        };
-
-        systemStatus = statusResponse;
-        updateAppCards();
-        
-      } catch (error) {
-        console.error('Error checking application status:', error);
-      }
-    }
-
-    // Update application cards
-    function updateAppCards() {
-      const cards = document.querySelectorAll('.app-card');
-      cards.forEach((card, index) => {
-        const appNames = ['pbcr', 'plcr', 'nmogas'];
-        const appName = appNames[index];
-        const statusElement = card.querySelector('.app-status');
-        
-        if (systemStatus[appName]) {
-          statusElement.textContent = '🟢 Active';
-          statusElement.className = 'app-status status-active';
-          card.style.opacity = '1';
-        } else {
-          statusElement.textContent = '🟡 Maintenance';
-          statusElement.className = 'app-status status-maintenance';
-          card.style.opacity = '0.7';
-        }
-      });
-    }
-
-    // Monitor connection status
+    // Monitor connection
     function monitorConnection() {
       const statusElement = document.getElementById('connectionStatus');
       
-      if (navigator.onLine) {
-        statusElement.textContent = '🟢 Online';
-        statusElement.className = 'connection-status online';
+      function updateStatus() {
+        if (navigator.onLine) {
+          statusElement.textContent = '🟢 Online';
+          statusElement.className = 'connection-status online';
+        } else {
+          statusElement.textContent = '🔴 Offline';
+          statusElement.className = 'connection-status offline';
+        }
+      }
+      
+      updateStatus();
+      window.addEventListener('online', updateStatus);
+      window.addEventListener('offline', updateStatus);
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('tanktools_theme', currentTheme);
+      applyTheme();
+    }
+
+    // Apply theme
+    function applyTheme() {
+      const toggle = document.getElementById('themeToggle');
+      if (currentTheme === 'light') {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url("background.jpg")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        toggle.textContent = '🌙';
       } else {
-        statusElement.textContent = '🔴 Offline';
-        statusElement.className = 'connection-status offline';
+        document.body.classList.add('dark-mode');
+        toggle.textContent = '☀️';
       }
     }
 
-    // Start session monitoring
-    function startSessionMonitoring() {
-      setInterval(async () => {
-        // Check session validity with server
-        try {
-          // Simulate session check
-          const sessionValid = true; // Will be connected to server
-          
-          if (!sessionValid) {
-            alert('❌ Session expired. Please login again.');
-            logout();
-          }
-          
-          // Update last activity
-          logUserActivity('session_check');
-          
-        } catch (error) {
-          console.error('Error checking session:', error);
-        }
-      }, 60000); // Every minute
+    // Log activity
+    function logActivity(action, username) {
+      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+      
+      activities.unshift({
+        id: Date.now(),
+        action,
+        username,
+        timestamp: new Date().toISOString(),
+        ip: 'local',
+        userAgent: navigator.userAgent.substring(0, 100)
+      });
+      
+      // Keep only last 100 activities
+      activities.splice(100);
+      
+      localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
     // Logout
     function logout() {
-      // Log logout activity
-      logUserActivity('logout');
+      logActivity('user_logout', currentUser.username);
       
-      // Clear local data
+      // Clear session data
       sessionStorage.removeItem('tanktools_session');
-      localStorage.removeItem('tanktools_user');
+      localStorage.removeItem('tanktools_current_user');
       
-      // Redirect to login page
-      window.location.href = '/login.html';
+      // Redirect to login
+      window.location.href = 'login.html';
     }
-
-    // Initialize page
-    window.addEventListener('load', () => {
-      loadUserData();
-      updateCurrentTime();
-      updateStats();
-      monitorConnection();
-      startSessionMonitoring();
-      
-      // Update time every minute
-      setInterval(updateCurrentTime, 60000);
-      
-      // Monitor connection status
-      window.addEventListener('online', monitorConnection);
-      window.addEventListener('offline', monitorConnection);
-      
-      // Auto refresh every 5 minutes
-      setInterval(refreshData, 300000);
-    });
 
     // Prevent going back without logout
     window.addEventListener('beforeunload', (e) => {
-      // Log that user left the page
-      logUserActivity('page_unload');
+      logActivity('page_unload', currentUser?.username || 'unknown');
     });
+
+    // Console protection message
+    console.log('%c🔒 TANK TOOLS - ADMIN DASHBOARD', 'color: red; font-size: 20px; font-weight: bold;');
+    console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
+    console.log('%cUnauthorized access is prohibited and monitored', 'color: red; font-size: 14px;');
   </script>
 </body>
 </html>
