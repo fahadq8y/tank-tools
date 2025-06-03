@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PBCR &amp; WASHERY</title>
+  <link href="icon.png" rel="icon" type="image/png"/>
+  <style>
+    /* أنماط عامة */
+    body {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      margin: 0;
+    }
+    
+    /* شريط التنقل */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .nav-logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: bold;
+    }
+
+    .nav-admin {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #003366;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px 15px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-admin:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+    
+    /* أنماط الإدخال */
+    input, select {
+      background-color: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      border: none;
+      color: #003366;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-size: 16px;
+      margin: 10px;
+      padding: 10px;
+      width: 250px;
+    }
+    
+    .row { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 8px; 
+      flex-wrap: nowrap;
+      margin: 10px 0;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .row input {
+      margin: 0px;
+      flex: 1;
+      width: 50%;
+    }
+    
+    .row select {
+      margin: 0px;
+      flex: 1;
+      width: 50%;
+    }
+    
+    /* أنماط النتائج */
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #00ffff;
+    }
+    
+    /* جدول النتائج */
+    #tankTable {
+      margin: auto;
+      background: rgba(255, 255, 255, 0.85);
+      color: #003366;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      min-width: 300px;
+    }
+    
+    #tankTable th {
+      padding: 10px;
+      border-bottom: 1px solid #003366;
+    }
+    
+    /* زر التذكير */
+    .reminder-btn {
+      padding: 12px 40px;
+      font-size: 16px;
+      border-radius: 12px;
+      background-color: white;
+      color: #003366;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .add-btn {
+      margin-top: 10px;
+      padding: 8px 20px;
+      font-size: 14px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #003366;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    /* التذييل */
+    footer {
+      margin-top: 40px;
+      color: #ccc;
+      text-align: center;
+    }
+
+    /* رابط واتساب */
+    .whatsapp-link {
+      color: #25D366;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .whatsapp-link:hover {
+      color: #128C7E;
+      text-shadow: 0 0 5px rgba(37, 211, 102, 0.5);
+      transform: scale(1.05);
+    }
+    
+    /* وضع الجوال */
+    @media (max-width: 600px) {
+      input, select {
+        width: 90% !important;
+      }
+      
+      .row {
+        flex-direction: row !important;
+        justify-content: center;
+        gap: 5px;
+        max-width: 350px;
+      }
+      
+      .row input {
+        width: 50% !important;
+        margin: 0 !important;
+        flex: 1;
+      }
+      
+      .row select {
+        width: 50% !important;
+        margin: 0 !important;
+        flex: 1;
+      }
+    }
+
+    /* أزرار التطبيق */
+    .action-button {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      border: none;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* زر الوضع الداكن - اليمين العلوي */
+    #darkModeButton {
+      top: 10px;
+      right: 10px;
+    }
+
+    /* الوضع الداكن */
+    .dark-mode {
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('background.jpg') !important;
+    }
+    
+    .dark-mode .result {
+      color: #ffcc00 !important;
+    }
+    
+    .dark-mode #tankTable {
+      background: rgba(40, 40, 60, 0.85) !important;
+      color: #eee !important;
+    }
+    
+    .dark-mode #tankTable th {
+      border-bottom: 1px solid #555 !important;
+    }
+    
+    .dark-mode input, .dark-mode select {
+      background-color: rgba(50, 50, 70, 0.9) !important;
+      color: #eee !important;
+    }
+
+    .dark-mode .whatsapp-link {
+      color: #25D366 !important;
+    }
+
+    .dark-mode .whatsapp-link:hover {
+      color: #128C7E !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- شريط التنقل -->
+  <div class="nav-bar">
+    <div class="nav-logo">Tank Tools</div>
+    <div class="nav-links">
+      <a class="nav-link active" href="index.html">PBCR</a>
+      <a class="nav-link" href="plcr.html">PLCR</a>
+      <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+      <a class="nav-admin" href="login.html" id="adminLink">🔐 Dashboard</a>
+    </div>
+  </div>
+
+  <h2>PBCR &amp; WASHERY (Version 3.0)</h2>
+  
+  <!-- رقم التانك -->
+  <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
+  
+  <!-- المستوى الحالي -->
+  <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
+  <div class="result" id="availablePumpable"></div>
+  <div class="result" id="currentUllage"></div>
+  
+  <!-- الهدف والوضع -->
+  <div class="row">
+    <input id="target" oninput="calculate()" placeholder="Target Value" type="number"/>
+    <select id="mode" onchange="calculate()">
+      <option value="pumpable">Pumpable</option>
+      <option value="ullage">Ullage</option>
+      <option value="level">Level</option>
+    </select>
+  </div>
+  <div class="result" id="valueDiff"></div>
+  <div class="result" id="levelEstimate"></div>
+  
+  <!-- معدل التدفق والوحدة -->
+  <div class="row">
+    <input id="flowrate" oninput="calculate()" placeholder="Flowrate" type="number"/>
+    <select id="flowUnit" onchange="calculate()">
+      <option value="bbl">bbl/hr</option>
+      <option value="m3">m³/hr</option>
+      <option value="mtr">meter/hr</option>
+    </select>
+  </div>
+  
+  <!-- النتيجة -->
+  <div class="result" id="output"></div>
+  
+  <!-- إضافة تذكير -->
+  <div style="margin-top: 20px;">
+    <a href="#" id="calendarLink" target="_blank">
+      <button class="reminder-btn">Add Reminder</button>
+    </a>
+    <button onclick="addToTable()" class="add-btn">Add to Table</button>
+  </div>
+
+  <!-- جدول الخزانات التي ستنتهي في الوردية الحالية -->
+  <h3 style="margin-top: 40px;">Tanks finishing in current shift:</h3>
+  <table id="tankTable">
+    <thead>
+      <tr>
+        <th>Tank Number</th>
+        <th>Finish Date</th>
+        <th>Finish Time</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <!-- ملف الصوت للإنذار -->
+  <audio id="alarmSound" preload="auto" src=""></audio>
+  
+  <!-- أزرار الواجهة -->
+  <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
+  
+  <footer>
+    By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
+    <br>
+    <small style="color: #999; font-size: 10px; margin-top: 5px; display: block;">
+      📱 WhatsApp: +965 55222550
+    </small>
+  </footer>
+
+  <script>
+    // 🔒 كود محمي - حقوق حصرية لفهد 17877
+    (function(){
+      'use strict';
+      
+      // حماية ضد النسخ والفحص
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('selectstart', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
+          e.preventDefault();
+        }
+      });
+      
+      // كشف أدوات المطور
+      setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ غير مسموح بفتح أدوات المطور<br>النظام محمي بحقوق حصرية</div>';
+        }
+      }, 1000);
+
+      const WHATSAPP_NUMBER = "96555222550";
+
+      // بيانات الخزانات المحمية
+      const tanks = {
+        "225": {comment: 12879.0, min: 3.353, max: 15.24},
+        "226": {comment: 12879.0, min: 3.353, max: 15.24},
+        "227": {comment: 11327.0, min: 2.0, max: 17.95},
+        "253": {comment: 10781.0, min: 2.0, max: 17.093},
+        "254": {comment: 12288.0, min: 2.0, max: 14.96},
+        "255": {comment: 12287.0, min: 2.0, max: 14.96},
+        "256": {comment: 12287.0, min: 2.0, max: 14.96},
+        "260": {comment: 2249.0, min: 2.0, max: 13.0},
+        "272": {comment: 7217.0, min: 2.0, max: 15.309},
+        "273": {comment: 4198.0, min: 2.0, max: 13.468},
+        "274": {comment: 4198.0, min: 2.0, max: 13.458},
+        "275": {comment: 9563.0, min: 2.0, max: 17.897},
+        "276": {comment: 7236.0, min: 2.0, max: 15.442},
+        "277": {comment: 4188.0, min: 2.0, max: 13.714},
+        "278": {comment: 9506.0, min: 1.98, max: 17.89},
+        "279": {comment: 4118.0, min: 1.98, max: 15.977},
+        "301": {comment: 7756.0, min: 3.048, max: 18.54},
+        "302": {comment: 7756.0, min: 3.048, max: 18.54},
+        "303": {comment: 6070.0, min: 2.59, max: 14.173},
+        "304": {comment: 6070.0, min: 2.59, max: 14.173},
+        "305": {comment: 7171.0, min: 0.533, max: 18.797},
+        "450": {comment: 3155.0, min: 2.0, max: 14.2},
+        "451": {comment: 930.0, min: 2.0, max: 13.0},
+        "452": {comment: 4587.0, min: 2.0, max: 13.0},
+        "453": {comment: 5067.0, min: 2.0, max: 17.8},
+        "454": {comment: 1653.0, min: 2.0, max: 11.36},
+        "455": {comment: 1654.0, min: 2.0, max: 11.36},
+        "456": {comment: 11574.0, min: 2.68, max: 13.41},
+        "457": {comment: 9697.0, min: 5.4, max: 16.45},
+        "458": {comment: 9697.0, min: 5.4, max: 16.45},
+        "459": {comment: 9466.0, min: 2.0, max: 14.35},
+        "460": {comment: 14213.0, min: 2.0, max: 17.65},
+        "461": {comment: 14213.0, min: 2.0, max: 17.653},
+        "462": {comment: 12354.0, min: 2.0, max: 16.46},
+        "463": {comment: 9578.0, min: 2.0, max: 17.89},
+        "464": {comment: 9578.0, min: 2.0, max: 17.889},
+        "465": {comment: 9572.0, min: 2.0, max: 17.89},
+        "467": {comment: 12375.0, min: 2.0, max: 17.771},
+        "468": {comment: 12375.0, min: 2.0, max: 17.771},
+        "469": {comment: 12375.0, min: 2.0, max: 17.771},
+        "470": {comment: 12375.0, min: 2.0, max: 17.77},
+        "503": {comment: 2888.0, min: 2.13, max: 10.97},
+        "504": {comment: 2888.0, min: 2.13, max: 10.97},
+        "506": {comment: 930.0, min: 0.92, max: 14.33},
+        "507": {comment: 413.0, min: 2.0, max: 6.5},
+        "508": {comment: 1130.0, min: 1.67, max: 12.65},
+        "509": {comment: 1130.0, min: 1.67, max: 12.65},
+        "510": {comment: 529.0, min: 2.0, max: 10.363},
+        "511": {comment: 4531.0, min: 0.198, max: 9.0},
+        "512": {comment: 2939.0, min: 0.92, max: 11.6},
+        "514": {comment: 2942.0, min: 0.92, max: 12.0},
+        "515": {comment: 2942.0, min: 0.92, max: 12.0},
+        "520": {comment: 4142.0, min: 1.88, max: 14.29},
+        "521": {comment: 4142.0, min: 1.88, max: 14.29},
+        "522": {comment: 11990.0, min: 1.61, max: 15.6},
+        "531": {comment: 12377.0, min: 2.0, max: 17.77},
+        "532": {comment: 12377.0, min: 2.0, max: 17.772},
+        "533": {comment: 12377.0, min: 2.0, max: 17.772},
+        "534": {comment: 12377.0, min: 2.0, max: 17.772},
+        "600": {comment: 9490.0, min: 2.0, max: 13.3},
+        "601": {comment: 9490.0, min: 2.0, max: 13.3},
+        "602": {comment: 9512.0, min: 2.0, max: 13.73},
+        "603": {comment: 11695.0, min: 2.0, max: 13.325},
+        "605": {comment: 12964.0, min: 2.0, max: 14.325},
+        "608": {comment: 1060.0, min: 2.0, max: 11.887},
+        "620": {comment: 11981.0, min: 1.65, max: 16.5},
+        "621": {comment: 11981.0, min: 1.65, max: 16.5},
+        "622": {comment: 5019.0, min: 2.0, max: 15.76},
+        "623": {comment: 5050.0, min: 1.6, max: 15.76},
+        "633": {comment: 412.0, min: 2.0, max: 6.0},
+        "634": {comment: 412.0, min: 2.0, max: 6.0},
+        "651": {comment: 6543.0, min: 2.0, max: 13.325},
+        "652": {comment: 6543.0, min: 2.0, max: 13.32},
+        "661": {comment: 12354.0, min: 2.0, max: 17.759},
+        "662": {comment: 5074.0, min: 2.0, max: 14.802},
+        "663": {comment: 1507.0, min: 2.0, max: 10.23},
+        "664": {comment: 7250.0, min: 2.0, max: 15.22},
+        "665": {comment: 7250.0, min: 2.0, max: 15.22},
+        "667": {comment: 12278.0, min: 2.0, max: 17.922},
+        "668": {comment: 16858.0, min: 2.0, max: 18.165},
+        "669": {comment: 16858.0, min: 2.0, max: 18.17},
+        "670": {comment: 16856.0, min: 2.0, max: 18.165},
+        "671": {comment: 12863.0, min: 2.0, max: 16.45},
+        "672": {comment: 13046.0, min: 2.0, max: 16.45},
+        "703": {comment: 12931.0, min: 2.0, max: 14.88},
+        "705": {comment: 12931.0, min: 2.0, max: 14.88},
+        "725": {comment: 1080.0, min: 0.914, max: 11.887},
+        "751": {comment: 12834.0, min: 2.0, max: 15.1},
+        "752": {comment: 12834.0, min: 2.0, max: 15.1},
+        "753": {comment: 12834.0, min: 2.0, max: 15.1},
+        "754": {comment: 12834.0, min: 2.0, max: 15.1},
+        "755": {comment: 12834.0, min: 2.0, max: 15.1},
+        "756": {comment: 12962.0, min: 2.0, max: 15.1},
+        "757": {comment: 10989.0, min: 2.0, max: 17.8},
+        "761": {comment: 20546.0, min: 2.0, max: 14.2},
+        "762": {comment: 20546.0, min: 2.0, max: 18.798},
+        "820": {comment: 16656.0, min: 1.6, max: 18.48},
+        "821": {comment: 16656.0, min: 1.6, max: 18.48},
+        "822": {comment: 16856.0, min: 1.6, max: 18.48},
+        "831": {comment: 11297.0, min: 2.0, max: 18.41},
+        "832": {comment: 11297.0, min: 2.0, max: 18.409},
+        "833": {comment: 7279.0, min: 3.25, max: 18.012},
+        "834": {comment: 7279.0, min: 3.25, max: 18.012},
+        "835": {comment: 7305.0, min: 2.0, max: 15.226},
+        "836": {comment: 7305.0, min: 2.0, max: 15.226},
+        "900": {comment: 2644.0, min: 1.6, max: 11.9},
+        "901": {comment: 2692.0, min: 2.0, max: 12.02},
+        "760": {comment: 20546, min: 2.0, max: 18.798},
+        "702": {comment: 12931, min: 2.0, max: 16.15},
+        "758": {comment: 20546, min: 2.0, max: 14.5},
+        "759": {comment: 20546, min: 2.0, max: 14.5}
+      };
+
+      // متغيرات عامة
+      let c = 0, m = 0, x = 0;
+
+      // تحميل بيانات الخزان
+      window.loadTank = function() {
+        const id = document.getElementById("tankInput").value.trim();
+        if (tanks[id]) {
+          c = tanks[id].comment;
+          m = tanks[id].min;
+          x = tanks[id].max;
+        } else {
+          c = m = x = 0;
+        }
+        calculate();
+      };
+
+      // تعديل معدل التدفق حسب الوحدة
+      function getAdjustedFlowrate(unit, raw) {
+        if (unit === "m3") return raw * 6.28; // تحويل من م³/ساعة إلى برميل/ساعة
+        else if (unit === "mtr") return raw;  // وحدة متر/ساعة
+        return raw; // برميل/ساعة
+      }
+
+      // حساب القيم
+      window.calculate = function() {
+        const level = parseFloat(document.getElementById("level").value || 0);
+        const target = parseFloat(document.getElementById("target").value || 0);
+        const flowRaw = parseFloat(document.getElementById("flowrate").value || 0);
+        const unit = document.getElementById("flowUnit").value;
+        const mode = document.getElementById("mode").value;
+
+        const available = document.getElementById("availablePumpable");
+        const ullageDiv = document.getElementById("currentUllage");
+        const levelEst = document.getElementById("levelEstimate");
+        const valueDiff = document.getElementById("valueDiff");
+        const output = document.getElementById("output");
+        const calendar = document.getElementById("calendarLink");
+
+        // التحقق من البيانات
+        if (!c || isNaN(level)) {
+          available.innerText = ullageDiv.innerText = valueDiff.innerText = levelEst.innerText = output.innerHTML = "";
+          return;
+        }
+
+        // حساب القيم الأساسية
+        const availablePumpable = (level - m) * c;
+        const currentUllage = (x - level) * c;
+        available.innerText = `Available Pumpable: ${availablePumpable.toFixed(2)} bbl`;
+        ullageDiv.innerText = `Current Ullage: ${currentUllage.toFixed(2)} bbl`;
+
+        // حساب التقديرات والفروق
+        if (!isNaN(target)) {
+          let estLevel = 0;
+          if (mode === "pumpable") {
+            estLevel = (target / c) + m;
+          } else if (mode === "ullage") {
+            estLevel = x - (target / c);
+          } else if (mode === "level") {
+            estLevel = target;
+          }
+          
+          const levelDiff = estLevel - level;
+          let estText = `Level Estimate: ${estLevel.toFixed(2)} m\nLevel Difference: ${levelDiff.toFixed(2)} m`;
+          
+          // تحديد لون النتيجة حسب المستوى
+          if (estLevel >= x - 0.5 || estLevel < m) {
+            levelEst.style.color = "#ff5555"; // أحمر للتحذير
+            estText += `\nHigh Level = ${x.toFixed(2)} m`;
+          } else {
+            levelEst.style.color = "#00ffff"; // أزرق للقيم الطبيعية
+          }
+          levelEst.innerText = estText;
+
+          // حساب الفرق حسب الوضع المختار
+          let diff = 0;
+          if (mode === "pumpable") {
+            diff = target - availablePumpable;
+            valueDiff.innerText = `Difference: ${diff.toLocaleString()} bbl`;
+          } else if (mode === "ullage") {
+            diff = currentUllage - target;
+            valueDiff.innerText = `To leave ${target.toLocaleString()} bbl ullage, fill: ${diff.toLocaleString()} bbl`;
+          } else if (mode === "level") {
+            const meters = level - target;
+            diff = meters * c;
+            valueDiff.innerText = `Level Difference: ${Math.abs(meters).toFixed(2)} m`;
+          }
+
+          // حساب الوقت المتبقي
+          const flow = getAdjustedFlowrate(unit, flowRaw);
+          let time = 0;
+
+          if (unit === "mtr" && mode !== "level") {
+            const meterDiff = Math.abs(diff / c);
+            time = meterDiff / flowRaw;
+          } else if (mode === "level" && unit === "mtr") {
+            const meterDiff = Math.abs(level - target);
+            time = meterDiff / flowRaw;
+          } else {
+            time = Math.abs(diff) / flow;
+          }
+
+          // عرض توقعات الوقت والتاريخ
+          if (!isNaN(time) && time > 0) {
+            const hrs = Math.floor(time);
+            const mins = Math.round((time % 1) * 60);
+            const now = new Date();
+            const finish = new Date(now.getTime() + time * 3600000);
+            const ft = finish.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const fd = finish.toLocaleDateString();
+            output.innerHTML = `Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;
+            
+            // تكوين رابط التقويم (جوجل كالندر)
+            const s = new Date(finish.getTime() - 600000);
+            const e = new Date(s.getTime() + 900000);
+            const S = s.toISOString().replace(/[-:]|\.\d{3}/g, "");
+            const E = e.toISOString().replace(/[-:]|\.\d{3}/g, "");
+            calendar.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+Reminder&details=Completion+Alert&dates=${S}/${E}`;
+            
+            // تحديد لون النتيجة حسب الوردية
+            const now2 = new Date();
+            const sameShift = isSameShift(now2, finish);
+            output.style.color = sameShift ? "red" : "lightgreen";
+          }
+        }
+        
+        // حفظ البيانات
+        saveDataToLocalStorage();
+      };
+
+      // إضافة صف إلى الجدول
+      window.addToTable = function() {
+        const tankNum = document.getElementById("tankInput").value;
+        const output = document.getElementById("output").innerHTML;
+        if (!tankNum || !output.includes("Finish Time")) return;
+
+        const timeMatch = output.match(/Finish Time: (.*?)<br>/);
+        const dateMatch = output.match(/Finish Date: (.*?)($|<br>)/);
+        if (!timeMatch || !dateMatch) return;
+
+        const time = timeMatch[1];
+        const date = dateMatch[1];
+
+        const table = document.querySelector("#tankTable tbody");
+        const row = table.insertRow();
+
+        // إنشاء خلايا الصف
+        const cell1 = row.insertCell();
+        cell1.textContent = tankNum;
+
+        const cell2 = row.insertCell();
+        cell2.textContent = date;
+
+        const cell3 = row.insertCell();
+        cell3.textContent = time;
+
+        const cell4 = row.insertCell();
+        const delBtn = document.createElement("button");
+        delBtn.innerHTML = "🗑️";
+        delBtn.style.background = "none";
+        delBtn.style.border = "none";
+        delBtn.style.cursor = "pointer";
+        delBtn.onclick = () => {
+          row.remove();
+          saveDataToLocalStorage();
+        };
+        cell4.appendChild(delBtn);
+
+        // تطبيق اللون حسب الوردية
+        const finishDate = new Date(date + " " + time);
+        const now = new Date();
+        
+        const sameShift = isSameShift(now, finishDate);
+        row.style.color = sameShift ? "red" : "green";
+        
+        // ترتيب الجدول
+        sortAndColorTable();
+        // حفظ البيانات
+        saveDataToLocalStorage();
+      };
+
+      // تحديد الوردية من الساعة والدقيقة
+      function getShiftCode(hour, minute) {
+        const totalMins = hour * 60 + minute;
+        if (totalMins >= 360 && totalMins < 840) return "morning";     // 06:00 – 13:59
+        if (totalMins >= 840 && totalMins < 1320) return "evening";    // 14:00 – 21:59
+        return "night";                                                // 22:00 – 05:59
+      }
+
+      // تحديد ما إذا كان التوقيت في نفس الشفت
+      function isSameShift(nowDate, finishDate) {
+        const nowHour = nowDate.getHours();
+        const nowMinutes = nowDate.getMinutes();
+        const finishHour = finishDate.getHours();
+        const finishMinutes = finishDate.getMinutes();
+        
+        const currentShift = getShiftCode(nowHour, nowMinutes);
+        const finishShift = getShiftCode(finishHour, finishMinutes);
+        
+        if (currentShift !== finishShift) {
+          return false;
+        }
+        
+        if (currentShift === "night") {
+          if (nowHour >= 0 && nowHour < 6) {
+            if (finishHour >= 0 && finishHour < 6) {
+              const dayDiff = Math.floor((finishDate.getTime() - nowDate.getTime()) / (24 * 60 * 60 * 1000));
+              return dayDiff <= 1;
+            } else if (finishHour >= 22) {
+              const dayDiff = Math.floor((finishDate.getTime() - nowDate.getTime()) / (24 * 60 * 60 * 1000));
+              return dayDiff === -1 || dayDiff === 0;
+            }
+          } else if (nowHour >= 22) {
+            if (finishHour >= 22) {
+              return nowDate.toDateString() === finishDate.toDateString();
+            } else if (finishHour >= 0 && finishHour < 6) {
+              const dayDiff = Math.floor((finishDate.getTime() - nowDate.getTime()) / (24 * 60 * 60 * 1000));
+              return dayDiff === 1;
+            }
+          }
+          return false;
+        }
+        
+        return nowDate.toDateString() === finishDate.toDateString();
+      }
+
+      // ترتيب وتلوين الجدول
+      function sortAndColorTable() {
+        const table = document.querySelector("#tankTable tbody");
+        const rows = Array.from(table.rows);
+        const now = new Date();
+
+        rows.sort((a, b) => {
+          const dateA = new Date(a.cells[1].textContent + " " + a.cells[2].textContent);
+          const dateB = new Date(b.cells[1].textContent + " " + b.cells[2].textContent);
+          return dateA - dateB;
+        });
+
+        rows.forEach(row => {
+          const dateText = row.cells[1].textContent;
+          const timeText = row.cells[2].textContent;
+          const finishDate = new Date(dateText + " " + timeText);
+          
+          const sameShift = isSameShift(now, finishDate);
+          row.style.color = sameShift ? "red" : "green";
+          table.appendChild(row);
+        });
+      }
+
+      // حفظ البيانات في التخزين المحلي
+      function saveDataToLocalStorage() {
+        const tankInput = document.getElementById('tankInput').value;
+        const level = document.getElementById('level').value;
+        const target = document.getElementById('target').value;
+        const mode = document.getElementById('mode').value;
+        const flowrate = document.getElementById('flowrate').value;
+        const flowUnit = document.getElementById('flowUnit').value;
+        
+        const data = {
+          tankInput,
+          level,
+          target,
+          mode,
+          flowrate,
+          flowUnit
+        };
+        
+        localStorage.setItem('pbcrData', JSON.stringify(data));
+        
+        // حفظ جدول الخزانات
+        const table = document.getElementById('tankTable');
+        const rows = Array.from(table.getElementsByTagName('tbody')[0].rows);
+        const tableData = rows.map(row => {
+          return {
+            tankNum: row.cells[0].textContent,
+            date: row.cells[1].textContent,
+            time: row.cells[2].textContent
+          };
+        });
+        
+        localStorage.setItem('pbcrTableData', JSON.stringify(tableData));
+      }
+
+      // استرجاع البيانات المحفوظة
+      function loadDataFromLocalStorage() {
+        const dataStr = localStorage.getItem('pbcrData');
+        if (dataStr) {
+          const data = JSON.parse(dataStr);
+          
+          document.getElementById('tankInput').value = data.tankInput || '';
+          document.getElementById('level').value = data.level || '';
+          document.getElementById('target').value = data.target || '';
+          document.getElementById('mode').value = data.mode || 'pumpable';
+          document.getElementById('flowrate').value = data.flowrate || '';
+          document.getElementById('flowUnit').value = data.flowUnit || 'bbl';
+          
+          if (data.tankInput) {
+            loadTank();
+          }
+        }
+        
+        // استرجاع بيانات الجدول
+        const tableDataStr = localStorage.getItem('pbcrTableData');
+        if (tableDataStr) {
+          const tableData = JSON.parse(tableDataStr);
+          const tbody = document.querySelector('#tankTable tbody');
+          
+          tableData.forEach(item => {
+            const row = tbody.insertRow();
+            
+            const cell1 = row.insertCell();
+            cell1.textContent = item.tankNum;
+            
+            const cell2 = row.insertCell();
+            cell2.textContent = item.date;
+            
+            const cell3 = row.insertCell();
+            cell3.textContent = item.time;
+            
+            const cell4 = row.insertCell();
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '🗑️';
+            delBtn.style.background = 'none';
+            delBtn.style.border = 'none';
+            delBtn.style.cursor = 'pointer';
+            delBtn.onclick = () => {
+              row.remove();
+              saveDataToLocalStorage();
+            };
+            cell4.appendChild(delBtn);
+          });
+          
+          sortAndColorTable();
+        }
+      }
+
+      // الوضع الداكن
+      function setupDarkMode() {
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        const darkModeButton = document.getElementById('darkModeButton');
+        
+        function updateColorMode() {
+          if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            darkModeButton.innerHTML = '☀️';
+          } else {
+            document.body.classList.remove('dark-mode');
+            darkModeButton.innerHTML = '🌙';
+          }
+        }
+        
+        darkModeButton.addEventListener('click', () => {
+          isDarkMode = !isDarkMode;
+          localStorage.setItem('darkMode', isDarkMode);
+          updateColorMode();
+        });
+        
+        updateColorMode();
+      }
+
+      window.openWhatsApp = function() {
+        const message = "مرحبا، أتواصل معك من خلال تطبيق PBCR & WASHERY";
+        const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+        
+        try {
+          const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+          if (!newWindow) {
+            window.location.href = whatsappURL;
+          }
+        } catch (error) {
+          navigator.clipboard.writeText(whatsappURL).then(() => {
+            alert(`تم نسخ رابط الواتساب:\n${whatsappURL}\n\nالصق الرابط في المتصفح للتواصل`);
+          }).catch(() => {
+            alert(`رابط الواتساب:\n${whatsappURL}\n\nانسخ الرابط والصقه في المتصفح`);
+          });
+        }
+      };
+
+      // تهيئة الصفحة
+      document.addEventListener('DOMContentLoaded', function() {
+        loadDataFromLocalStorage();
+        
+        ['input', 'change'].forEach(eventType => {
+          document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener(eventType, saveDataToLocalStorage);
+          });
+        });
+
+        setupDarkMode();
+      });
+      
+    })();
+    
+    // رسالة حقوق الطبع والنشر
+    console.log('%c⚠️ تحذير: هذا النظام محمي بحقوق حصرية','color:red;font-size:20px;font-weight:bold;');
+    console.log('%cمطور النظام: فهد - 17877','color:green;font-size:16px;');
+    console.log('%cأي محاولة لنسخ أو تعديل الكود محظورة قانونياً','color:red;font-size:14px;');
+  </script>
+</body>
+</html>

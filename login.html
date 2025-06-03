@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tank Tools - Login</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="icon.png" type="image/png">
+  <meta name="theme-color" content="#003366">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font-family: 'Arial', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .input-container {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .email-suffix {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .email-input {
+      padding-right: 120px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      color: #ff6b6b;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .success-message {
+      background: rgba(0, 255, 0, 0.1);
+      border: 1px solid rgba(0, 255, 0, 0.3);
+      color: #4CAF50;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .remember-me input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* تحسينات للجوال */
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+        margin: 20px;
+      }
+      
+      .logo {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">🛠️ Tank Tools</div>
+    <div class="subtitle">Tank Systems Management - KNPC</div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">👤 Username:</label>
+        <input type="text" id="username" name="username" placeholder="Enter username" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">📧 Email:</label>
+        <div class="input-container">
+          <input type="text" id="email" name="email" class="email-input" placeholder="username" required>
+          <span class="email-suffix">@knpc.com</span>
+        </div>
+      </div>
+      
+      <div class="remember-me">
+        <input type="checkbox" id="rememberMe" name="rememberMe">
+        <label for="rememberMe">Remember me</label>
+      </div>
+      
+      <button type="submit" class="login-btn" id="loginBtn">
+        🚀 Login
+      </button>
+      
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Verifying credentials...</div>
+      </div>
+    </form>
+    
+    <div id="messageContainer"></div>
+    
+    <div class="footer">
+      By <strong>Fahad - 17877</strong> | Version 3.0<br>
+      Secure & Monitored System 🔒
+    </div>
+  </div>
+
+  <script>
+    // تكوين PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => console.log('SW registered'))
+          .catch(error => console.log('SW registration failed'));
+      });
+    }
+
+    // عناصر الصفحة
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const loading = document.getElementById('loading');
+    const messageContainer = document.getElementById('messageContainer');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const rememberMe = document.getElementById('rememberMe');
+
+    // رابط السيرفر - سنضعه لاحقاً
+    const SERVER_URL = 'https://your-server.digitalocean.com/api';
+
+    // تحميل البيانات المحفوظة
+    loadSavedCredentials();
+
+    // التعامل مع تسجيل الدخول
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await handleLogin();
+    });
+
+    // دالة تسجيل الدخول
+    async function handleLogin() {
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+
+      // التحقق من البيانات
+      const validation = validateInput(username, email);
+      if (!validation.valid) {
+        showMessage(validation.message, 'error');
+        return;
+      }
+
+      // إظهار شاشة التحميل
+      showLoading(true);
+
+      try {
+        // محاكاة طلب للسيرفر (سنربطه لاحقاً)
+        const response = await authenticateUser(username, email);
+        
+        if (response.success) {
+          // حفظ بيانات المستخدم
+          saveUserData(username, email);
+          
+          // حفظ الجلسة
+          if (rememberMe.checked) {
+            saveCrede‌ntials(username, email);
+          }
+          
+          showMessage('✅ Login successful! Redirecting...', 'success');
+          
+          // Redirect to dashboard
+          setTimeout(() => {
+            window.location.href = '/dashboard.html';
+          }, 1500);
+          
+        } else {
+          throw new Error(response.message);
+        }
+        
+      } catch (error) {
+        showMessage(`❌ ${error.message}`, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Input validation
+    function validateInput(username, email) {
+      if (!username || username.length < 3) {
+        return { valid: false, message: 'Username must be at least 3 characters long' };
+      }
+
+      if (!email || email.length < 2) {
+        return { valid: false, message: 'Please enter email username' };
+      }
+
+      // Username validation (letters and numbers only)
+      const usernameRegex = /^[a-zA-Z0-9._]+$/;
+      if (!usernameRegex.test(username)) {
+        return { valid: false, message: 'Username must contain only letters and numbers' };
+      }
+
+      const emailRegex = /^[a-zA-Z0-9._]+$/;
+      if (!emailRegex.test(email)) {
+        return { valid: false, message: 'Email contains invalid characters' };
+      }
+
+      return { valid: true };
+    }
+
+    // محاكاة طلب المصادقة (سنربطه بالسيرفر لاحقاً)
+    async function authenticateUser(username, email) {
+      // محاكاة تأخير الشبكة
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // في الوقت الحالي، نقبل أي مستخدم صحيح
+      // سنربطه بقاعدة البيانات لاحقاً
+      return {
+        success: true,
+        user: { username, email: `${email}@knpc.com` },
+        token: 'temp_token_' + Date.now()
+      };
+    }
+
+    // حفظ بيانات المستخدم في الجلسة
+    function saveUserData(username, email) {
+      const userData = {
+        username,
+        email: `${email}@knpc.com`,
+        loginTime: new Date().toISOString(),
+        lastActivity: new Date().toISOString()
+      };
+      
+      localStorage.setItem('tanktools_user', JSON.stringify(userData));
+      sessionStorage.setItem('tanktools_session', 'active');
+    }
+
+    // حفظ بيانات تسجيل الدخول
+    function saveCrede‌ntials(username, email) {
+      if (rememberMe.checked) {
+        localStorage.setItem('tanktools_remember', JSON.stringify({
+          username,
+          email
+        }));
+      }
+    }
+
+    // تحميل البيانات المحفوظة
+    function loadSavedCredentials() {
+      const saved = localStorage.getItem('tanktools_remember');
+      if (saved) {
+        try {
+          const { username, email } = JSON.parse(saved);
+          usernameInput.value = username || '';
+          emailInput.value = email || '';
+          rememberMe.checked = true;
+        } catch (error) {
+          console.log('خطأ في تحميل البيانات المحفوظة');
+        }
+      }
+    }
+
+    // إظهار الرسائل
+    function showMessage(message, type) {
+      messageContainer.innerHTML = `
+        <div class="${type}-message">
+          ${message}
+        </div>
+      `;
+      
+      // إخفاء الرسالة بعد 5 ثوان
+      setTimeout(() => {
+        messageContainer.innerHTML = '';
+      }, 5000);
+    }
+
+    // إظهار/إخفاء شاشة التحميل
+    function showLoading(show) {
+      if (show) {
+        loginBtn.style.display = 'none';
+        loading.style.display = 'block';
+      } else {
+        loginBtn.style.display = 'block';
+        loading.style.display = 'none';
+      }
+    }
+
+    // تحسين تجربة المستخدم
+    emailInput.addEventListener('input', (e) => {
+      // منع إدخال @ أو مسافات
+      e.target.value = e.target.value.replace(/[@\s]/g, '');
+    });
+
+    usernameInput.addEventListener('input', (e) => {
+      // منع المسافات في اسم المستخدم
+      e.target.value = e.target.value.replace(/\s/g, '');
+    });
+
+    // فحص الجلسة الحالية
+    function checkExistingSession() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_user');
+      
+      if (session === 'active' && userData) {
+        // Redirect user directly to dashboard
+        showMessage('Active session found, redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 1000);
+      }
+    }
+
+    // فحص الجلسة عند تحميل الصفحة
+    window.addEventListener('load', checkExistingSession);
+
+    // إضافة دعم Enter للتسجيل
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !loginBtn.disabled) {
+        handleLogin();
+      }
+    });
+  </script>
+</body>
+</html>
