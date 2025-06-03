@@ -569,8 +569,8 @@
       });
     })();
 
-    // EmailJS Configuration
-    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+    // EmailJS Configuration - Tank Tools Real Settings
+    emailjs.init("E8PE3MsUZrT5IKF-E"); // Tank Tools EmailJS Public Key
     
     // Global variables
     let pendingUser = null;
@@ -678,7 +678,7 @@
       }
     }
 
-    // Send verification email
+    // Send verification email - Tank Tools Real Configuration
     async function sendVerificationEmail(user) {
       const token = btoa(`${user.username}|${Date.now()}`);
       const verificationLink = `${window.location.origin}${window.location.pathname}?verify=${token}`;
@@ -690,11 +690,11 @@
         username: user.username
       };
 
-      // Replace with your EmailJS service ID and template ID
-      return emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+      // Tank Tools EmailJS Real Settings
+      return emailjs.send('service_tanktools', 'template_9jpa5ek', templateParams);
     }
 
-    // Validation functions (same as before)
+    // Validation functions
     function validateUsername() {
       const username = document.getElementById('username').value;
       const msg = document.getElementById('usernameMsg');
@@ -825,7 +825,7 @@
       element.className = 'validation-message';
     }
 
-    // Registration handler with email verification
+    // Registration handler with EmailJS integration
     async function handleRegister(event) {
       event.preventDefault();
       
@@ -871,20 +871,38 @@
         // Store pending user for resend functionality
         pendingUser = newUser;
         
-        // For now, activate user immediately (email verification disabled temporarily)
-        newUser.isActive = true;
-        newUser.emailVerified = true;
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        
-        logActivity('user_registered', newUser.username);
-        
-        showMessage('✅ Account created successfully! You can now login.', 'success');
-        
-        setTimeout(() => {
-          switchTab('login');
-          document.getElementById('loginUsername').value = username;
-          clearForm('register');
-        }, 2000);
+        // Send verification email with Tank Tools EmailJS
+        try {
+          await sendVerificationEmail(newUser);
+          
+          logActivity('user_registered', newUser.username);
+          
+          showMessage('✅ Account created! Please check your email to verify your account.', 'success');
+          
+          setTimeout(() => {
+            showVerificationScreen(newUser.email);
+            clearForm('register');
+          }, 2000);
+          
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+          
+          // If email fails, still create account but show different message
+          showMessage('✅ Account created! Email verification temporarily disabled - you can login directly.', 'info');
+          
+          // Auto-activate account if email fails
+          newUser.isActive = true;
+          newUser.emailVerified = true;
+          localStorage.setItem('tanktools_users', JSON.stringify(users));
+          
+          logActivity('user_registered', newUser.username);
+          
+          setTimeout(() => {
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+            clearForm('register');
+          }, 2000);
+        }
         
       } catch (error) {
         showMessage('❌ Registration failed. Please try again.', 'error');
