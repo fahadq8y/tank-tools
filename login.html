@@ -575,8 +575,24 @@
     // Global variables
     let pendingUser = null;
     
+    // Initialize and fix admin user if needed
+    function initializeAdminUser() {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      let fam030User = users.find(u => u.username === 'fam030');
+      
+      if (fam030User) {
+        // Ensure admin user has correct role and status
+        fam030User.role = 'admin';
+        fam030User.isActive = true;
+        fam030User.emailVerified = true;
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        console.log('Admin user fam030 updated with correct permissions');
+      }
+    }
+
     // Initialize
     window.addEventListener('load', () => {
+      initializeAdminUser(); // Fix admin user data
       loadSavedCredentials();
       checkExistingSession();
       
@@ -887,21 +903,15 @@
         } catch (emailError) {
           console.error('Email sending failed:', emailError);
           
-          // If email fails, still create account but show different message
-          showMessage('✅ Account created! Email verification temporarily disabled - you can login directly.', 'info');
+          // If email fails, give user option to try again or contact admin
+          showMessage('❌ Failed to send verification email. Please try again or contact admin.', 'error');
           
-          // Auto-activate account if email fails
-          newUser.isActive = true;
-          newUser.emailVerified = true;
-          localStorage.setItem('tanktools_users', JSON.stringify(users));
-          
-          logActivity('user_registered', newUser.username);
-          
-          setTimeout(() => {
-            switchTab('login');
-            document.getElementById('loginUsername').value = username;
-            clearForm('register');
-          }, 2000);
+          // Remove the user from storage since email failed
+          const userIndex = users.findIndex(u => u.username === username);
+          if (userIndex > -1) {
+            users.splice(userIndex, 1);
+            localStorage.setItem('tanktools_users', JSON.stringify(users));
+          }
         }
         
       } catch (error) {
@@ -941,8 +951,8 @@
           throw new Error('Invalid username or password');
         }
         
-        if (!user.isActive) {
-          throw new Error('Account is not activated. Please check your email for verification link.');
+        if (!user.isActive || !user.emailVerified) {
+          throw new Error('Account is not activated. Please check your email for verification link or contact admin.');
         }
         
         // Update last login
@@ -973,9 +983,9 @@
         
         showMessage('✅ Login successful! Redirecting...', 'success');
         
-        // Redirect based on role
+        // Redirect based on role - Enhanced admin check
         setTimeout(() => {
-          if (user.username === 'fam030') {
+          if (user.username === 'fam030' || user.role === 'admin') {
             window.location.href = 'dashboard.html';
           } else {
             window.location.href = 'index.html';
@@ -1054,7 +1064,8 @@
           const user = JSON.parse(userData);
           showMessage('✅ Active session found, redirecting...', 'success');
           setTimeout(() => {
-            if (user.username === 'fam030') {
+            // Check if user is fam030 admin for dashboard access
+            if (user.username === 'fam030' || user.role === 'admin') {
               window.location.href = 'dashboard.html';
             } else {
               window.location.href = 'index.html';
