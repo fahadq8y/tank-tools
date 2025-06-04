@@ -378,7 +378,7 @@
     function showValidation(element,message,type){element.textContent=message;element.className=`validation-message show ${type}`}
     function hideValidation(element){element.className='validation-message'}
 
-    // Main Login Handler
+    // Main Login Handler with Fallback
     async function handleLogin(event){
       event.preventDefault();
       const username=document.getElementById('loginUsername').value.trim(),password=document.getElementById('loginPassword').value,rememberMe=document.getElementById('rememberMe').checked;
@@ -387,16 +387,30 @@
       showLoading('login',true);
       try{
         await new Promise(resolve=>setTimeout(resolve,1200));
-        const usersDatabase=await fetchUsersFromGitHub();
+        let usersDatabase,usingGitHub=true;
+        try{
+          usersDatabase=await fetchUsersFromGitHub()
+        }catch{
+          console.log('GitHub failed, using localStorage fallback');
+          usingGitHub=false;
+          const users=JSON.parse(localStorage.getItem('tanktools_users')||'[]');
+          usersDatabase={users:{},activityLog:JSON.parse(localStorage.getItem('tanktools_activities')||'[]'),stats:{totalUsers:users.length,todayLogins:0}};
+          users.forEach(u=>usersDatabase.users[u.username]=u)
+        }
         const user=usersDatabase.users[username];
         if(!user)throw new Error('Invalid username or password');
         if(user.password!==btoa(password))throw new Error('Invalid username or password');
         if(!user.isActive)throw new Error('Your account is not activated yet. Please check your email for activation link or contact admin for manual activation.');
         user.lastLogin=new Date().toISOString();
-        addActivity('تسجيل دخول',username);
-        updateStats();
-        await updateUsersInGitHub(usersDatabase);
-        const sessionData={id:user.id,username:user.username,fullName:user.fullName,email:user.email,role:user.role||'user',loginTime:new Date().toISOString()};
+        if(usingGitHub){
+          addActivity('تسجيل دخول',username);
+          updateStats();
+          try{await updateUsersInGitHub(usersDatabase)}catch{console.log('Failed to update GitHub, saved locally')}
+        }else{
+          const users=Object.values(usersDatabase.users);
+          localStorage.setItem('tanktools_users',JSON.stringify(users))
+        }
+        const sessionData={id:user.id||Date.now(),username:user.username,fullName:user.fullName,email:user.email,role:user.role||'user',loginTime:new Date().toISOString()};
         localStorage.setItem('tanktools_current_user',JSON.stringify(sessionData));
         sessionStorage.setItem('tanktools_session','active');
         if(rememberMe)localStorage.setItem('tanktools_remember',JSON.stringify({username:username,rememberMe:true}));
@@ -409,7 +423,7 @@
       }catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('login',false)}
     }
 
-    // Enhanced Registration Handler
+    // Enhanced Registration Handler with Fallback
     async function handleRegister(event){
       event.preventDefault();
       const fullName=document.getElementById('fullName').value.trim(),username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,confirmPassword=document.getElementById('confirmPassword').value;
@@ -418,13 +432,27 @@
       showLoading('register',true);
       try{
         await new Promise(resolve=>setTimeout(resolve,1500));
-        let usersDatabase=await fetchUsersFromGitHub();
+        let usersDatabase,usingGitHub=true;
+        try{
+          usersDatabase=await fetchUsersFromGitHub()
+        }catch{
+          console.log('GitHub failed, using localStorage fallback');
+          usingGitHub=false;
+          const users=JSON.parse(localStorage.getItem('tanktools_users')||'[]');
+          usersDatabase={users:{},activityLog:[],stats:{totalUsers:0,todayLogins:0}};
+          users.forEach(u=>usersDatabase.users[u.username]=u)
+        }
         if(usersDatabase.users[username])throw new Error('Username already exists');
-        const newUser={username:username,email:`${username}@knpc.com`,fullName:fullName,password:btoa(password),isActive:true,isAdmin:false,createdAt:new Date().toISOString(),lastLogin:null};
+        const newUser={username:username,email:`${username}@knpc.com`,fullName:fullName,password:btoa(password),isActive:true,isAdmin:false,createdAt:new Date().toISOString(),lastLogin:null,id:Date.now()};
         usersDatabase.users[username]=newUser;
-        addActivity('إنشاء حساب جديد',username);
-        updateStats();
-        await updateUsersInGitHub(usersDatabase);
+        if(usingGitHub){
+          addActivity('إنشاء حساب جديد',username);
+          updateStats();
+          try{await updateUsersInGitHub(usersDatabase)}catch{console.log('Failed to update GitHub, saved locally')}
+        }else{
+          const users=Object.values(usersDatabase.users);
+          localStorage.setItem('tanktools_users',JSON.stringify(users))
+        }
         logActivity('user_registered',newUser.username);
         showMessage('✅ Account created successfully! You can now login.','success');
         setTimeout(()=>{switchTab('login');document.getElementById('loginUsername').value=username},2000)
