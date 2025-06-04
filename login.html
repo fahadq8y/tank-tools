@@ -390,31 +390,42 @@
         
         const user = userDoc.data();
         
+        console.log('👤 User data:', user); // للتشخيص
+        console.log('🔍 User active status:', user.isActive); // للتشخيص
+        
         if (user.password !== password && user.password !== btoa(password)) {
           throw new Error('Invalid username or password');
         }
         
         if (!user.isActive) {
-          // Show clear activation message
-          const activationHTML = `
-            <div style="background:rgba(255,193,7,0.15);border:2px solid rgba(255,193,7,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,193,7,0.2);" onclick="contactAdminWhatsAppLogin('${username}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,193,7,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'">
-              <div style="font-size:2.5rem;margin-bottom:10px;">⏳</div>
-              <div style="font-size:1.3rem;font-weight:bold;color:#f57c00;margin-bottom:12px;">Account Not Activated</div>
-              <div style="color:#f57c00;margin-bottom:15px;line-height:1.5;">
-                Your account <strong>${username}@knpc.com</strong> is pending admin approval.<br>
-                Click here to contact admin via WhatsApp for quick activation.
-              </div>
-              <div style="background:#25D366;color:white;padding:12px 24px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;font-weight:bold;font-size:1rem;">
-                📱 Contact Admin via WhatsApp
-              </div>
-              <div style="margin-top:10px;font-size:0.85rem;color:#f57c00;opacity:0.8;">
-                💡 Usually activated within minutes!
-              </div>
-            </div>
-          `;
+          console.log('❌ Account not active, showing WhatsApp option'); // للتشخيص
           
-          document.getElementById('messageContainer').innerHTML = activationHTML;
-          throw new Error('Account activation required');
+          // Clear any existing messages first
+          document.getElementById('messageContainer').innerHTML = '';
+          
+          // Show clear activation message with a slight delay
+          setTimeout(() => {
+            const activationHTML = `
+              <div style="background:rgba(255,193,7,0.15);border:2px solid rgba(255,193,7,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,193,7,0.2);" onclick="contactAdminWhatsAppLogin('${username}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,193,7,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'">
+                <div style="font-size:2.5rem;margin-bottom:10px;">⏳</div>
+                <div style="font-size:1.3rem;font-weight:bold;color:#f57c00;margin-bottom:12px;">Account Not Activated</div>
+                <div style="color:#f57c00;margin-bottom:15px;line-height:1.5;">
+                  Your account <strong>${username}@knpc.com</strong> is pending admin approval.<br>
+                  Click here to contact admin via WhatsApp for quick activation.
+                </div>
+                <div style="background:#25D366;color:white;padding:12px 24px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;font-weight:bold;font-size:1rem;">
+                  📱 Contact Admin via WhatsApp
+                </div>
+                <div style="margin-top:10px;font-size:0.85rem;color:#f57c00;opacity:0.8;">
+                  💡 Usually activated within minutes!
+                </div>
+              </div>
+            `;
+            
+            document.getElementById('messageContainer').innerHTML = activationHTML;
+          }, 300);
+          
+          throw new Error('Account activation required - Click the message above to contact admin');
         }
         
         // Update last login
