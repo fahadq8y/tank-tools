@@ -161,15 +161,18 @@
     // Firebase helper functions
     async function initializeUserData() {
       try {
+        console.log('🔍 Checking admin user...');
+        
         // Check if admin user exists
         const adminDoc = await getDoc(doc(db, 'users', 'fam030'));
         if (!adminDoc.exists()) {
+          console.log('➕ Creating admin user...');
           // Create admin user
           await setDoc(doc(db, 'users', 'fam030'), {
             username: 'fam030',
             email: 'fam030@knpc.com',
             fullName: 'Fahad Admin',
-            password: btoa('fahad123'), // encoded password
+            password: btoa('admin123'), // Default password: admin123
             isActive: true,
             isAdmin: true,
             role: 'admin',
@@ -177,7 +180,10 @@
             lastLogin: null,
             id: 1
           });
-          console.log('✅ Admin user created');
+          console.log('✅ Admin user created with password: admin123');
+          showMessage('✅ Admin account created! Username: fam030, Password: admin123', 'success');
+        } else {
+          console.log('✅ Admin user already exists');
         }
 
         // Initialize system stats if not exists
@@ -192,6 +198,7 @@
         }
       } catch (error) {
         console.error('❌ Error initializing data:', error);
+        showMessage('⚠️ Database initialization error: ' + error.message, 'error');
       }
     }
 
@@ -383,7 +390,7 @@
         
         const user = userDoc.data();
         
-        if (user.password !== btoa(password)) {
+        if (user.password !== password && user.password !== btoa(password)) {
           throw new Error('Invalid username or password');
         }
         
@@ -471,7 +478,7 @@
           username: username,
           email: `${username}@knpc.com`,
           fullName: fullName,
-          password: btoa(password),
+          password: password, // Store password directly for now
           isActive: true,
           isAdmin: false,
           createdAt: serverTimestamp(),
