@@ -13,10 +13,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tank Tools">
   
-  <!-- Hide browser UI for app-like experience -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-touch-fullscreen" content="yes">
-  
   <style>
     * {
       margin: 0;
@@ -263,12 +259,28 @@
       color: white;
     }
 
-    .btn-primary:hover {
+    .btn-secondary {
+      background: linear-gradient(45deg, #2196F3, #1976D2);
+      color: white;
+      margin-top: 10px;
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .btn-danger {
+      background: linear-gradient(45deg, #f44336, #d32f2f);
+      color: white;
+      margin-top: 10px;
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
     }
 
-    .btn-primary:disabled {
+    .btn:disabled {
       background: #ccc;
       cursor: not-allowed;
       transform: none;
@@ -287,6 +299,20 @@
 
     .btn:hover::before {
       left: 100%;
+    }
+
+    .forgot-password-link {
+      color: #2196F3;
+      text-decoration: none;
+      font-size: 14px;
+      display: block;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .forgot-password-link:hover {
+      color: #1976D2;
+      text-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
     }
 
     .message {
@@ -349,35 +375,47 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Email Verification Styles */
-    .verification-container {
+    /* Email Status Alert */
+    .email-status {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      color: #ffc107;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* Forgot Password Screen */
+    .forgot-container {
       display: none;
       text-align: center;
     }
 
-    .verification-container.active {
+    .forgot-container.active {
       display: block;
       animation: slideIn 0.5s ease;
     }
 
-    .verification-icon {
+    .forgot-icon {
       font-size: 4rem;
       margin-bottom: 20px;
       color: #2196F3;
     }
 
-    .verification-title {
+    .forgot-title {
       font-size: 1.5rem;
       margin-bottom: 15px;
       color: #2196F3;
     }
 
-    .verification-text {
+    .forgot-text {
       margin-bottom: 20px;
       opacity: 0.8;
     }
 
-    .resend-btn {
+    .back-btn {
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.3);
       color: white;
@@ -388,7 +426,7 @@
       margin-top: 10px;
     }
 
-    .resend-btn:hover {
+    .back-btn:hover {
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -408,13 +446,6 @@
         font-size: 14px;
       }
     }
-
-    /* Hide address bar on mobile */
-    @media (max-width: 768px) and (display-mode: standalone) {
-      body {
-        padding-top: env(safe-area-inset-top);
-      }
-    }
   </style>
 </head>
 <body>
@@ -422,7 +453,12 @@
     <div class="logo">🛠️ Tank Tools</div>
     <div class="subtitle">Kuwait National Petroleum Company</div>
     
-    <!-- Login/Register Tabs -->
+    <!-- Email Service Status Alert -->
+    <div class="email-status">
+      ⚠️ Email service temporarily limited. Use "Forgot Password" if needed.
+    </div>
+    
+    <!-- Main Container -->
     <div id="mainContainer">
       <div class="tab-container">
         <button class="tab active" onclick="switchTab('login')">Login</button>
@@ -457,6 +493,10 @@
           <button type="submit" class="btn btn-primary" id="loginBtn">
             🚀 Login
           </button>
+          
+          <a href="#" class="forgot-password-link" onclick="showForgotPassword()">
+            🔑 Forgot Password?
+          </a>
           
           <div class="loading" id="loginLoading">
             <div class="spinner"></div>
@@ -511,19 +551,39 @@
       </div>
     </div>
 
-    <!-- Email Verification Screen -->
-    <div id="verificationContainer" class="verification-container">
-      <div class="verification-icon">📧</div>
-      <div class="verification-title">Check Your Email</div>
-      <div class="verification-text">
-        We've sent a verification link to:<br>
-        <strong id="verificationEmail"></strong>
+    <!-- Forgot Password Screen -->
+    <div id="forgotContainer" class="forgot-container">
+      <div class="forgot-icon">🔑</div>
+      <div class="forgot-title">Reset Password</div>
+      <div class="forgot-text">
+        Enter your username to reset your password
       </div>
-      <div class="verification-text">
-        Click the link in your email to activate your account.
-      </div>
-      <button class="resend-btn" onclick="resendVerification()">Resend Email</button>
-      <button class="resend-btn" onclick="backToLogin()" style="margin-left: 10px;">Back to Login</button>
+      
+      <form onsubmit="handleForgotPassword(event)">
+        <div class="form-group">
+          <label for="forgotUsername">👤 Username:</label>
+          <div class="username-container">
+            <input type="text" id="forgotUsername" class="username-input" placeholder="abc123" required 
+                   pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6">
+            <div class="email-suffix">@knpc.com</div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-secondary" id="resetBtn">
+          📧 Send Reset Link
+        </button>
+        
+        <button type="button" class="btn btn-danger" onclick="contactAdmin()" style="margin-top: 10px;">
+          📱 Contact Admin
+        </button>
+        
+        <button type="button" class="back-btn" onclick="backToLogin()">Back to Login</button>
+        
+        <div class="loading" id="forgotLoading">
+          <div class="spinner"></div>
+          <div>Sending reset link...</div>
+        </div>
+      </form>
     </div>
 
     <div id="messageContainer"></div>
@@ -543,7 +603,6 @@
     (function() {
       'use strict';
       
-      // Disable developer tools and context menu
       document.addEventListener('contextmenu', e => e.preventDefault());
       document.addEventListener('selectstart', e => e.preventDefault());
       document.addEventListener('keydown', e => {
@@ -553,46 +612,22 @@
         }
       });
       
-      // Detect developer tools
       setInterval(() => {
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
           document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
         }
       }, 1000);
-
-      // PWA Install prompt
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        // Show install prompt after successful login
-      });
     })();
 
-    // EmailJS Configuration - Tank Tools Real Settings
-    emailjs.init("E8PE3MsUZrT5IKF-E"); // Tank Tools EmailJS Public Key
+    // Enhanced EmailJS Configuration with fallback
+    emailjs.init("E8PE3MsUZrT5IKF-E");
     
-    // Global variables
     let pendingUser = null;
+    const WHATSAPP_ADMIN = "96555222550";
     
-    // Initialize and fix admin user if needed
-    function initializeAdminUser() {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      let fam030User = users.find(u => u.username === 'fam030');
-      
-      if (fam030User) {
-        // Ensure admin user has correct role and status
-        fam030User.role = 'admin';
-        fam030User.isActive = true;
-        fam030User.emailVerified = true;
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        console.log('Admin user fam030 updated with correct permissions');
-      }
-    }
-
     // Initialize
     window.addEventListener('load', () => {
-      initializeAdminUser(); // Fix admin user data
+      initializeAdminUser();
       loadSavedCredentials();
       checkExistingSession();
       
@@ -603,54 +638,20 @@
       document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
       document.getElementById('fullName').addEventListener('input', validateFullName);
 
-      // Check if coming from verification link
       checkVerificationToken();
     });
 
-    // Check verification token from URL
-    function checkVerificationToken() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('verify');
+    // Initialize and fix admin user
+    function initializeAdminUser() {
+      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+      let fam030User = users.find(u => u.username === 'fam030');
       
-      if (token) {
-        verifyEmailToken(token);
-      }
-    }
-
-    // Verify email token
-    function verifyEmailToken(token) {
-      try {
-        const decodedToken = atob(token);
-        const [username, timestamp] = decodedToken.split('|');
-        
-        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        const user = users.find(u => u.username === username);
-        
-        if (user && !user.emailVerified) {
-          // Check if token is not expired (24 hours)
-          const tokenTime = parseInt(timestamp);
-          const now = Date.now();
-          const hoursDiff = (now - tokenTime) / (1000 * 60 * 60);
-          
-          if (hoursDiff <= 24) {
-            user.emailVerified = true;
-            user.isActive = true;
-            localStorage.setItem('tanktools_users', JSON.stringify(users));
-            
-            showMessage('✅ Email verified successfully! You can now login.', 'success');
-            switchTab('login');
-            document.getElementById('loginUsername').value = username;
-            
-            // Clean URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-          } else {
-            showMessage('❌ Verification link has expired. Please register again.', 'error');
-          }
-        } else {
-          showMessage('❌ Invalid or already verified token.', 'error');
-        }
-      } catch (error) {
-        showMessage('❌ Invalid verification link.', 'error');
+      if (fam030User) {
+        fam030User.role = 'admin';
+        fam030User.isActive = true;
+        fam030User.emailVerified = true;
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        console.log('Admin user fam030 updated with correct permissions');
       }
     }
 
@@ -665,36 +666,281 @@
       clearMessages();
     }
 
-    // Show verification screen
-    function showVerificationScreen(email) {
+    // Show forgot password screen
+    function showForgotPassword() {
       document.getElementById('mainContainer').style.display = 'none';
-      document.getElementById('verificationContainer').classList.add('active');
-      document.getElementById('verificationEmail').textContent = email;
+      document.getElementById('forgotContainer').classList.add('active');
+      clearMessages();
     }
 
     // Back to login
     function backToLogin() {
-      document.getElementById('verificationContainer').classList.remove('active');
+      document.getElementById('forgotContainer').classList.remove('active');
       document.getElementById('mainContainer').style.display = 'block';
-      switchTab('login');
+      clearMessages();
     }
 
-    // Resend verification email
-    async function resendVerification() {
-      if (!pendingUser) {
-        showMessage('❌ No pending verification found.', 'error');
+    // Contact Admin via WhatsApp
+    function contactAdmin() {
+      const message = "Hello, I need help with Tank Tools password reset. My username is: " + 
+                     document.getElementById('forgotUsername').value + "@knpc.com";
+      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
+      
+      try {
+        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+          window.location.href = whatsappURL;
+        }
+        showMessage('📱 WhatsApp opened. Contact admin for password reset.', 'info');
+      } catch (error) {
+        showMessage('📱 Please contact admin via WhatsApp: +965 55222550', 'info');
+      }
+    }
+
+    // Handle forgot password
+    async function handleForgotPassword(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('forgotUsername').value.trim();
+      
+      if (!validateForgotUsername(username)) {
+        showMessage('❌ Please enter a valid username format', 'error');
         return;
       }
-
+      
+      showLoading('reset', true);
+      
       try {
-        await sendVerificationEmail(pendingUser);
-        showMessage('📧 Verification email sent again!', 'success');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const user = users.find(u => u.username === username);
+        
+        if (!user) {
+          throw new Error('Username not found in our system');
+        }
+        
+        // Try to send email first
+        try {
+          const resetToken = btoa(`${username}|${Date.now()}|reset`);
+          const resetLink = `${window.location.origin}${window.location.pathname}?reset=${resetToken}`;
+          
+          const templateParams = {
+            to_name: user.fullName || user.username,
+            to_email: user.email,
+            reset_link: resetLink,
+            username: user.username,
+            temporary_password: generateTempPassword()
+          };
+
+          await emailjs.send('service_tanktools', 'template_9jpa5ek', templateParams);
+          
+          showMessage('✅ Password reset link sent to your email!', 'success');
+          
+        } catch (emailError) {
+          console.error('Email failed, using fallback:', emailError);
+          
+          // Fallback: Store reset request for admin
+          const resetRequests = JSON.parse(localStorage.getItem('tanktools_reset_requests') || '[]');
+          resetRequests.unshift({
+            username: username,
+            email: user.email,
+            requestTime: new Date().toISOString(),
+            status: 'pending'
+          });
+          resetRequests.splice(10); // Keep only last 10 requests
+          localStorage.setItem('tanktools_reset_requests', JSON.stringify(resetRequests));
+          
+          showMessage('📧 Email service unavailable. Reset request sent to admin. You can also contact admin directly.', 'info');
+        }
+        
+        logActivity('password_reset_requested', username);
+        
       } catch (error) {
-        showMessage('❌ Failed to resend email. Please try again.', 'error');
+        showMessage(`❌ ${error.message}`, 'error');
+      } finally {
+        showLoading('reset', false);
       }
     }
 
-    // Send verification email - Tank Tools Real Configuration
+    // Generate temporary password
+    function generateTempPassword() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    // Validate forgot password username
+    function validateForgotUsername(username) {
+      const pattern = /^[a-zA-Z]{3}[0-9]{3}$/;
+      return pattern.test(username);
+    }
+
+    // Check verification token
+    function checkVerificationToken() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('verify');
+      const resetToken = urlParams.get('reset');
+      
+      if (token) {
+        verifyEmailToken(token);
+      }
+      
+      if (resetToken) {
+        handleResetToken(resetToken);
+      }
+    }
+
+    // Handle reset token
+    function handleResetToken(token) {
+      try {
+        const decodedToken = atob(token);
+        const [username, timestamp, action] = decodedToken.split('|');
+        
+        if (action !== 'reset') return;
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const user = users.find(u => u.username === username);
+        
+        if (user) {
+          const tokenTime = parseInt(timestamp);
+          const now = Date.now();
+          const hoursDiff = (now - tokenTime) / (1000 * 60 * 60);
+          
+          if (hoursDiff <= 24) {
+            const newPassword = generateTempPassword();
+            user.password = btoa(newPassword);
+            localStorage.setItem('tanktools_users', JSON.stringify(users));
+            
+            showMessage(`✅ Password reset successful! Your new password is: ${newPassword}`, 'success');
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+            
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else {
+            showMessage('❌ Reset link has expired. Please try again.', 'error');
+          }
+        } else {
+          showMessage('❌ Invalid reset token.', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ Invalid reset link.', 'error');
+      }
+    }
+
+    // Verify email token
+    function verifyEmailToken(token) {
+      try {
+        const decodedToken = atob(token);
+        const [username, timestamp] = decodedToken.split('|');
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const user = users.find(u => u.username === username);
+        
+        if (user && !user.emailVerified) {
+          const tokenTime = parseInt(timestamp);
+          const now = Date.now();
+          const hoursDiff = (now - tokenTime) / (1000 * 60 * 60);
+          
+          if (hoursDiff <= 24) {
+            user.emailVerified = true;
+            user.isActive = true;
+            localStorage.setItem('tanktools_users', JSON.stringify(users));
+            
+            showMessage('✅ Email verified successfully! You can now login.', 'success');
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+            
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else {
+            showMessage('❌ Verification link has expired. Please register again.', 'error');
+          }
+        } else {
+          showMessage('❌ Invalid or already verified token.', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ Invalid verification link.', 'error');
+      }
+    }
+
+    // Enhanced registration with better email handling
+    async function handleRegister(event) {
+      event.preventDefault();
+      
+      const fullName = document.getElementById('fullName').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      const isValidName = validateFullName();
+      const isValidUsername = validateUsername();
+      const isValidPassword = validatePassword();
+      const isValidConfirm = validateConfirmPassword();
+      
+      if (!isValidName || !isValidUsername || !isValidPassword || !isValidConfirm) {
+        showMessage('❌ Please fix all validation errors', 'error');
+        return;
+      }
+      
+      showLoading('register', true);
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        
+        const newUser = {
+          id: Date.now(),
+          fullName,
+          username,
+          email: `${username}@knpc.com`,
+          password: btoa(password),
+          createdAt: new Date().toISOString(),
+          isActive: false,
+          emailVerified: false,
+          lastLogin: null,
+          role: username === 'fam030' ? 'admin' : 'user'
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        pendingUser = newUser;
+        
+        // Try to send verification email
+        try {
+          await sendVerificationEmail(newUser);
+          showMessage('✅ Account created! Please check your email to verify your account.', 'success');
+          
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+          
+          // Fallback: Auto-activate for now, show warning
+          newUser.isActive = true;
+          newUser.emailVerified = true;
+          localStorage.setItem('tanktools_users', JSON.stringify(users));
+          
+          showMessage('✅ Account created! Email service limited - Account activated automatically. Please login.', 'info');
+          setTimeout(() => {
+            switchTab('login');
+            document.getElementById('loginUsername').value = username;
+          }, 2000);
+        }
+        
+        logActivity('user_registered', newUser.username);
+        clearForm('register');
+        
+      } catch (error) {
+        showMessage('❌ Registration failed. Please try again.', 'error');
+      } finally {
+        showLoading('register', false);
+      }
+    }
+
+    // Enhanced send verification email
     async function sendVerificationEmail(user) {
       const token = btoa(`${user.username}|${Date.now()}`);
       const verificationLink = `${window.location.origin}${window.location.pathname}?verify=${token}`;
@@ -706,8 +952,84 @@
         username: user.username
       };
 
-      // Tank Tools EmailJS Real Settings
       return emailjs.send('service_tanktools', 'template_9jpa5ek', templateParams);
+    }
+
+    // Enhanced login handler
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      if (!validateLoginUsername()) {
+        showMessage('❌ Please enter a valid username format', 'error');
+        return;
+      }
+      
+      if (!password) {
+        showMessage('❌ Please enter your password', 'error');
+        return;
+      }
+      
+      showLoading('login', true);
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        
+        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+        const user = users.find(u => u.username === username && u.password === btoa(password));
+        
+        if (!user) {
+          throw new Error('Invalid username or password');
+        }
+        
+        if (!user.isActive) {
+          throw new Error('Account is not activated. Please contact admin or use forgot password.');
+        }
+        
+        // Update last login
+        user.lastLogin = new Date().toISOString();
+        localStorage.setItem('tanktools_users', JSON.stringify(users));
+        
+        // Save session
+        const sessionData = {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role || 'user',
+          loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('tanktools_current_user', JSON.stringify(sessionData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        if (rememberMe) {
+          localStorage.setItem('tanktools_remember', JSON.stringify({
+            username: username,
+            rememberMe: true
+          }));
+        }
+        
+        logActivity('user_login', user.username);
+        
+        showMessage('✅ Login successful! Redirecting...', 'success');
+        
+        setTimeout(() => {
+          if (user.username === 'fam030' || user.role === 'admin') {
+            window.location.href = 'dashboard.html';
+          } else {
+            window.location.href = 'index.html';
+          }
+        }, 1500);
+        
+      } catch (error) {
+        showMessage(`❌ ${error.message}`, 'error');
+      } finally {
+        showLoading('login', false);
+      }
     }
 
     // Validation functions
@@ -841,164 +1163,6 @@
       element.className = 'validation-message';
     }
 
-    // Registration handler with EmailJS integration
-    async function handleRegister(event) {
-      event.preventDefault();
-      
-      const fullName = document.getElementById('fullName').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      
-      // Validate all fields
-      const isValidName = validateFullName();
-      const isValidUsername = validateUsername();
-      const isValidPassword = validatePassword();
-      const isValidConfirm = validateConfirmPassword();
-      
-      if (!isValidName || !isValidUsername || !isValidPassword || !isValidConfirm) {
-        showMessage('❌ Please fix all validation errors', 'error');
-        return;
-      }
-      
-      showLoading('register', true);
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        
-        const newUser = {
-          id: Date.now(),
-          fullName,
-          username,
-          email: `${username}@knpc.com`,
-          password: btoa(password),
-          createdAt: new Date().toISOString(),
-          isActive: false, // Will be activated after email verification
-          emailVerified: false,
-          lastLogin: null,
-          role: username === 'fam030' ? 'admin' : 'user' // Set admin role for fam030
-        };
-        
-        users.push(newUser);
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        
-        // Store pending user for resend functionality
-        pendingUser = newUser;
-        
-        // Send verification email with Tank Tools EmailJS
-        try {
-          await sendVerificationEmail(newUser);
-          
-          logActivity('user_registered', newUser.username);
-          
-          showMessage('✅ Account created! Please check your email to verify your account.', 'success');
-          
-          setTimeout(() => {
-            showVerificationScreen(newUser.email);
-            clearForm('register');
-          }, 2000);
-          
-        } catch (emailError) {
-          console.error('Email sending failed:', emailError);
-          
-          // If email fails, give user option to try again or contact admin
-          showMessage('❌ Failed to send verification email. Please try again or contact admin.', 'error');
-          
-          // Remove the user from storage since email failed
-          const userIndex = users.findIndex(u => u.username === username);
-          if (userIndex > -1) {
-            users.splice(userIndex, 1);
-            localStorage.setItem('tanktools_users', JSON.stringify(users));
-          }
-        }
-        
-      } catch (error) {
-        showMessage('❌ Registration failed. Please try again.', 'error');
-      } finally {
-        showLoading('register', false);
-      }
-    }
-
-    // Login handler
-    async function handleLogin(event) {
-      event.preventDefault();
-      
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const rememberMe = document.getElementById('rememberMe').checked;
-      
-      if (!validateLoginUsername()) {
-        showMessage('❌ Please enter a valid username format', 'error');
-        return;
-      }
-      
-      if (!password) {
-        showMessage('❌ Please enter your password', 'error');
-        return;
-      }
-      
-      showLoading('login', true);
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
-        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        const user = users.find(u => u.username === username && u.password === btoa(password));
-        
-        if (!user) {
-          throw new Error('Invalid username or password');
-        }
-        
-        if (!user.isActive || !user.emailVerified) {
-          throw new Error('Account is not activated. Please check your email for verification link or contact admin.');
-        }
-        
-        // Update last login
-        user.lastLogin = new Date().toISOString();
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        
-        // Save session
-        const sessionData = {
-          id: user.id,
-          username: user.username,
-          fullName: user.fullName,
-          email: user.email,
-          role: user.role || 'user',
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('tanktools_current_user', JSON.stringify(sessionData));
-        sessionStorage.setItem('tanktools_session', 'active');
-        
-        if (rememberMe) {
-          localStorage.setItem('tanktools_remember', JSON.stringify({
-            username: username,
-            rememberMe: true
-          }));
-        }
-        
-        logActivity('user_login', user.username);
-        
-        showMessage('✅ Login successful! Redirecting...', 'success');
-        
-        // Redirect based on role - Enhanced admin check
-        setTimeout(() => {
-          if (user.username === 'fam030' || user.role === 'admin') {
-            window.location.href = 'dashboard.html';
-          } else {
-            window.location.href = 'index.html';
-          }
-        }, 1500);
-        
-      } catch (error) {
-        showMessage(`❌ ${error.message}`, 'error');
-      } finally {
-        showLoading('login', false);
-      }
-    }
-
     // Utility functions
     function showLoading(form, show) {
       const btn = document.getElementById(form + 'Btn');
@@ -1023,7 +1187,7 @@
       
       setTimeout(() => {
         container.innerHTML = '';
-      }, 5000);
+      }, 7000);
     }
 
     function clearMessages() {
@@ -1064,7 +1228,6 @@
           const user = JSON.parse(userData);
           showMessage('✅ Active session found, redirecting...', 'success');
           setTimeout(() => {
-            // Check if user is fam030 admin for dashboard access
             if (user.username === 'fam030' || user.role === 'admin') {
               window.location.href = 'dashboard.html';
             } else {
@@ -1094,10 +1257,9 @@
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
-    // Console protection message
-    console.log('%c🔒 TANK TOOLS - SECURE SYSTEM', 'color: red; font-size: 20px; font-weight: bold;');
+    console.log('%c🔒 TANK TOOLS - SECURE SYSTEM v3.0', 'color: red; font-size: 20px; font-weight: bold;');
     console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
-    console.log('%cUnauthorized access is prohibited and monitored', 'color: red; font-size: 14px;');
+    console.log('%cEnhanced with Forgot Password System', 'color: blue; font-size: 14px;');
   </script>
 </body>
 </html>
