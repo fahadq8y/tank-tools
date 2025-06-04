@@ -395,26 +395,26 @@
         }
         
         if (!user.isActive) {
-          // Show activation reminder with options
-          const activationOptionsHTML = `
-            <div style="background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#f57c00;padding:20px;border-radius:12px;margin:20px 0;text-align:center;">
-              <div style="font-size:1.1rem;font-weight:bold;margin-bottom:15px;">⏳ Account Pending Activation</div>
-              <div style="margin-bottom:20px;">
-                Your account <strong>${username}@knpc.com</strong> is waiting for admin approval.
+          // Show clear activation message
+          const activationHTML = `
+            <div style="background:rgba(255,193,7,0.15);border:2px solid rgba(255,193,7,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,193,7,0.2);" onclick="contactAdminWhatsAppLogin('${username}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,193,7,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'">
+              <div style="font-size:2.5rem;margin-bottom:10px;">⏳</div>
+              <div style="font-size:1.3rem;font-weight:bold;color:#f57c00;margin-bottom:12px;">Account Not Activated</div>
+              <div style="color:#f57c00;margin-bottom:15px;line-height:1.5;">
+                Your account <strong>${username}@knpc.com</strong> is pending admin approval.<br>
+                Click here to contact admin via WhatsApp for quick activation.
               </div>
-              <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
-                <button onclick="contactAdminWhatsAppLogin('${username}')" style="background:#25D366;color:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                  📱 Contact Admin via WhatsApp
-                </button>
-                <button onclick="this.parentElement.parentElement.parentElement.innerHTML=''" style="background:#666;color:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">
-                  ❌ Close
-                </button>
+              <div style="background:#25D366;color:white;padding:12px 24px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;font-weight:bold;font-size:1rem;">
+                📱 Contact Admin via WhatsApp
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:#f57c00;opacity:0.8;">
+                💡 Usually activated within minutes!
               </div>
             </div>
           `;
           
-          document.getElementById('messageContainer').innerHTML = activationOptionsHTML;
-          throw new Error('Account pending activation');
+          document.getElementById('messageContainer').innerHTML = activationHTML;
+          throw new Error('Account activation required');
         }
         
         // Update last login
@@ -738,15 +738,18 @@ Tank Tools Registration System`;
 
     // Contact admin via WhatsApp from login
     function contactAdminWhatsAppLogin(username) {
-      const message = `Hello Admin! 👋
+      const message = `Hello Admin Fahad! 👋
 
-I'm trying to login to Tank Tools but my account needs activation:
+I need account activation for Tank Tools:
 
 👤 Username: ${username}
 📧 Email: ${username}@knpc.com
-🕐 Login Attempt: ${new Date().toLocaleString()}
+🚪 Login Attempt: ${new Date().toLocaleString()}
+⚠️ Status: Account not activated
 
-Could you please activate my account? Thank you! 🙏
+Please activate my account so I can access Tank Tools applications (PBCR, PLCR, NMOGAS).
+
+Thank you! 🙏
 
 Tank Tools Login System`;
       
@@ -758,11 +761,52 @@ Tank Tools Login System`;
           window.location.href = whatsappURL;
         }
         
-        showMessage('📱 WhatsApp opened! Send the message to get activated.', 'success');
+        // Update the message to show WhatsApp was opened
+        const successHTML = `
+          <div style="background:rgba(76,175,80,0.2);border:2px solid rgba(76,175,80,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">✅</div>
+            <div style="font-size:1.2rem;font-weight:bold;color:#4CAF50;margin-bottom:12px;">WhatsApp Opened Successfully!</div>
+            <div style="color:#4CAF50;margin-bottom:15px;line-height:1.5;">
+              Message sent to admin with your account details.<br>
+              Your account will be activated shortly.
+            </div>
+            <div style="background:#2196F3;color:white;padding:10px 20px;border-radius:8px;display:inline-block;font-weight:bold;">
+              🔄 Try Login Again in 2-3 Minutes
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('messageContainer').innerHTML = successHTML;
+        
+        // Record WhatsApp contact in Firebase
+        try {
+          updateDoc(doc(db, 'users', username), {
+            whatsappContactTime: serverTimestamp(),
+            contactMethod: 'whatsapp_login',
+            lastContactReason: 'activation_request'
+          });
+        } catch (error) {
+          console.log('Firebase update error:', error);
+        }
         
       } catch (error) {
         console.error('WhatsApp error:', error);
-        showMessage('📱 Please manually contact admin via WhatsApp: +965 55222550', 'info');
+        
+        const errorHTML = `
+          <div style="background:rgba(33,150,243,0.2);border:2px solid rgba(33,150,243,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:10px;">📱</div>
+            <div style="font-size:1.1rem;font-weight:bold;color:#2196F3;margin-bottom:12px;">Contact Admin Manually</div>
+            <div style="color:#2196F3;margin-bottom:15px;">
+              WhatsApp: <strong>+965 55222550</strong><br>
+              Username: <strong>${username}</strong>
+            </div>
+            <div style="background:#f44336;color:white;padding:8px 16px;border-radius:6px;display:inline-block;font-size:0.9rem;">
+              Request account activation
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('messageContainer').innerHTML = errorHTML;
       }
     }
 
