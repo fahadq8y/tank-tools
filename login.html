@@ -483,26 +483,39 @@
           username: username,
           email: `${username}@knpc.com`,
           fullName: fullName,
-          password: password, // Store password directly for now
-          isActive: false, // NEW USERS START INACTIVE
+          password: password,
+          isActive: false, // Inactive until email verified
           isAdmin: false,
           createdAt: serverTimestamp(),
           lastLogin: null,
-          id: Date.now()
+          id: Date.now(),
+          emailVerificationToken: generateToken(), // Generate verification token
+          emailSent: false
         };
         
         await setDoc(doc(db, 'users', username), newUser);
+        
+        // Add to email queue for sending
+        await addDoc(collection(db, 'emailQueue'), {
+          type: 'activation',
+          to: newUser.email,
+          username: username,
+          fullName: fullName,
+          token: newUser.emailVerificationToken,
+          timestamp: serverTimestamp(),
+          status: 'pending'
+        });
         
         // Add activity
         await addActivity('إنشاء حساب جديد', username);
         await updateStats();
         
-        showMessage('✅ Account created successfully! Your account is pending admin approval.', 'success');
+        showMessage('✅ Account created! Activation email sent. Check your email or contact admin.', 'success');
         
         setTimeout(() => {
           switchTab('login');
           document.getElementById('loginUsername').value = username;
-          showMessage('ℹ️ Please wait for admin approval before logging in.', 'info');
+          showMessage('📧 Activation email sent! Check your inbox or wait for admin approval.', 'info');
         }, 2000);
         
       } catch (error) {
@@ -636,6 +649,11 @@
           localStorage.removeItem('tanktools_current_user');
         }
       }
+    }
+
+    // Generate verification token
+    function generateToken() {
+      return Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
 
     // Initialize when page loads

@@ -626,6 +626,7 @@
               </div>
               <div class="pending-actions">
                 <button class="btn btn-primary" onclick="approveUser('${user.username}')">✅ Approve</button>
+                <button class="btn btn-secondary" onclick="sendActivationEmail('${user.username}')">📧 Send Email</button>
                 <button class="btn btn-danger" onclick="deleteUser('${user.username}')">❌ Reject</button>
               </div>
             </div>
@@ -642,6 +643,47 @@
     // Close pending modal
     function closePendingModal() {
       document.getElementById('pendingModal').classList.remove('show');
+    }
+
+    // Send activation email
+    async function sendActivationEmail(username) {
+      const user = allUsers.find(u => u.username === username);
+      if (!user) return;
+      
+      try {
+        // Generate new token if doesn't exist
+        const verificationToken = user.emailVerificationToken || generateToken();
+        
+        if (!user.emailVerificationToken) {
+          await updateDoc(doc(db, 'users', username), {
+            emailVerificationToken: verificationToken
+          });
+        }
+        
+        // Add to email queue
+        await addDoc(collection(db, 'emailQueue'), {
+          type: 'activation',
+          to: user.email,
+          username: username,
+          fullName: user.fullName,
+          token: verificationToken,
+          timestamp: serverTimestamp(),
+          status: 'pending'
+        });
+        
+        showMessage(`📧 Activation email queued for ${username}!`, 'success');
+        
+        await addActivity('activation_email_sent_by_admin', currentUser.username);
+        
+      } catch (error) {
+        console.error('Error sending activation email:', error);
+        showMessage('❌ Error sending email: ' + error.message, 'error');
+      }
+    }
+
+    // Generate token
+    function generateToken() {
+      return Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
 
     // Approve user
@@ -789,6 +831,7 @@
     window.closePendingModal = closePendingModal;
     window.approveUser = approveUser;
     window.approveAllPending = approveAllPending;
+    window.sendActivationEmail = sendActivationEmail;
     window.logout = logout;
 
     console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.0', 'color:orange;font-size:20px;font-weight:bold');
