@@ -407,7 +407,7 @@
         await addActivity('تسجيل دخول', username);
         await updateStats();
         
-        // Save session
+        // Save session to localStorage only (Firebase handles the database)
         const sessionData = {
           id: user.id || Date.now(),
           username: user.username,
@@ -467,9 +467,14 @@
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Check if username exists
-        const userDoc = await getDoc(doc(db, 'users', username));
-        if (userDoc.exists()) {
+        // Check if username exists in Firebase
+        const existingUserQuery = await getDocs(collection(db, 'users'));
+        const existingUsernames = [];
+        existingUserQuery.forEach((doc) => {
+          existingUsernames.push(doc.id);
+        });
+        
+        if (existingUsernames.includes(username)) {
           throw new Error('Username already exists');
         }
         
