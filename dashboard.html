@@ -68,12 +68,49 @@
     .message.success { background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.5); color: #4CAF50; }
     .message.error { background: rgba(244, 67, 54, 0.2); border: 1px solid rgba(244, 67, 54, 0.5); color: #f44336; }
     .message.info { background: rgba(33, 150, 243, 0.2); border: 1px solid rgba(33, 150, 243, 0.5); color: #2196F3; }
+    .message.warning { background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); color: #ffc107; }
     .message.show { display: block; animation: slideIn 0.5s ease; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 768px) { .navbar { flex-direction: column; gap: 10px; } .stats-section { grid-template-columns: repeat(2, 1fr); } .section-header { flex-direction: column; align-items: flex-start; } .search-filter { flex-direction: column; } .users-table { font-size: 12px; } .users-table th, .users-table td { padding: 8px 4px; } .action-buttons { flex-direction: column; } }
+
+    /* Security Warning Modal */
+    .security-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; backdrop-filter: blur(5px); }
+    .security-modal.show { display: flex; justify-content: center; align-items: center; }
+    .security-modal-content { background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; color: #003366; text-align: center; animation: modalSlideIn 0.5s ease; }
+    @keyframes modalSlideIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    .security-icon { font-size: 3rem; margin-bottom: 15px; }
+    .security-title { font-size: 1.5rem; margin-bottom: 15px; font-weight: bold; }
+    .security-text { margin-bottom: 20px; line-height: 1.5; }
+    .attempt-counter { background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); color: #f57c00; padding: 10px; border-radius: 8px; margin: 15px 0; font-weight: bold; }
+    .security-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+    .modal-btn-primary { background: #4CAF50; color: white; }
+    .modal-btn-secondary { background: #2196F3; color: white; }
+    .modal-btn-danger { background: #f44336; color: white; }
+    .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+    @media (max-width: 768px) { .navbar { flex-direction: column; gap: 10px; } .stats-section { grid-template-columns: repeat(2, 1fr); } .section-header { flex-direction: column; align-items: flex-start; } .search-filter { flex-direction: column; } .users-table { font-size: 12px; } .users-table th, .users-table td { padding: 8px 4px; } .action-buttons { flex-direction: column; } .security-buttons { flex-direction: column; } .modal-btn { width: 100%; } }
   </style>
 </head>
 <body>
+  <!-- Security Warning Modal -->
+  <div id="securityModal" class="security-modal">
+    <div class="security-modal-content">
+      <div class="security-icon" id="securityIcon">⚠️</div>
+      <div class="security-title" id="securityTitle">Security Warning</div>
+      <div class="security-text" id="securityText">
+        We detected you trying to access developer tools. This action is monitored for security purposes.
+      </div>
+      <div class="attempt-counter" id="attemptCounter">
+        Attempts: <span id="attemptCount">1</span>/3
+      </div>
+      <div class="security-buttons">
+        <button class="modal-btn modal-btn-primary" onclick="acknowledgeWarning()">I Understand</button>
+        <button class="modal-btn modal-btn-secondary" onclick="resetPage()">Reset Page</button>
+        <button class="modal-btn modal-btn-danger" onclick="learnMore()">Learn More</button>
+      </div>
+    </div>
+  </div>
+
   <nav class="navbar">
     <div class="navbar-brand">👑 Master Admin Control</div>
     <div class="user-info">
@@ -120,6 +157,10 @@
         <div class="stat-number" id="resetRequests">0</div>
         <div class="stat-label">Reset Requests</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-number" id="pendingActivations">0</div>
+        <div class="stat-label">Pending Activations</div>
+      </div>
     </div>
 
     <div class="search-filter">
@@ -144,6 +185,7 @@
         <div class="header-actions">
           <button class="btn btn-primary" onclick="addNewUser()">➕ Add User</button>
           <button class="btn btn-secondary" onclick="exportUsers()">📊 Export</button>
+          <button class="btn btn-warning" onclick="showPendingActivations()">🔍 Pending</button>
           <button class="btn btn-warning" onclick="showDebugInfo()">🔍 Debug</button>
           <button class="btn btn-danger" onclick="refreshUsers()">🔄 Refresh</button>
         </div>
@@ -187,6 +229,24 @@
         <button class="btn btn-secondary" onclick="migrateData()">📦 Migrate Data</button>
         <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
         <button class="btn btn-secondary" onclick="closeDebugModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Activations Modal -->
+  <div id="pendingActivationsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">🕐 Pending Account Activations</h3>
+        <button class="close-btn" onclick="closePendingModal()">&times;</button>
+      </div>
+      <div id="pendingActivationsContent">
+        Loading pending activations...
+      </div>
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="btn btn-primary" onclick="activateAllPending()">✅ Activate All</button>
+        <button class="btn btn-danger" onclick="clearPendingList()">🗑️ Clear List</button>
+        <button class="btn btn-secondary" onclick="closePendingModal()">Close</button>
       </div>
     </div>
   </div>
@@ -245,534 +305,878 @@
   </div>
 
   <script>
+    // 🔒 Smart Security Protection System - Dashboard Version
     (function() {
       'use strict';
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('selectstart', e => e.preventDefault());
-      document.addEventListener('keydown', e => {
-        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
-          e.preventDefault();
+      
+      // Security state management
+      let securityAttempts = 0;
+      let isSecurityModalOpen = false;
+      let securityViolationTypes = [];
+      
+      // Enhanced security with user-friendly approach
+      function initSmartSecurity() {
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', handleSecurityViolation.bind(null, 'context-menu'));
+        
+        // Disable text selection (but allow form inputs)
+        document.addEventListener('selectstart', (e) => {
+          if (!e.target.matches('input, textarea')) {
+            handleSecurityViolation('text-selection')(e);
+          }
+        });
+        
+        // Monitor dangerous key combinations
+        document.addEventListener('keydown', (e) => {
+          const dangerousKeys = [
+            (e.ctrlKey && e.key === 'u'), // View source
+            (e.ctrlKey && e.key === 's'), // Save page
+            (e.ctrlKey && e.shiftKey && e.key === 'I'), // DevTools
+            (e.key === 'F12'), // DevTools
+            (e.ctrlKey && e.shiftKey && e.key === 'C'), // Inspect element
+            (e.ctrlKey && e.shiftKey && e.key === 'J'), // Console
+            (e.ctrlKey && e.key === 'c' && !e.target.matches('input, textarea')), // Copy (outside inputs)
+            (e.ctrlKey && e.key === 'a' && !e.target.matches('input, textarea')) // Select all (outside inputs)
+          ];
+          
+          if (dangerousKeys.some(condition => condition)) {
+            handleSecurityViolation('keyboard-shortcut')(e);
+          }
+        });
+        
+        // Monitor for developer tools (less aggressive)
+        let devToolsOpen = false;
+        setInterval(() => {
+          const threshold = 160;
+          const widthDiff = window.outerWidth - window.innerWidth;
+          const heightDiff = window.outerHeight - window.innerHeight;
+          
+          if (widthDiff > threshold || heightDiff > threshold) {
+            if (!devToolsOpen) {
+              devToolsOpen = true;
+              handleSecurityViolation('devtools-detected')();
+            }
+          } else {
+            devToolsOpen = false;
+          }
+        }, 2000); // Check less frequently
+      }
+      
+      // Smart security violation handler
+      function handleSecurityViolation(type) {
+        return function(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          
+          securityAttempts++;
+          securityViolationTypes.push(type);
+          
+          // Different responses based on attempt count
+          if (securityAttempts === 1) {
+            showSecurityWarning('first');
+          } else if (securityAttempts === 2) {
+            showSecurityWarning('second');
+          } else if (securityAttempts >= 3) {
+            showSecurityWarning('final');
+          }
+          
+          return false;
+        };
+      }
+      
+      // Show smart security warning
+      function showSecurityWarning(level) {
+        if (isSecurityModalOpen) return;
+        
+        const modal = document.getElementById('securityModal');
+        const icon = document.getElementById('securityIcon');
+        const title = document.getElementById('securityTitle');
+        const text = document.getElementById('securityText');
+        const counter = document.getElementById('attemptCounter');
+        const countSpan = document.getElementById('attemptCount');
+        
+        isSecurityModalOpen = true;
+        countSpan.textContent = securityAttempts;
+        
+        if (level === 'first') {
+          icon.textContent = '👀';
+          title.textContent = 'Admin Security Notice';
+          text.innerHTML = `
+            <p>We noticed you tried to access developer tools on the Admin Dashboard.</p>
+            <p><strong>If this was accidental:</strong> No problem! Just click "I Understand" to continue.</p>
+            <p><strong>Admin Note:</strong> As an administrator, you have access to debug tools through the interface. Use the Debug button for system diagnostics.</p>
+          `;
+          counter.style.background = 'rgba(33, 150, 243, 0.2)';
+          counter.style.borderColor = 'rgba(33, 150, 243, 0.5)';
+          counter.style.color = '#2196F3';
+        } else if (level === 'second') {
+          icon.textContent = '⚠️';
+          title.textContent = 'Admin Security Warning';
+          text.innerHTML = `
+            <p><strong>Second attempt detected on Admin Dashboard.</strong></p>
+            <p>As an admin, please note:</p>
+            <ul style="text-align: left; margin: 10px 0;">
+              <li>The dashboard provides safe debugging tools</li>
+              <li>Direct browser tools may interfere with admin functions</li>
+              <li>All admin activities are logged for security</li>
+              <li>Use the built-in Debug feature for system analysis</li>
+            </ul>
+            <p>One more attempt will implement additional security measures.</p>
+          `;
+          counter.style.background = 'rgba(255, 193, 7, 0.2)';
+          counter.style.borderColor = 'rgba(255, 193, 7, 0.5)';
+          counter.style.color = '#ffc107';
+        } else {
+          icon.textContent = '🚫';
+          title.textContent = 'Admin Security Lock';
+          text.innerHTML = `
+            <p><strong>Maximum attempts exceeded on Admin Dashboard.</strong></p>
+            <p>For enhanced security of the admin panel:</p>
+            <ul style="text-align: left; margin: 10px 0;">
+              <li>Additional monitoring has been activated</li>
+              <li>Use the "Reset Page" button to continue normally</li>
+              <li>Utilize built-in admin tools for system management</li>
+              <li>Contact system developer if browser tools are needed</li>
+            </ul>
+            <p><strong>Remember:</strong> You have full admin access through the interface.</p>
+          `;
+          counter.style.background = 'rgba(244, 67, 54, 0.2)';
+          counter.style.borderColor = 'rgba(244, 67, 54, 0.5)';
+          counter.style.color = '#f44336';
+          
+          // After final warning, implement restrictions
+          setTimeout(() => {
+            if (securityAttempts >= 3) {
+              implementSecurityRestrictions();
+            }
+          }, 5000);
         }
-      });
-      setInterval(() => {
-        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied<br><br>Master Admin by Fahad - 17877</div>';
+        
+        modal.classList.add('show');
+      }
+      
+      // Implement security restrictions after 3 attempts
+      function implementSecurityRestrictions() {
+        document.body.style.filter = 'blur(3px)';
+        
+        const restrictionOverlay = document.createElement('div');
+        restrictionOverlay.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            text-align: center;
+            padding: 20px;
+          ">
+            <div style="font-size: 4rem; margin-bottom: 20px;">👑</div>
+            <h2 style="color: #FFD700; margin-bottom: 15px;">Admin Security Mode</h2>
+            <p style="margin-bottom: 20px; max-width: 500px; line-height: 1.5;">
+              Enhanced security monitoring active. As an admin, please use the built-in dashboard tools for system management and debugging.
+            </p>
+            <p style="margin-bottom: 30px; font-size: 18px; color: #ffc107;">
+              Master Admin Dashboard by <strong>Fahad - 17877</strong>
+            </p>
+            <button onclick="window.location.reload()" style="
+              padding: 12px 24px;
+              background: #FFD700;
+              color: #003366;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 16px;
+              font-weight: bold;
+              transition: all 0.3s ease;
+            " onmouseover="this.style.background='#FFA500'" onmouseout="this.style.background='#FFD700'">
+              🔄 Reset Dashboard
+            </button>
+          </div>
+        `;
+        document.body.appendChild(restrictionOverlay);
+      }
+      
+      // Modal action handlers
+      window.acknowledgeWarning = function() {
+        document.getElementById('securityModal').classList.remove('show');
+        isSecurityModalOpen = false;
+        
+        if (securityAttempts >= 3) {
+          showMessage('⚠️ Enhanced security monitoring active. Please use built-in admin tools.', 'warning');
+        } else {
+          showMessage('✅ Thank you. Continue using the admin dashboard normally.', 'success');
         }
-      }, 1000);
+      };
+      
+      window.resetPage = function() {
+        window.location.reload();
+      };
+      
+      window.learnMore = function() {
+        showMessage(`
+          🔒 <strong>Admin Dashboard Security:</strong><br>
+          • This dashboard manages sensitive KNPC user data and system settings<br>
+          • Built-in debug tools provide safe system diagnostics<br>
+          • Browser developer tools may interfere with dashboard functions<br>
+          • All admin activities are monitored and logged for compliance<br>
+          • Use dashboard features: Debug, Export, User Management<br>
+          • For advanced development needs, contact Fahad - 17877
+        `, 'info');
+        document.getElementById('securityModal').classList.remove('show');
+        isSecurityModalOpen = false;
+      };
+      
+      // Initialize security system
+      initSmartSecurity();
+      
+      // Console messages for admins
+      console.log('%c🔒 TANK TOOLS ADMIN DASHBOARD', 'color: gold; font-size: 20px; font-weight: bold;');
+      console.log('%cSmart Security System Active', 'color: orange; font-size: 14px;');
+      console.log('%cDeveloper: Fahad - 17877 | KNPC Admin Panel', 'color: green; font-size: 12px;');
+      console.log('%cUse built-in Debug tools for system diagnostics.', 'color: blue; font-size: 12px;');
     })();
 
-    let currentUser = null;
-    let currentEditingUser = null;
+let currentUser = null;
+let currentEditingUser = null;
 
-    window.addEventListener('load', () => {
-      checkAdminAccess();
-      loadUserData();
-      updateCurrentTime();
-      loadStatistics();
-      loadUsers();
-      setInterval(updateCurrentTime, 60000);
-      setInterval(refreshData, 120000);
-      document.getElementById('userSearch').addEventListener('input', filterUsers);
-      document.getElementById('statusFilter').addEventListener('change', filterUsers);
-      document.getElementById('roleFilter').addEventListener('change', filterUsers);
-    });
+window.addEventListener('load', () => {
+  checkAdminAccess();
+  loadUserData();
+  updateCurrentTime();
+  loadStatistics();
+  loadUsers();
+  setInterval(updateCurrentTime, 60000);
+  setInterval(refreshData, 120000);
+  document.getElementById('userSearch').addEventListener('input', filterUsers);
+  document.getElementById('statusFilter').addEventListener('change', filterUsers);
+  document.getElementById('roleFilter').addEventListener('change', filterUsers);
+});
 
-    function checkAdminAccess() {
-      const session = sessionStorage.getItem('tanktools_session');
-      const userData = localStorage.getItem('tanktools_current_user');
-      if (session !== 'active' || !userData) {
-        window.location.href = 'login.html';
-        return;
-      }
-      try {
-        currentUser = JSON.parse(userData);
-        if (currentUser.username !== 'fam030' && currentUser.role !== 'admin') {
-          window.location.href = 'index.html';
-          return;
-        }
-        logActivity('admin_dashboard_access', currentUser.username);
-      } catch (error) {
-        window.location.href = 'login.html';
-      }
+function checkAdminAccess() {
+  const session = sessionStorage.getItem('tanktools_session');
+  const userData = localStorage.getItem('tanktools_current_user');
+  if (session !== 'active' || !userData) {
+    window.location.href = 'login.html';
+    return;
+  }
+  try {
+    currentUser = JSON.parse(userData);
+    if (currentUser.username !== 'fam030' && currentUser.role !== 'admin') {
+      window.location.href = 'index.html';
+      return;
     }
+    logActivity('admin_dashboard_access', currentUser.username);
+  } catch (error) {
+    window.location.href = 'login.html';
+  }
+}
 
-    function loadUserData() {
-      if (!currentUser) return;
-      document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
-      document.getElementById('userEmail').textContent = currentUser.email;
-      const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
-      document.getElementById('userAvatar').textContent = firstLetter;
-    }
+function loadUserData() {
+  if (!currentUser) return;
+  document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
+  document.getElementById('userEmail').textContent = currentUser.email;
+  const firstLetter = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
+  document.getElementById('userAvatar').textContent = firstLetter;
+}
 
-    function updateCurrentTime() {
-      const now = new Date();
-      const timeString = now.toLocaleString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-      document.getElementById('currentTime').textContent = timeString;
-    }
+function updateCurrentTime() {
+  const now = new Date();
+  const timeString = now.toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('currentTime').textContent = timeString;
+}
 
-    function loadStatistics() {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
-      const resetRequests = JSON.parse(localStorage.getItem('tanktools_reset_requests') || '[]');
-      const totalUsers = users.length;
-      const activeUsers = users.filter(u => u.isActive).length;
-      const pendingUsers = users.filter(u => !u.emailVerified || !u.isActive).length;
-      const today = new Date().toDateString();
-      const todayLogins = activities.filter(a => a.action === 'user_login' && new Date(a.timestamp).toDateString() === today).length;
-      const pendingResets = resetRequests.filter(r => r.status === 'pending').length;
-      document.getElementById('totalUsers').textContent = totalUsers;
-      document.getElementById('activeUsers').textContent = activeUsers;
-      document.getElementById('pendingUsers').textContent = pendingUsers;
-      document.getElementById('todayLogins').textContent = todayLogins;
-      document.getElementById('resetRequests').textContent = pendingResets;
-    }
+function loadStatistics() {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+  const resetRequests = JSON.parse(localStorage.getItem('tanktools_reset_requests') || '[]');
+  const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+  
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.isActive).length;
+  const pendingUsers = users.filter(u => !u.emailVerified || !u.isActive).length;
+  const today = new Date().toDateString();
+  const todayLogins = activities.filter(a => a.action === 'user_login' && new Date(a.timestamp).toDateString() === today).length;
+  const pendingResets = resetRequests.filter(r => r.status === 'pending').length;
+  const pendingActivationsCount = pendingActivations.length;
+  
+  document.getElementById('totalUsers').textContent = totalUsers;
+  document.getElementById('activeUsers').textContent = activeUsers;
+  document.getElementById('pendingUsers').textContent = pendingUsers;
+  document.getElementById('todayLogins').textContent = todayLogins;
+  document.getElementById('resetRequests').textContent = pendingResets;
+  document.getElementById('pendingActivations').textContent = pendingActivationsCount;
+}
 
-    function loadUsers() {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      displayUsers(users);
-    }
+function loadUsers() {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  displayUsers(users);
+}
 
-    function displayUsers(users) {
-      const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = '';
-      users.forEach(user => {
-        const row = document.createElement('tr');
-        const roleClass = user.username === 'fam030' || user.role === 'admin' ? 'badge-admin' : 'badge-user';
-        const statusClass = user.isActive ? 'badge-active' : 'badge-inactive';
-        const verifiedClass = user.emailVerified ? 'badge-verified' : 'badge-pending';
-        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
-        const avatarLetter = (user.fullName || user.username).charAt(0).toUpperCase();
-        const avatarColor = user.username === 'fam030' ? '#FFD700' : '#4CAF50';
-        row.innerHTML = `
-          <td><div style="width:30px;height:30px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;">${avatarLetter}</div></td>
-          <td>${user.fullName || user.username}</td>
-          <td>${user.username}</td>
-          <td>${user.email}</td>
-          <td><span class="user-badge ${roleClass}">${user.username === 'fam030' || user.role === 'admin' ? 'Admin' : 'User'}</span></td>
-          <td><span class="user-badge ${statusClass}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
-          <td><span class="user-badge ${verifiedClass}">${user.emailVerified ? 'Verified' : 'Pending'}</span></td>
-          <td>${lastLogin}</td>
-          <td>
-            <div class="action-buttons">
-              ${user.username !== 'fam030' ? `
-                <button class="action-btn btn-primary" onclick="editUser('${user.username}')" title="Edit">✏️</button>
-                <button class="action-btn ${user.isActive ? 'btn-warning' : 'btn-primary'}" onclick="toggleUserStatus('${user.username}')" title="${user.isActive ? 'Deactivate' : 'Activate'}">
-                  ${user.isActive ? '❌' : '✅'}
-                </button>
-                <button class="action-btn btn-secondary" onclick="resetUserPassword('${user.username}')" title="Reset Password">🔑</button>
-                <button class="action-btn btn-danger" onclick="deleteUser('${user.username}')" title="Delete">🗑️</button>
-              ` : '<span style="color: #FFD700; font-weight: bold;">MASTER</span>'}
-            </div>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+function displayUsers(users) {
+  const tbody = document.getElementById('usersTableBody');
+  tbody.innerHTML = '';
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    const roleClass = user.username === 'fam030' || user.role === 'admin' ? 'badge-admin' : 'badge-user';
+    const statusClass = user.isActive ? 'badge-active' : 'badge-inactive';
+    const verifiedClass = user.emailVerified ? 'badge-verified' : 'badge-pending';
+    const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+    const avatarLetter = (user.fullName || user.username).charAt(0).toUpperCase();
+    const avatarColor = user.username === 'fam030' ? '#FFD700' : '#4CAF50';
+    row.innerHTML = `
+      <td><div style="width:30px;height:30px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;">${avatarLetter}</div></td>
+      <td>${user.fullName || user.username}</td>
+      <td>${user.username}</td>
+      <td>${user.email}</td>
+      <td><span class="user-badge ${roleClass}">${user.username === 'fam030' || user.role === 'admin' ? 'Admin' : 'User'}</span></td>
+      <td><span class="user-badge ${statusClass}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
+      <td><span class="user-badge ${verifiedClass}">${user.emailVerified ? 'Verified' : 'Pending'}</span></td>
+      <td>${lastLogin}</td>
+      <td>
+        <div class="action-buttons">
+          ${user.username !== 'fam030' ? `
+            <button class="action-btn btn-primary" onclick="editUser('${user.username}')" title="Edit">✏️</button>
+            <button class="action-btn ${user.isActive ? 'btn-warning' : 'btn-primary'}" onclick="toggleUserStatus('${user.username}')" title="${user.isActive ? 'Deactivate' : 'Activate'}">
+              ${user.isActive ? '❌' : '✅'}
+            </button>
+            <button class="action-btn btn-secondary" onclick="resetUserPassword('${user.username}')" title="Reset Password">🔑</button>
+            <button class="action-btn btn-danger" onclick="deleteUser('${user.username}')" title="Delete">🗑️</button>
+          ` : '<span style="color: #FFD700; font-weight: bold;">MASTER</span>'}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
 
-    function filterUsers() {
-      const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-      const statusFilter = document.getElementById('statusFilter').value;
-      const roleFilter = document.getElementById('roleFilter').value;
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const filteredUsers = users.filter(user => {
-        const matchesSearch = (user.fullName || '').toLowerCase().includes(searchTerm) || user.username.toLowerCase().includes(searchTerm) || user.email.toLowerCase().includes(searchTerm);
-        const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' && user.isActive) || (statusFilter === 'inactive' && !user.isActive) || (statusFilter === 'verified' && user.emailVerified) || (statusFilter === 'pending' && !user.emailVerified);
-        const matchesRole = roleFilter === 'all' || (roleFilter === 'admin' && (user.role === 'admin' || user.username === 'fam030')) || (roleFilter === 'user' && user.role !== 'admin' && user.username !== 'fam030');
-        return matchesSearch && matchesStatus && matchesRole;
-      });
-      displayUsers(filteredUsers);
-    }
+function filterUsers() {
+  const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+  const roleFilter = document.getElementById('roleFilter').value;
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = (user.fullName || '').toLowerCase().includes(searchTerm) || user.username.toLowerCase().includes(searchTerm) || user.email.toLowerCase().includes(searchTerm);
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' && user.isActive) || (statusFilter === 'inactive' && !user.isActive) || (statusFilter === 'verified' && user.emailVerified) || (statusFilter === 'pending' && !user.emailVerified);
+    const matchesRole = roleFilter === 'all' || (roleFilter === 'admin' && (user.role === 'admin' || user.username === 'fam030')) || (roleFilter === 'user' && user.role !== 'admin' && user.username !== 'fam030');
+    return matchesSearch && matchesStatus && matchesRole;
+  });
+  displayUsers(filteredUsers);
+}
 
-    function editUser(username) {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const user = users.find(u => u.username === username);
-      if (!user) return;
-      currentEditingUser = user;
-      document.getElementById('modalTitle').textContent = 'Edit User: ' + user.username;
-      document.getElementById('editFullName').value = user.fullName || '';
-      document.getElementById('editUsername').value = user.username;
-      document.getElementById('editEmail').value = user.email;
-      document.getElementById('editRole').value = user.role || 'user';
-      document.getElementById('editStatus').value = user.isActive ? 'true' : 'false';
-      document.getElementById('editEmailVerified').value = user.emailVerified ? 'true' : 'false';
-      document.getElementById('editPassword').value = '';
-      document.getElementById('userModal').classList.add('show');
-    }
+function editUser(username) {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const user = users.find(u => u.username === username);
+  if (!user) return;
+  currentEditingUser = user;
+  document.getElementById('modalTitle').textContent = 'Edit User: ' + user.username;
+  document.getElementById('editFullName').value = user.fullName || '';
+  document.getElementById('editUsername').value = user.username;
+  document.getElementById('editEmail').value = user.email;
+  document.getElementById('editRole').value = user.role || 'user';
+  document.getElementById('editStatus').value = user.isActive ? 'true' : 'false';
+  document.getElementById('editEmailVerified').value = user.emailVerified ? 'true' : 'false';
+  document.getElementById('editPassword').value = '';
+  document.getElementById('userModal').classList.add('show');
+}
 
-    function closeModal() {
-      document.getElementById('userModal').classList.remove('show');
-      currentEditingUser = null;
-    }
+function closeModal() {
+  document.getElementById('userModal').classList.remove('show');
+  currentEditingUser = null;
+}
 
-    document.getElementById('userForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (!currentEditingUser) return;
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const userIndex = users.findIndex(u => u.username === currentEditingUser.username);
-      if (userIndex === -1) return;
-      users[userIndex].fullName = document.getElementById('editFullName').value;
-      users[userIndex].role = document.getElementById('editRole').value;
-      users[userIndex].isActive = document.getElementById('editStatus').value === 'true';
-      users[userIndex].emailVerified = document.getElementById('editEmailVerified').value === 'true';
-      const newPassword = document.getElementById('editPassword').value;
-      if (newPassword) {
-        users[userIndex].password = btoa(newPassword);
-      }
+document.getElementById('userForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!currentEditingUser) return;
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const userIndex = users.findIndex(u => u.username === currentEditingUser.username);
+  if (userIndex === -1) return;
+  users[userIndex].fullName = document.getElementById('editFullName').value;
+  users[userIndex].role = document.getElementById('editRole').value;
+  users[userIndex].isActive = document.getElementById('editStatus').value === 'true';
+  users[userIndex].emailVerified = document.getElementById('editEmailVerified').value === 'true';
+  const newPassword = document.getElementById('editPassword').value;
+  if (newPassword) {
+    users[userIndex].password = btoa(newPassword);
+  }
+  localStorage.setItem('tanktools_users', JSON.stringify(users));
+  logActivity('user_edited', currentUser.username);
+  showMessage('User updated successfully!', 'success');
+  closeModal();
+  loadUsers();
+  loadStatistics();
+});
+
+function toggleUserStatus(username) {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const user = users.find(u => u.username === username);
+  if (user && user.username !== 'fam030') {
+    user.isActive = !user.isActive;
+    localStorage.setItem('tanktools_users', JSON.stringify(users));
+    logActivity(user.isActive ? 'user_activated' : 'user_deactivated', currentUser.username);
+    showMessage(`User ${user.isActive ? 'activated' : 'deactivated'} successfully!`, 'success');
+    loadUsers();
+    loadStatistics();
+  }
+}
+
+function resetUserPassword(username) {
+  if (confirm(`Reset password for user: ${username}?`)) {
+    const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+    const user = users.find(u => u.username === username);
+    if (user) {
+      const newPassword = generateRandomPassword();
+      user.password = btoa(newPassword);
       localStorage.setItem('tanktools_users', JSON.stringify(users));
-      logActivity('user_edited', currentUser.username);
-      showMessage('User updated successfully!', 'success');
-      closeModal();
+      logActivity('password_reset', currentUser.username);
+      showMessage(`Password reset! New password: ${newPassword}`, 'success');
+    }
+  }
+}
+
+function deleteUser(username) {
+  if (confirm(`Delete user: ${username}? This action cannot be undone!`)) {
+    const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+    const filteredUsers = users.filter(u => u.username !== username);
+    localStorage.setItem('tanktools_users', JSON.stringify(filteredUsers));
+    logActivity('user_deleted', currentUser.username);
+    showMessage('User deleted successfully!', 'success');
+    loadUsers();
+    loadStatistics();
+  }
+}
+
+function addNewUser() {
+  const username = prompt('Enter new username (3 letters + 3 numbers):');
+  if (!username || !/^[a-zA-Z]{3}[0-9]{3}$/.test(username)) {
+    showMessage('Invalid username format!', 'error');
+    return;
+  }
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  if (users.find(u => u.username === username)) {
+    showMessage('Username already exists!', 'error');
+    return;
+  }
+  const fullName = prompt('Enter full name:');
+  if (!fullName) {
+    showMessage('Full name is required!', 'error');
+    return;
+  }
+  const password = prompt('Enter password:');
+  if (!password || password.length < 8) {
+    showMessage('Password must be at least 8 characters!', 'error');
+    return;
+  }
+  const newUser = {
+    id: Date.now(),
+    fullName,
+    username,
+    email: `${username}@knpc.com`,
+    password: btoa(password),
+    createdAt: new Date().toISOString(),
+    isActive: true,
+    emailVerified: true,
+    lastLogin: null,
+    role: 'user'
+  };
+  users.push(newUser);
+  localStorage.setItem('tanktools_users', JSON.stringify(users));
+  logActivity('user_created_by_admin', currentUser.username);
+  showMessage(`User ${username} created successfully!`, 'success');
+  loadUsers();
+  loadStatistics();
+}
+
+function exportUsers() {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const exportData = users.map(user => ({
+    fullName: user.fullName,
+    username: user.username,
+    email: user.email,
+    role: user.role || 'user',
+    isActive: user.isActive,
+    emailVerified: user.emailVerified,
+    createdAt: user.createdAt,
+    lastLogin: user.lastLogin
+  }));
+  const dataStr = JSON.stringify(exportData, null, 2);
+  const dataBlob = new Blob([dataStr], {type: 'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(dataBlob);
+  link.download = 'tanktools_users_' + new Date().toISOString().split('T')[0] + '.json';
+  link.click();
+  logActivity('users_exported', currentUser.username);
+  showMessage('Users data exported successfully!', 'success');
+}
+
+function showPendingActivations() {
+  const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+  const content = document.getElementById('pendingActivationsContent');
+  
+  if (pendingActivations.length === 0) {
+    content.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No pending activations found.</p>';
+  } else {
+    let html = '<div style="max-height: 400px; overflow-y: auto;">';
+    pendingActivations.forEach((pending, index) => {
+      html += `
+        <div style="background: #f5f5f5; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #ff9800;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong>${pending.fullName} (${pending.username})</strong>
+            <button class="btn btn-primary" onclick="activatePendingUser('${pending.username}')" style="padding: 4px 8px; font-size: 12px;">✅ Activate</button>
+          </div>
+          <div style="font-size: 12px; color: #666;">
+            <div>Email: ${pending.email}</div>
+            <div>Request Time: ${new Date(pending.requestTime).toLocaleString()}</div>
+            <div>Reason: ${pending.reason === 'email_service_failed' ? 'Email service failed' : pending.reason}</div>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }
+  
+  document.getElementById('pendingActivationsModal').classList.add('show');
+}
+
+function closePendingModal() {
+  document.getElementById('pendingActivationsModal').classList.remove('show');
+}
+
+function activatePendingUser(username) {
+  const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+  const user = users.find(u => u.username === username);
+  
+  if (user) {
+    user.isActive = true;
+    user.emailVerified = true;
+    localStorage.setItem('tanktools_users', JSON.stringify(users));
+    
+    // Remove from pending list
+    const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+    const filteredPending = pendingActivations.filter(p => p.username !== username);
+    localStorage.setItem('tanktools_pending_activations', JSON.stringify(filteredPending));
+    
+    logActivity('user_activated_by_admin', currentUser.username);
+    showMessage(`User ${username} activated successfully!`, 'success');
+    
+    // Refresh displays
+    loadUsers();
+    loadStatistics();
+    showPendingActivations(); // Refresh modal content
+  } else {
+    showMessage('User not found!', 'error');
+  }
+}
+
+function activateAllPending() {
+  if (confirm('Activate all pending users?')) {
+    const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+    const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
+    
+    let activatedCount = 0;
+    pendingActivations.forEach(pending => {
+      const user = users.find(u => u.username === pending.username);
+      if (user) {
+        user.isActive = true;
+        user.emailVerified = true;
+        activatedCount++;
+      }
+    });
+    
+    if (activatedCount > 0) {
+      localStorage.setItem('tanktools_users', JSON.stringify(users));
+      localStorage.setItem('tanktools_pending_activations', '[]'); // Clear list
+      
+      logActivity('bulk_activation_by_admin', currentUser.username);
+      showMessage(`${activatedCount} users activated successfully!`, 'success');
+      
+      // Refresh displays
       loadUsers();
       loadStatistics();
+      closePendingModal();
+    } else {
+      showMessage('No users to activate!', 'warning');
+    }
+  }
+}
+
+function clearPendingList() {
+  if (confirm('Clear the pending activations list? This will not affect user accounts.')) {
+    localStorage.setItem('tanktools_pending_activations', '[]');
+    showMessage('Pending activations list cleared!', 'success');
+    loadStatistics();
+    closePendingModal();
+  }
+}
+
+function showDebugInfo() {
+  const debugContent = document.getElementById('debugContent');
+  let debugInfo = "TANK TOOLS SYSTEM DEBUG INFORMATION\n";
+  debugInfo += "=====================================\n\n";
+  debugInfo += "📊 CURRENT STATUS:\n";
+  debugInfo += `Current User: ${currentUser ? currentUser.username : 'None'}\n`;
+  debugInfo += `Session Active: ${sessionStorage.getItem('tanktools_session')}\n`;
+  debugInfo += `Timestamp: ${new Date().toISOString()}\n\n`;
+  debugInfo += "🗄️ LOCALSTORAGE KEYS:\n";
+  const allKeys = Object.keys(localStorage);
+  allKeys.forEach(key => { debugInfo += `- ${key}\n`; });
+  debugInfo += `Total keys: ${allKeys.length}\n\n`;
+  debugInfo += "👥 USER DATA ANALYSIS:\n";
+  const usersData = localStorage.getItem('tanktools_users');
+  if (usersData) {
+    try {
+      const users = JSON.parse(usersData);
+      debugInfo += `Users found: ${users.length}\n`;
+      users.forEach((user, index) => {
+        debugInfo += `${index + 1}. ${user.fullName || 'No name'} (${user.username}) - ${user.email}\n`;
+        debugInfo += `   Role: ${user.role || 'user'}, Active: ${user.isActive}, Verified: ${user.emailVerified}\n`;
+        debugInfo += `   Created: ${user.createdAt}, Last Login: ${user.lastLogin || 'Never'}\n`;
+      });
+    } catch (error) {
+      debugInfo += `ERROR parsing users data: ${error.message}\n`;
+      debugInfo += `Raw data length: ${usersData.length} characters\n`;
+      debugInfo += `First 100 chars: ${usersData.substring(0, 100)}\n`;
+    }
+  } else {
+    debugInfo += "❌ No tanktools_users data found!\n";
+  }
+  
+  debugInfo += "\n🕐 PENDING ACTIVATIONS:\n";
+  const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+  if (pendingActivations.length > 0) {
+    pendingActivations.forEach((pending, index) => {
+      debugInfo += `${index + 1}. ${pending.fullName} (${pending.username})\n`;
+      debugInfo += `   Email: ${pending.email}, Time: ${pending.requestTime}\n`;
+      debugInfo += `   Reason: ${pending.reason}\n`;
     });
-
-    function toggleUserStatus(username) {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const user = users.find(u => u.username === username);
-      if (user && user.username !== 'fam030') {
-        user.isActive = !user.isActive;
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        logActivity(user.isActive ? 'user_activated' : 'user_deactivated', currentUser.username);
-        showMessage(`User ${user.isActive ? 'activated' : 'deactivated'} successfully!`, 'success');
-        loadUsers();
-        loadStatistics();
-      }
+  } else {
+    debugInfo += "No pending activations.\n";
+  }
+  
+  debugInfo += "\n🔍 SEARCHING FOR ALTERNATIVE USER STORAGE:\n";
+  const possibleKeys = allKeys.filter(key => key.toLowerCase().includes('user') || key.toLowerCase().includes('tank') || key.toLowerCase().includes('login'));
+  possibleKeys.forEach(key => {
+    const data = localStorage.getItem(key);
+    debugInfo += `- ${key}: ${data ? data.length + ' chars' : 'empty'}\n`;
+    if (data && data.length < 500) {
+      debugInfo += `  Content: ${data.substring(0, 100)}...\n`;
     }
-
-    function resetUserPassword(username) {
-      if (confirm(`Reset password for user: ${username}?`)) {
-        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        const user = users.find(u => u.username === username);
-        if (user) {
-          const newPassword = generateRandomPassword();
-          user.password = btoa(newPassword);
-          localStorage.setItem('tanktools_users', JSON.stringify(users));
-          logActivity('password_reset', currentUser.username);
-          showMessage(`Password reset! New password: ${newPassword}`, 'success');
-        }
-      }
+  });
+  debugInfo += "\n🎯 RECOMMENDATIONS:\n";
+  if (!usersData) {
+    debugInfo += "❌ Main issue: No user data found in expected location\n";
+    debugInfo += "✅ Try: Use 'Fix User Data' button to create default admin user\n";
+    debugInfo += "✅ Try: Use 'Migrate Data' to search and migrate\n";
+  } else {
+    const users = JSON.parse(usersData);
+    if (users.length === 0) {
+      debugInfo += "❌ Users array is empty\n";
+      debugInfo += "✅ Try: Use 'Fix User Data' to create default admin user\n";
+    } else {
+      debugInfo += "✅ User data looks good! Check filters and search.\n";
     }
+  }
+  debugContent.textContent = debugInfo;
+  document.getElementById('debugModal').classList.add('show');
+}
 
-    function deleteUser(username) {
-      if (confirm(`Delete user: ${username}? This action cannot be undone!`)) {
-        const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-        const filteredUsers = users.filter(u => u.username !== username);
-        localStorage.setItem('tanktools_users', JSON.stringify(filteredUsers));
-        logActivity('user_deleted', currentUser.username);
-        showMessage('User deleted successfully!', 'success');
-        loadUsers();
-        loadStatistics();
-      }
-    }
+function closeDebugModal() {
+  document.getElementById('debugModal').classList.remove('show');
+}
 
-    function addNewUser() {
-      const username = prompt('Enter new username (3 letters + 3 numbers):');
-      if (!username || !/^[a-zA-Z]{3}[0-9]{3}$/.test(username)) {
-        showMessage('Invalid username format!', 'error');
-        return;
-      }
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      if (users.find(u => u.username === username)) {
-        showMessage('Username already exists!', 'error');
-        return;
-      }
-      const fullName = prompt('Enter full name:');
-      if (!fullName) {
-        showMessage('Full name is required!', 'error');
-        return;
-      }
-      const password = prompt('Enter password:');
-      if (!password || password.length < 8) {
-        showMessage('Password must be at least 8 characters!', 'error');
-        return;
-      }
-      const newUser = {
+function fixUserData() {
+  if (confirm('This will create/fix the user data structure. Continue?')) {
+    let users = [];
+    try {
+      const existingUsers = localStorage.getItem('tanktools_users');
+      if (existingUsers) { users = JSON.parse(existingUsers); }
+    } catch (error) { console.log('Error parsing existing users, starting fresh'); }
+    let fam030User = users.find(u => u.username === 'fam030');
+    if (!fam030User) {
+      fam030User = {
         id: Date.now(),
-        fullName,
-        username,
-        email: `${username}@knpc.com`,
-        password: btoa(password),
+        fullName: 'Fahad - Master Admin',
+        username: 'fam030',
+        email: 'fam030@knpc.com',
+        password: btoa('admin123'),
         createdAt: new Date().toISOString(),
         isActive: true,
         emailVerified: true,
-        lastLogin: null,
-        role: 'user'
+        lastLogin: new Date().toISOString(),
+        role: 'admin'
       };
-      users.push(newUser);
-      localStorage.setItem('tanktools_users', JSON.stringify(users));
-      logActivity('user_created_by_admin', currentUser.username);
-      showMessage(`User ${username} created successfully!`, 'success');
-      loadUsers();
-      loadStatistics();
+      users.push(fam030User);
+    } else {
+      fam030User.role = 'admin';
+      fam030User.isActive = true;
+      fam030User.emailVerified = true;
+      if (!fam030User.fullName) fam030User.fullName = 'Fahad - Master Admin';
     }
-
-    function exportUsers() {
-      const users = JSON.parse(localStorage.getItem('tanktools_users') || '[]');
-      const exportData = users.map(user => ({
-        fullName: user.fullName,
-        username: user.username,
-        email: user.email,
-        role: user.role || 'user',
-        isActive: user.isActive,
-        emailVerified: user.emailVerified,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin
-      }));
-      const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], {type: 'application/json'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(dataBlob);
-      link.download = 'tanktools_users_' + new Date().toISOString().split('T')[0] + '.json';
-      link.click();
-      logActivity('users_exported', currentUser.username);
-      showMessage('Users data exported successfully!', 'success');
-    }
-
-    function showDebugInfo() {
-      const debugContent = document.getElementById('debugContent');
-      let debugInfo = "TANK TOOLS SYSTEM DEBUG INFORMATION\n";
-      debugInfo += "=====================================\n\n";
-      debugInfo += "📊 CURRENT STATUS:\n";
-      debugInfo += `Current User: ${currentUser ? currentUser.username : 'None'}\n`;
-      debugInfo += `Session Active: ${sessionStorage.getItem('tanktools_session')}\n`;
-      debugInfo += `Timestamp: ${new Date().toISOString()}\n\n`;
-      debugInfo += "🗄️ LOCALSTORAGE KEYS:\n";
-      const allKeys = Object.keys(localStorage);
-      allKeys.forEach(key => { debugInfo += `- ${key}\n`; });
-      debugInfo += `Total keys: ${allKeys.length}\n\n`;
-      debugInfo += "👥 USER DATA ANALYSIS:\n";
-      const usersData = localStorage.getItem('tanktools_users');
-      if (usersData) {
-        try {
-          const users = JSON.parse(usersData);
-          debugInfo += `Users found: ${users.length}\n`;
-          users.forEach((user, index) => {
-            debugInfo += `${index + 1}. ${user.fullName || 'No name'} (${user.username}) - ${user.email}\n`;
-            debugInfo += `   Role: ${user.role || 'user'}, Active: ${user.isActive}, Verified: ${user.emailVerified}\n`;
-            debugInfo += `   Created: ${user.createdAt}, Last Login: ${user.lastLogin || 'Never'}\n`;
-          });
-        } catch (error) {
-          debugInfo += `ERROR parsing users data: ${error.message}\n`;
-          debugInfo += `Raw data length: ${usersData.length} characters\n`;
-          debugInfo += `First 100 chars: ${usersData.substring(0, 100)}\n`;
-        }
-      } else {
-        debugInfo += "❌ No tanktools_users data found!\n";
-      }
-      debugInfo += "\n🔍 SEARCHING FOR ALTERNATIVE USER STORAGE:\n";
-      const possibleKeys = allKeys.filter(key => key.toLowerCase().includes('user') || key.toLowerCase().includes('tank') || key.toLowerCase().includes('login'));
-      possibleKeys.forEach(key => {
-        const data = localStorage.getItem(key);
-        debugInfo += `- ${key}: ${data ? data.length + ' chars' : 'empty'}\n`;
-        if (data && data.length < 500) {
-          debugInfo += `  Content: ${data.substring(0, 100)}...\n`;
-        }
-      });
-      debugInfo += "\n🎯 RECOMMENDATIONS:\n";
-      if (!usersData) {
-        debugInfo += "❌ Main issue: No user data found in expected location\n";
-        debugInfo += "✅ Try: Use 'Fix User Data' button to create default admin user\n";
-        debugInfo += "✅ Try: Use 'Migrate Data' to search and migrate\n";
-      } else {
-        const users = JSON.parse(usersData);
-        if (users.length === 0) {
-          debugInfo += "❌ Users array is empty\n";
-          debugInfo += "✅ Try: Use 'Fix User Data' to create default admin user\n";
-        } else {
-          debugInfo += "✅ User data looks good! Check filters and search.\n";
-        }
-      }
-      debugContent.textContent = debugInfo;
-      document.getElementById('debugModal').classList.add('show');
-    }
-
-    function closeDebugModal() {
-      document.getElementById('debugModal').classList.remove('show');
-    }
-
-    function fixUserData() {
-      if (confirm('This will create/fix the user data structure. Continue?')) {
-        let users = [];
-        try {
-          const existingUsers = localStorage.getItem('tanktools_users');
-          if (existingUsers) { users = JSON.parse(existingUsers); }
-        } catch (error) { console.log('Error parsing existing users, starting fresh'); }
-        let fam030User = users.find(u => u.username === 'fam030');
-        if (!fam030User) {
-          fam030User = {
-            id: Date.now(),
-            fullName: 'Fahad - Master Admin',
-            username: 'fam030',
-            email: 'fam030@knpc.com',
-            password: btoa('admin123'),
-            createdAt: new Date().toISOString(),
-            isActive: true,
-            emailVerified: true,
-            lastLogin: new Date().toISOString(),
-            role: 'admin'
-          };
-          users.push(fam030User);
-        } else {
-          fam030User.role = 'admin';
-          fam030User.isActive = true;
-          fam030User.emailVerified = true;
-          if (!fam030User.fullName) fam030User.fullName = 'Fahad - Master Admin';
-        }
-        localStorage.setItem('tanktools_users', JSON.stringify(users));
-        if (!localStorage.getItem('tanktools_activities')) {
-          localStorage.setItem('tanktools_activities', JSON.stringify([{
-            id: Date.now(),
-            action: 'system_initialized',
-            username: 'fam030',
-            timestamp: new Date().toISOString(),
-            ip: 'local',
-            userAgent: navigator.userAgent.substring(0, 100)
-          }]));
-        }
-        if (!localStorage.getItem('tanktools_reset_requests')) {
-          localStorage.setItem('tanktools_reset_requests', '[]');
-        }
-        showMessage('User data fixed successfully! fam030 admin user created/updated.', 'success');
-        closeDebugModal();
-        refreshData();
-      }
-    }
-
-    function migrateData() {
-      if (confirm('This will search for user data in alternative storage locations and migrate it. Continue?')) {
-        let migratedCount = 0;
-        let users = [];
-        try {
-          const existingUsers = localStorage.getItem('tanktools_users');
-          if (existingUsers) { users = JSON.parse(existingUsers); }
-        } catch (error) { console.log('No existing users found'); }
-        const allKeys = Object.keys(localStorage);
-        allKeys.forEach(key => {
-          if (key.includes('user') && key !== 'tanktools_users') {
-            try {
-              const data = localStorage.getItem(key);
-              const parsedData = JSON.parse(data);
-              if (Array.isArray(parsedData)) {
-                parsedData.forEach(item => {
-                  if (item.username && item.email && !users.find(u => u.username === item.username)) {
-                    const migratedUser = {
-                      id: item.id || Date.now() + migratedCount,
-                      fullName: item.fullName || item.name || item.username,
-                      username: item.username,
-                      email: item.email,
-                      password: item.password || btoa('password123'),
-                      createdAt: item.createdAt || new Date().toISOString(),
-                      isActive: item.isActive !== undefined ? item.isActive : true,
-                      emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-                      lastLogin: item.lastLogin || null,
-                      role: item.role || 'user'
-                    };
-                    users.push(migratedUser);
-                    migratedCount++;
-                  }
-                });
-              } else if (parsedData.username && parsedData.email) {
-                if (!users.find(u => u.username === parsedData.username)) {
-                  const migratedUser = {
-                    id: parsedData.id || Date.now(),
-                    fullName: parsedData.fullName || parsedData.name || parsedData.username,
-                    username: parsedData.username,
-                    email: parsedData.email,
-                    password: parsedData.password || btoa('password123'),
-                    createdAt: parsedData.createdAt || new Date().toISOString(),
-                    isActive: parsedData.isActive !== undefined ? parsedData.isActive : true,
-                    emailVerified: parsedData.emailVerified !== undefined ? parsedData.emailVerified : true,
-                    lastLogin: parsedData.lastLogin || null,
-                    role: parsedData.role || 'user'
-                  };
-                  users.push(migratedUser);
-                  migratedCount++;
-                }
-              }
-            } catch (error) { console.log(`Could not parse data from key: ${key}`); }
-          }
-        });
-        if (migratedCount > 0) {
-          localStorage.setItem('tanktools_users', JSON.stringify(users));
-          showMessage(`Migration completed! ${migratedCount} users migrated successfully.`, 'success');
-        } else {
-          showMessage('No additional user data found to migrate.', 'info');
-        }
-        closeDebugModal();
-        refreshData();
-      }
-    }
-
-    function clearAllData() {
-      if (confirm('⚠️ WARNING: This will delete ALL Tank Tools data. This cannot be undone! Are you sure?')) {
-        if (prompt('Type "DELETE ALL" to confirm:') === 'DELETE ALL') {
-          const allKeys = Object.keys(localStorage);
-          allKeys.forEach(key => {
-            if (key.startsWith('tanktools_') || key.includes('tanktools') || key === 'pbcrData' || key === 'plcrData' || key === 'nmogasData' || key === 'darkMode') {
-              localStorage.removeItem(key);
-            }
-          });
-          sessionStorage.clear();
-          showMessage('All data cleared! Redirecting to login...', 'error');
-          setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-        }
-      }
-    }
-
-    function generateRandomPassword() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-      let result = '';
-      for (let i = 0; i < 12; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    }
-
-    function showMessage(message, type) {
-      const container = document.getElementById('messageContainer');
-      container.innerHTML = `<div class="message ${type}">${message}</div>`;
-      setTimeout(() => { container.querySelector('.message').classList.add('show'); }, 100);
-      setTimeout(() => { container.innerHTML = ''; }, 5000);
-    }
-
-    function refreshUsers() {
-      loadUsers();
-      loadStatistics();
-      showMessage('Data refreshed successfully!', 'success');
-    }
-
-    function refreshData() {
-      loadStatistics();
-      loadUsers();
-      updateCurrentTime();
-    }
-
-    function logActivity(action, username) {
-      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
-      activities.unshift({
+    localStorage.setItem('tanktools_users', JSON.stringify(users));
+    if (!localStorage.getItem('tanktools_activities')) {
+      localStorage.setItem('tanktools_activities', JSON.stringify([{
         id: Date.now(),
-        action,
-        username,
+        action: 'system_initialized',
+        username: 'fam030',
         timestamp: new Date().toISOString(),
         ip: 'local',
         userAgent: navigator.userAgent.substring(0, 100)
+      }]));
+    }
+    if (!localStorage.getItem('tanktools_reset_requests')) {
+      localStorage.setItem('tanktools_reset_requests', '[]');
+    }
+    if (!localStorage.getItem('tanktools_pending_activations')) {
+      localStorage.setItem('tanktools_pending_activations', '[]');
+    }
+    showMessage('User data fixed successfully! fam030 admin user created/updated.', 'success');
+    closeDebugModal();
+    refreshData();
+  }
+}
+
+function migrateData() {
+  if (confirm('This will search for user data in alternative storage locations and migrate it. Continue?')) {
+    let migratedCount = 0;
+    let users = [];
+    try {
+      const existingUsers = localStorage.getItem('tanktools_users');
+      if (existingUsers) { users = JSON.parse(existingUsers); }
+    } catch (error) { console.log('No existing users found'); }
+    const allKeys = Object.keys(localStorage);
+    allKeys.forEach(key => {
+      if (key.includes('user') && key !== 'tanktools_users') {
+        try {
+          const data = localStorage.getItem(key);
+          const parsedData = JSON.parse(data);
+          if (Array.isArray(parsedData)) {
+            parsedData.forEach(item => {
+              if (item.username && item.email && !users.find(u => u.username === item.username)) {
+                const migratedUser = {
+                  id: item.id || Date.now() + migratedCount,
+                  fullName: item.fullName || item.name || item.username,
+                  username: item.username,
+                  email: item.email,
+                  password: item.password || btoa('password123'),
+                  createdAt: item.createdAt || new Date().toISOString(),
+                  isActive: item.isActive !== undefined ? item.isActive : true,
+                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                  lastLogin: item.lastLogin || null,
+                  role: item.role || 'user'
+                };
+                users.push(migratedUser);
+                migratedCount++;
+              }
+            });
+          } else if (parsedData.username && parsedData.email) {
+            if (!users.find(u => u.username === parsedData.username)) {
+              const migratedUser = {
+                id: parsedData.id || Date.now(),
+                fullName: parsedData.fullName || parsedData.name || parsedData.username,
+                username: parsedData.username,
+                email: parsedData.email,
+                password: parsedData.password || btoa('password123'),
+                createdAt: parsedData.createdAt || new Date().toISOString(),
+                isActive: parsedData.isActive !== undefined ? parsedData.isActive : true,
+                emailVerified: parsedData.emailVerified !== undefined ? parsedData.emailVerified : true,
+                lastLogin: parsedData.lastLogin || null,
+                role: parsedData.role || 'user'
+              };
+              users.push(migratedUser);
+              migratedCount++;
+            }
+          }
+        } catch (error) { console.log(`Could not parse data from key: ${key}`); }
+      }
+    });
+    if (migratedCount > 0) {
+      localStorage.setItem('tanktools_users', JSON.stringify(users));
+      showMessage(`Migration completed! ${migratedCount} users migrated successfully.`, 'success');
+    } else {
+      showMessage('No additional user data found to migrate.', 'info');
+    }
+    closeDebugModal();
+    refreshData();
+  }
+}
+
+function clearAllData() {
+  if (confirm('⚠️ WARNING: This will delete ALL Tank Tools data. This cannot be undone! Are you sure?')) {
+    if (prompt('Type "DELETE ALL" to confirm:') === 'DELETE ALL') {
+      const allKeys = Object.keys(localStorage);
+      allKeys.forEach(key => {
+        if (key.startsWith('tanktools_') || key.includes('tanktools') || key === 'pbcrData' || key === 'plcrData' || key === 'nmogasData' || key === 'darkMode') {
+          localStorage.removeItem(key);
+        }
       });
-      activities.splice(100);
-      localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+      sessionStorage.clear();
+      showMessage('All data cleared! Redirecting to login...', 'error');
+      setTimeout(() => { window.location.href = 'login.html'; }, 2000);
     }
+  }
+}
 
-    function logout() {
-      logActivity('user_logout', currentUser.username);
-      sessionStorage.removeItem('tanktools_session');
-      localStorage.removeItem('tanktools_current_user');
-      window.location.href = 'login.html';
-    }
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let result = '';
+  for (let i = 0; i < 12; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
-    console.log('%c🔒 TANK TOOLS - MASTER ADMIN DASHBOARD', 'color: red; font-size: 20px; font-weight: bold;');
-    console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
-    console.log('%cMASTER ADMIN ACCESS: fam030 ONLY', 'color: gold; font-size: 16px; font-weight: bold;');
+function showMessage(message, type) {
+  const container = document.getElementById('messageContainer');
+  container.innerHTML = `<div class="message ${type}">${message}</div>`;
+  setTimeout(() => { container.querySelector('.message').classList.add('show'); }, 100);
+  setTimeout(() => { container.innerHTML = ''; }, 5000);
+}
+
+function refreshUsers() {
+  loadUsers();
+  loadStatistics();
+  showMessage('Data refreshed successfully!', 'success');
+}
+
+function refreshData() {
+  loadStatistics();
+  loadUsers();
+  updateCurrentTime();
+}
+
+function logActivity(action, username) {
+  const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+  activities.unshift({
+    id: Date.now(),
+    action,
+    username,
+    timestamp: new Date().toISOString(),
+    ip: 'local',
+    userAgent: navigator.userAgent.substring(0, 100)
+  });
+  activities.splice(100);
+  localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+}
+
+function logout() {
+  logActivity('user_logout', currentUser.username);
+  sessionStorage.removeItem('tanktools_session');
+  localStorage.removeItem('tanktools_current_user');
+  window.location.href = 'login.html';
+}
+
+console.log('%c🔒 TANK TOOLS - SMART ADMIN DASHBOARD', 'color: red; font-size: 20px; font-weight: bold;');
+console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
+console.log('%cSmart Security System with Enhanced User Experience', 'color: blue; font-size: 14px;');
+
   </script>
 </body>
 </html>

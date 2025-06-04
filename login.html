@@ -348,6 +348,12 @@
       color: #2196F3;
     }
 
+    .message.warning {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      color: #ffc107;
+    }
+
     .footer {
       margin-top: 30px;
       font-size: 12px;
@@ -430,6 +436,103 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
+    /* Security Warning Modal */
+    .security-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+    }
+
+    .security-modal.show {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .security-modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      color: #003366;
+      text-align: center;
+      animation: modalSlideIn 0.5s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .security-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .security-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .security-text {
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .attempt-counter {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      color: #f57c00;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    .security-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn-primary {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .modal-btn-secondary {
+      background: #2196F3;
+      color: white;
+    }
+
+    .modal-btn-danger {
+      background: #f44336;
+      color: white;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
     /* Mobile responsive */
     @media (max-width: 480px) {
       .container {
@@ -445,10 +548,37 @@
         padding: 10px 15px;
         font-size: 14px;
       }
+
+      .security-buttons {
+        flex-direction: column;
+      }
+
+      .modal-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Security Warning Modal -->
+  <div id="securityModal" class="security-modal">
+    <div class="security-modal-content">
+      <div class="security-icon" id="securityIcon">⚠️</div>
+      <div class="security-title" id="securityTitle">Security Warning</div>
+      <div class="security-text" id="securityText">
+        We detected you trying to access developer tools. This action is monitored for security purposes.
+      </div>
+      <div class="attempt-counter" id="attemptCounter">
+        Attempts: <span id="attemptCount">1</span>/3
+      </div>
+      <div class="security-buttons">
+        <button class="modal-btn modal-btn-primary" onclick="acknowledgeWarning()">I Understand</button>
+        <button class="modal-btn modal-btn-secondary" onclick="resetPage()">Reset Page</button>
+        <button class="modal-btn modal-btn-danger" onclick="learnMore()">Learn More</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="logo">🛠️ Tank Tools</div>
     <div class="subtitle">Kuwait National Petroleum Company</div>
@@ -599,24 +729,237 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <script>
-    // 🔒 Security Protection - Enhanced for PWA
+    // 🔒 Smart Security Protection System - Enhanced for User Experience
     (function() {
       'use strict';
       
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('selectstart', e => e.preventDefault());
-      document.addEventListener('keydown', e => {
-        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'c' || e.key === 'v') || e.key === 'F12') {
-          e.preventDefault();
-          showMessage('⚠️ Developer tools are disabled for security', 'error');
-        }
-      });
+      // Security state management
+      let securityAttempts = 0;
+      let isSecurityModalOpen = false;
+      let securityViolationTypes = [];
       
-      setInterval(() => {
-        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-          document.body.innerHTML = '<div style="color:red;text-align:center;margin-top:50px;font-size:20px;">⚠️ Developer tools detected<br>Access denied for security reasons<br><br>System by Fahad - 17877</div>';
+      // Enhanced security with user-friendly approach
+      function initSmartSecurity() {
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', handleSecurityViolation.bind(null, 'context-menu'));
+        
+        // Disable text selection (but allow form inputs)
+        document.addEventListener('selectstart', (e) => {
+          if (!e.target.matches('input, textarea')) {
+            handleSecurityViolation('text-selection')(e);
+          }
+        });
+        
+        // Monitor dangerous key combinations
+        document.addEventListener('keydown', (e) => {
+          const dangerousKeys = [
+            (e.ctrlKey && e.key === 'u'), // View source
+            (e.ctrlKey && e.key === 's'), // Save page
+            (e.ctrlKey && e.shiftKey && e.key === 'I'), // DevTools
+            (e.key === 'F12'), // DevTools
+            (e.ctrlKey && e.shiftKey && e.key === 'C'), // Inspect element
+            (e.ctrlKey && e.shiftKey && e.key === 'J'), // Console
+            (e.ctrlKey && e.key === 'c' && !e.target.matches('input, textarea')), // Copy (outside inputs)
+            (e.ctrlKey && e.key === 'a' && !e.target.matches('input, textarea')) // Select all (outside inputs)
+          ];
+          
+          if (dangerousKeys.some(condition => condition)) {
+            handleSecurityViolation('keyboard-shortcut')(e);
+          }
+        });
+        
+        // Monitor for developer tools (less aggressive)
+        let devToolsOpen = false;
+        setInterval(() => {
+          const threshold = 160;
+          const widthDiff = window.outerWidth - window.innerWidth;
+          const heightDiff = window.outerHeight - window.innerHeight;
+          
+          if (widthDiff > threshold || heightDiff > threshold) {
+            if (!devToolsOpen) {
+              devToolsOpen = true;
+              handleSecurityViolation('devtools-detected')();
+            }
+          } else {
+            devToolsOpen = false;
+          }
+        }, 2000); // Check less frequently
+      }
+      
+      // Smart security violation handler
+      function handleSecurityViolation(type) {
+        return function(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          
+          securityAttempts++;
+          securityViolationTypes.push(type);
+          
+          // Different responses based on attempt count
+          if (securityAttempts === 1) {
+            showSecurityWarning('first');
+          } else if (securityAttempts === 2) {
+            showSecurityWarning('second');
+          } else if (securityAttempts >= 3) {
+            showSecurityWarning('final');
+          }
+          
+          return false;
+        };
+      }
+      
+      // Show smart security warning
+      function showSecurityWarning(level) {
+        if (isSecurityModalOpen) return;
+        
+        const modal = document.getElementById('securityModal');
+        const icon = document.getElementById('securityIcon');
+        const title = document.getElementById('securityTitle');
+        const text = document.getElementById('securityText');
+        const counter = document.getElementById('attemptCounter');
+        const countSpan = document.getElementById('attemptCount');
+        
+        isSecurityModalOpen = true;
+        countSpan.textContent = securityAttempts;
+        
+        if (level === 'first') {
+          icon.textContent = '👀';
+          title.textContent = 'Security Notice';
+          text.innerHTML = `
+            <p>We noticed you tried to access developer tools or copy content.</p>
+            <p><strong>If this was accidental:</strong> No problem! Just click "I Understand" to continue.</p>
+            <p><strong>Why this happens:</strong> This system contains sensitive KNPC data and is protected for security.</p>
+          `;
+          counter.style.background = 'rgba(33, 150, 243, 0.2)';
+          counter.style.borderColor = 'rgba(33, 150, 243, 0.5)';
+          counter.style.color = '#2196F3';
+        } else if (level === 'second') {
+          icon.textContent = '⚠️';
+          title.textContent = 'Security Warning';
+          text.innerHTML = `
+            <p><strong>Second attempt detected.</strong></p>
+            <p>If you're trying to inspect or copy this system, please note:</p>
+            <ul style="text-align: left; margin: 10px 0;">
+              <li>This system is protected by copyright</li>
+              <li>Unauthorized access attempts are logged</li>
+              <li>For legitimate development needs, contact the admin</li>
+            </ul>
+            <p>One more attempt will restrict access.</p>
+          `;
+          counter.style.background = 'rgba(255, 193, 7, 0.2)';
+          counter.style.borderColor = 'rgba(255, 193, 7, 0.5)';
+          counter.style.color = '#ffc107';
+        } else {
+          icon.textContent = '🚫';
+          title.textContent = 'Access Restricted';
+          text.innerHTML = `
+            <p><strong>Maximum attempts exceeded.</strong></p>
+            <p>For security purposes, further access has been limited.</p>
+            <p>If you need legitimate access to this system:</p>
+            <ul style="text-align: left; margin: 10px 0;">
+              <li>Contact the system administrator</li>
+              <li>Use the "Reset Page" button to try again</li>
+              <li>Ensure you're using the system as intended</li>
+            </ul>
+          `;
+          counter.style.background = 'rgba(244, 67, 54, 0.2)';
+          counter.style.borderColor = 'rgba(244, 67, 54, 0.5)';
+          counter.style.color = '#f44336';
+          
+          // After final warning, implement restrictions
+          setTimeout(() => {
+            if (securityAttempts >= 3) {
+              implementSecurityRestrictions();
+            }
+          }, 5000);
         }
-      }, 1000);
+        
+        modal.classList.add('show');
+      }
+      
+      // Implement security restrictions after 3 attempts
+      function implementSecurityRestrictions() {
+        document.body.style.filter = 'blur(5px)';
+        document.body.style.pointerEvents = 'none';
+        
+        const restrictionOverlay = document.createElement('div');
+        restrictionOverlay.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            text-align: center;
+            padding: 20px;
+          ">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🔒</div>
+            <h2 style="color: #f44336; margin-bottom: 15px;">Security Access Restricted</h2>
+            <p style="margin-bottom: 20px; max-width: 500px; line-height: 1.5;">
+              Multiple unauthorized access attempts detected. This system is protected and all activities are monitored.
+            </p>
+            <p style="margin-bottom: 30px; font-size: 18px; color: #ffc107;">
+              System developed by <strong>Fahad - 17877</strong> for KNPC
+            </p>
+            <button onclick="window.location.reload()" style="
+              padding: 12px 24px;
+              background: #4CAF50;
+              color: white;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 16px;
+              transition: all 0.3s ease;
+            " onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">
+              🔄 Refresh Page
+            </button>
+          </div>
+        `;
+        document.body.appendChild(restrictionOverlay);
+      }
+      
+      // Modal action handlers
+      window.acknowledgeWarning = function() {
+        document.getElementById('securityModal').classList.remove('show');
+        isSecurityModalOpen = false;
+        
+        if (securityAttempts >= 3) {
+          showMessage('⚠️ Please use the system normally. Further violations may restrict access.', 'warning');
+        } else {
+          showMessage('✅ Thank you for understanding. Please continue using the system normally.', 'success');
+        }
+      };
+      
+      window.resetPage = function() {
+        window.location.reload();
+      };
+      
+      window.learnMore = function() {
+        showMessage(`
+          🔒 <strong>Security Information:</strong><br>
+          • This system contains sensitive KNPC operational data<br>
+          • Developer tools are disabled to prevent unauthorized access<br>
+          • All user activities are monitored and logged<br>
+          • For technical support, contact Fahad - 17877
+        `, 'info');
+        document.getElementById('securityModal').classList.remove('show');
+        isSecurityModalOpen = false;
+      };
+      
+      // Initialize security system
+      initSmartSecurity();
+      
+      // Console warnings (educational)
+      console.log('%c🔒 TANK TOOLS SECURITY NOTICE', 'color: red; font-size: 20px; font-weight: bold;');
+      console.log('%cThis system is protected and monitored.', 'color: orange; font-size: 14px;');
+      console.log('%cDeveloper: Fahad - 17877 | KNPC System', 'color: green; font-size: 12px;');
+      console.log('%cFor legitimate development needs, contact the administrator.', 'color: blue; font-size: 12px;');
     })();
 
     // Enhanced EmailJS Configuration with fallback
@@ -918,16 +1261,25 @@
         } catch (emailError) {
           console.error('Email sending failed:', emailError);
           
-          // Fallback: Auto-activate for now, show warning
-          newUser.isActive = true;
-          newUser.emailVerified = true;
-          localStorage.setItem('tanktools_users', JSON.stringify(users));
+          // No auto-activation - user stays inactive until admin activates or email works
+          showMessage('✅ Account created! Email service temporarily unavailable. Please contact admin for activation or try again later.', 'warning');
           
-          showMessage('✅ Account created! Email service limited - Account activated automatically. Please login.', 'info');
+          // Add user to pending activation list for admin
+          const pendingActivations = JSON.parse(localStorage.getItem('tanktools_pending_activations') || '[]');
+          pendingActivations.unshift({
+            username: username,
+            fullName: fullName,
+            email: `${username}@knpc.com`,
+            requestTime: new Date().toISOString(),
+            reason: 'email_service_failed'
+          });
+          pendingActivations.splice(20); // Keep only last 20 requests
+          localStorage.setItem('tanktools_pending_activations', JSON.stringify(pendingActivations));
+          
           setTimeout(() => {
             switchTab('login');
             document.getElementById('loginUsername').value = username;
-          }, 2000);
+          }, 3000);
         }
         
         logActivity('user_registered', newUser.username);
@@ -986,7 +1338,7 @@
         }
         
         if (!user.isActive) {
-          throw new Error('Account is not activated. Please contact admin or use forgot password.');
+          throw new Error('Your account is not activated yet. Please check your email for activation link or contact admin for manual activation.');
         }
         
         // Update last login
@@ -1257,9 +1609,9 @@
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
-    console.log('%c🔒 TANK TOOLS - SECURE SYSTEM v3.0', 'color: red; font-size: 20px; font-weight: bold;');
+    console.log('%c🔒 TANK TOOLS - SMART SECURITY SYSTEM v3.0', 'color: red; font-size: 20px; font-weight: bold;');
     console.log('%cDeveloper: Fahad - 17877', 'color: green; font-size: 16px;');
-    console.log('%cEnhanced with Forgot Password System', 'color: blue; font-size: 14px;');
+    console.log('%cEnhanced with Smart Protection & User Experience', 'color: blue; font-size: 14px;');
   </script>
 </body>
 </html>
