@@ -928,7 +928,24 @@
     </div>
   </div>
 
-  <!-- User Edit Modal -->
+  <!-- Debug Modal -->
+  <div id="debugModal" class="modal">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title">🔍 System Debug Information</h3>
+        <button class="close-btn" onclick="closeDebugModal()">&times;</button>
+      </div>
+      <div id="debugContent" style="font-family: monospace; white-space: pre-wrap; background: #f5f5f5; padding: 20px; border-radius: 8px; color: #003366; font-size: 12px;">
+        Loading debug information...
+      </div>
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="btn btn-primary" onclick="fixUserData()">🔧 Fix User Data</button>
+        <button class="btn btn-secondary" onclick="migrateData()">📦 Migrate Old Data</button>
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+        <button class="btn btn-secondary" onclick="closeDebugModal()">Close</button>
+      </div>
+    </div>
+  </div>
   <div id="userModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
