@@ -395,7 +395,26 @@
         }
         
         if (!user.isActive) {
-          throw new Error('Your account is pending admin approval. Please contact admin.');
+          // Show activation reminder with options
+          const activationOptionsHTML = `
+            <div style="background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#f57c00;padding:20px;border-radius:12px;margin:20px 0;text-align:center;">
+              <div style="font-size:1.1rem;font-weight:bold;margin-bottom:15px;">⏳ Account Pending Activation</div>
+              <div style="margin-bottom:20px;">
+                Your account <strong>${username}@knpc.com</strong> is waiting for admin approval.
+              </div>
+              <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="contactAdminWhatsAppLogin('${username}')" style="background:#25D366;color:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                  📱 Contact Admin via WhatsApp
+                </button>
+                <button onclick="this.parentElement.parentElement.parentElement.innerHTML=''" style="background:#666;color:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">
+                  ❌ Close
+                </button>
+              </div>
+            </div>
+          `;
+          
+          document.getElementById('messageContainer').innerHTML = activationOptionsHTML;
+          throw new Error('Account pending activation');
         }
         
         // Update last login
@@ -512,11 +531,15 @@
         
         showMessage('✅ Account created! Activation email sent. Check your email or contact admin.', 'success');
         
+        // Show WhatsApp option
+        setTimeout(() => {
+          showActivationOptions(username);
+        }, 1500);
+        
         setTimeout(() => {
           switchTab('login');
           document.getElementById('loginUsername').value = username;
-          showMessage('📧 Activation email sent! Check your inbox or wait for admin approval.', 'info');
-        }, 2000);
+        }, 6000);
         
       } catch (error) {
         showMessage(`❌ ${error.message}`, 'error');
@@ -649,6 +672,109 @@
           localStorage.removeItem('tanktools_current_user');
         }
       }
+    }
+
+    // Show activation options
+    function showActivationOptions(username) {
+      const activationHTML = `
+        <div style="background:rgba(33,150,243,0.2);border:1px solid rgba(33,150,243,0.5);color:#2196F3;padding:20px;border-radius:12px;margin:20px 0;text-align:center;">
+          <div style="font-size:1.2rem;font-weight:bold;margin-bottom:15px;">🎉 Account Created Successfully!</div>
+          <div style="margin-bottom:20px;line-height:1.6;">
+            Your account <strong>${username}@knpc.com</strong> is pending activation.<br>
+            You have two options to get activated:
+          </div>
+          <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
+            <button onclick="contactAdminWhatsApp('${username}')" style="background:#25D366;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:8px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              📱 Contact Admin via WhatsApp
+            </button>
+            <button onclick="checkEmailActivation()" style="background:#4CAF50;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:8px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              📧 Check Email Activation
+            </button>
+          </div>
+          <div style="margin-top:15px;font-size:0.9rem;opacity:0.8;">
+            💡 <strong>Tip:</strong> WhatsApp is the fastest way to get activated!
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('messageContainer').innerHTML = activationHTML;
+    }
+
+    // Contact admin via WhatsApp
+    function contactAdminWhatsApp(username) {
+      const message = `Hello Admin! 👋
+
+I just registered a new account on Tank Tools:
+
+👤 Username: ${username}
+📧 Email: ${username}@knpc.com
+🕐 Registration Time: ${new Date().toLocaleString()}
+
+Could you please activate my account? Thank you! 🙏
+
+Tank Tools Registration System`;
+      
+      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
+      
+      try {
+        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+          window.location.href = whatsappURL;
+        }
+        
+        showMessage('📱 WhatsApp opened! Send the message to get activated quickly.', 'success');
+        
+        // Update user record that WhatsApp was used
+        updateDoc(doc(db, 'users', username), {
+          whatsappContactTime: serverTimestamp(),
+          contactMethod: 'whatsapp'
+        }).catch(console.error);
+        
+      } catch (error) {
+        console.error('WhatsApp error:', error);
+        showMessage('📱 Please manually contact admin via WhatsApp: +965 55222550', 'info');
+      }
+    }
+
+    // Contact admin via WhatsApp from login
+    function contactAdminWhatsAppLogin(username) {
+      const message = `Hello Admin! 👋
+
+I'm trying to login to Tank Tools but my account needs activation:
+
+👤 Username: ${username}
+📧 Email: ${username}@knpc.com
+🕐 Login Attempt: ${new Date().toLocaleString()}
+
+Could you please activate my account? Thank you! 🙏
+
+Tank Tools Login System`;
+      
+      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
+      
+      try {
+        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+          window.location.href = whatsappURL;
+        }
+        
+        showMessage('📱 WhatsApp opened! Send the message to get activated.', 'success');
+        
+      } catch (error) {
+        console.error('WhatsApp error:', error);
+        showMessage('📱 Please manually contact admin via WhatsApp: +965 55222550', 'info');
+      }
+    }
+
+    // Make functions globally available
+    window.contactAdminWhatsApp = contactAdminWhatsApp;
+    window.contactAdminWhatsAppLogin = contactAdminWhatsAppLogin;
+    window.checkEmailActivation = checkEmailActivation;
+    window.showActivationOptions = showActivationOptions;
+
+    // Check email activation
+    function checkEmailActivation() {
+      showMessage('📧 Please check your email inbox and spam folder for the activation link. If not received, contact admin via WhatsApp.', 'info');
     }
 
     // Generate verification token
