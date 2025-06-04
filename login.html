@@ -395,7 +395,7 @@
         }
         
         if (!user.isActive) {
-          throw new Error('Your account is not activated yet');
+          throw new Error('Your account is pending admin approval. Please contact admin.');
         }
         
         // Update last login
@@ -478,13 +478,13 @@
           throw new Error('Username already exists');
         }
         
-        // Create new user
+        // Create new user (inactive by default)
         const newUser = {
           username: username,
           email: `${username}@knpc.com`,
           fullName: fullName,
           password: password, // Store password directly for now
-          isActive: true,
+          isActive: false, // NEW USERS START INACTIVE
           isAdmin: false,
           createdAt: serverTimestamp(),
           lastLogin: null,
@@ -497,11 +497,12 @@
         await addActivity('إنشاء حساب جديد', username);
         await updateStats();
         
-        showMessage('✅ Account created successfully! You can now login.', 'success');
+        showMessage('✅ Account created successfully! Your account is pending admin approval.', 'success');
         
         setTimeout(() => {
           switchTab('login');
           document.getElementById('loginUsername').value = username;
+          showMessage('ℹ️ Please wait for admin approval before logging in.', 'info');
         }, 2000);
         
       } catch (error) {
