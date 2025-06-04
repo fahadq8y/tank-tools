@@ -11,91 +11,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tank Tools">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;color:white}
-    .container{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:40px;box-shadow:0 8px 32px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);width:100%;max-width:450px;text-align:center;position:relative;overflow:hidden}
-    .container::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:0.5s}
-    .container:hover::before{left:100%}
-    .logo{font-size:3rem;margin-bottom:10px;background:linear-gradient(45deg,#FFD700,#FFA500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:pulse 2s ease-in-out infinite}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-    .subtitle{font-size:1.2rem;margin-bottom:30px;opacity:0.9;font-weight:300}
-    .tab-container{display:flex;margin-bottom:30px;background:rgba(255,255,255,0.1);border-radius:10px;padding:5px}
-    .tab{flex:1;padding:12px 20px;border:none;background:transparent;color:white;cursor:pointer;border-radius:8px;transition:all 0.3s ease;font-weight:500}
-    .tab.active{background:linear-gradient(45deg,#4CAF50,#45a049);box-shadow:0 5px 15px rgba(76,175,80,0.3);transform:translateY(-2px)}
-    .form-container{display:none}
-    .form-container.active{display:block;animation:slideIn 0.5s ease}
-    @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .form-group{margin-bottom:20px;text-align:left}
-    label{display:block;margin-bottom:8px;font-weight:500;color:rgba(255,255,255,0.9)}
-    input{width:100%;padding:15px;border:none;border-radius:10px;background:rgba(255,255,255,0.9);color:#003366;font-size:16px;transition:all 0.3s ease;border:2px solid transparent;box-shadow:0 2px 5px rgba(0,0,0,0.3)}
-    input::placeholder{color:rgba(0,51,102,0.6)}
-    input:focus{outline:none;background:rgba(255,255,255,1);border-color:#4CAF50;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
-    .username-container{display:flex;align-items:center;background:rgba(255,255,255,0.9);border-radius:10px;border:2px solid transparent;transition:all 0.3s ease;box-shadow:0 2px 5px rgba(0,0,0,0.3)}
-    .username-container:focus-within{background:rgba(255,255,255,1);border-color:#4CAF50;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
-    .username-input{background:transparent;border:none;padding:15px;flex:1;box-shadow:none;transform:none;color:#003366}
-    .username-input:focus{background:transparent;border:none;box-shadow:none;transform:none}
-    .email-suffix{padding:15px;color:#003366;font-weight:500;background:rgba(0,51,102,0.1);border-radius:0 8px 8px 0}
-    .validation-message{margin-top:5px;font-size:12px;color:#ff6b6b;opacity:0;transition:opacity 0.3s ease}
-    .validation-message.show{opacity:1}
-    .validation-message.success{color:#4CAF50}
-    .password-strength{margin-top:8px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden}
-    .password-strength-bar{height:100%;width:0%;transition:all 0.3s ease;border-radius:2px}
-    .strength-weak{background:#ff6b6b;width:25%}
-    .strength-fair{background:#ffa726;width:50%}
-    .strength-good{background:#42a5f5;width:75%}
-    .strength-strong{background:#4CAF50;width:100%}
-    .btn{width:100%;padding:15px;border:none;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:20px;position:relative;overflow:hidden}
-    .btn-primary{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}
-    .btn-secondary{background:linear-gradient(45deg,#2196F3,#1976D2);color:white;margin-top:10px;font-size:14px;padding:10px}
-    .btn-danger{background:linear-gradient(45deg,#f44336,#d32f2f);color:white;margin-top:10px;font-size:14px;padding:10px}
-    .btn:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(76,175,80,0.4)}
-    .btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
-    .btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:0.5s}
-    .btn:hover::before{left:100%}
-    .forgot-password-link{color:#2196F3;text-decoration:none;font-size:14px;display:block;margin-top:15px;transition:all 0.3s ease}
-    .forgot-password-link:hover{color:#1976D2;text-shadow:0 0 5px rgba(33,150,243,0.5)}
-    .message{margin-top:15px;padding:12px;border-radius:8px;font-size:14px;opacity:0;transform:translateY(-10px);transition:all 0.3s ease}
-    .message.show{opacity:1;transform:translateY(0)}
-    .message.success{background:rgba(76,175,80,0.2);border:1px solid rgba(76,175,80,0.5);color:#4CAF50}
-    .message.error{background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.5);color:#ff6b6b}
-    .message.info{background:rgba(33,150,243,0.2);border:1px solid rgba(33,150,243,0.5);color:#2196F3}
-    .message.warning{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#ffc107}
-    .footer{margin-top:30px;font-size:12px;opacity:0.7;text-align:center}
-    .loading{display:none;margin-top:10px}
-    .spinner{border:3px solid rgba(255,255,255,0.3);border-radius:50%;border-top:3px solid white;width:30px;height:30px;animation:spin 1s linear infinite;margin:0 auto}
-    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    .email-status{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#ffc107;padding:10px;border-radius:8px;margin-bottom:20px;font-size:13px;text-align:center}
-    .forgot-container{display:none;text-align:center}
-    .forgot-container.active{display:block;animation:slideIn 0.5s ease}
-    .forgot-icon{font-size:4rem;margin-bottom:20px;color:#2196F3}
-    .forgot-title{font-size:1.5rem;margin-bottom:15px;color:#2196F3}
-    .forgot-text{margin-bottom:20px;opacity:0.8}
-    .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:white;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.3s ease;margin-top:10px}
-    .back-btn:hover{background:rgba(255,255,255,0.1)}
-    .security-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;backdrop-filter:blur(5px)}
-    .security-modal.show{display:flex;justify-content:center;align-items:center}
-    .security-modal-content{background:rgba(255,255,255,0.95);padding:30px;border-radius:15px;max-width:500px;width:90%;color:#003366;text-align:center;animation:modalSlideIn 0.5s ease}
-    @keyframes modalSlideIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
-    .security-icon{font-size:3rem;margin-bottom:15px}
-    .security-title{font-size:1.5rem;margin-bottom:15px;font-weight:bold}
-    .security-text{margin-bottom:20px;line-height:1.5}
-    .attempt-counter{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#f57c00;padding:10px;border-radius:8px;margin:15px 0;font-weight:bold}
-    .security-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-    .modal-btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:500;transition:all 0.3s ease}
-    .modal-btn-primary{background:#4CAF50;color:white}
-    .modal-btn-secondary{background:#2196F3;color:white}
-    .modal-btn-danger{background:#f44336;color:white}
-    .modal-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
-    @media (max-width:480px){.container{padding:30px 20px;margin:20px}.logo{font-size:2.5rem}.tab{padding:10px 15px;font-size:14px}.security-buttons{flex-direction:column}.modal-btn{width:100%}}
+    *{margin:0;padding:0;box-sizing:border-box}body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;color:white}.container{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:40px;box-shadow:0 8px 32px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);width:100%;max-width:450px;text-align:center;position:relative;overflow:hidden}.container::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:0.5s}.container:hover::before{left:100%}.logo{font-size:3rem;margin-bottom:10px;background:linear-gradient(45deg,#FFD700,#FFA500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:pulse 2s ease-in-out infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.subtitle{font-size:1.2rem;margin-bottom:30px;opacity:0.9;font-weight:300}.tab-container{display:flex;margin-bottom:30px;background:rgba(255,255,255,0.1);border-radius:10px;padding:5px}.tab{flex:1;padding:12px 20px;border:none;background:transparent;color:white;cursor:pointer;border-radius:8px;transition:all 0.3s ease;font-weight:500}.tab.active{background:linear-gradient(45deg,#4CAF50,#45a049);box-shadow:0 5px 15px rgba(76,175,80,0.3);transform:translateY(-2px)}.form-container{display:none}.form-container.active{display:block;animation:slideIn 0.5s ease}@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.form-group{margin-bottom:20px;text-align:left}label{display:block;margin-bottom:8px;font-weight:500;color:rgba(255,255,255,0.9)}input{width:100%;padding:15px;border:none;border-radius:10px;background:rgba(255,255,255,0.9);color:#003366;font-size:16px;transition:all 0.3s ease;border:2px solid transparent;box-shadow:0 2px 5px rgba(0,0,0,0.3)}input::placeholder{color:rgba(0,51,102,0.6)}input:focus{outline:none;background:rgba(255,255,255,1);border-color:#4CAF50;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}.username-container{display:flex;align-items:center;background:rgba(255,255,255,0.9);border-radius:10px;border:2px solid transparent;transition:all 0.3s ease;box-shadow:0 2px 5px rgba(0,0,0,0.3)}.username-container:focus-within{background:rgba(255,255,255,1);border-color:#4CAF50;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}.username-input{background:transparent;border:none;padding:15px;flex:1;box-shadow:none;transform:none;color:#003366}.username-input:focus{background:transparent;border:none;box-shadow:none;transform:none}.email-suffix{padding:15px;color:#003366;font-weight:500;background:rgba(0,51,102,0.1);border-radius:0 8px 8px 0}.validation-message{margin-top:5px;font-size:12px;color:#ff6b6b;opacity:0;transition:opacity 0.3s ease}.validation-message.show{opacity:1}.validation-message.success{color:#4CAF50}.password-strength{margin-top:8px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden}.password-strength-bar{height:100%;width:0%;transition:all 0.3s ease;border-radius:2px}.strength-weak{background:#ff6b6b;width:25%}.strength-fair{background:#ffa726;width:50%}.strength-good{background:#42a5f5;width:75%}.strength-strong{background:#4CAF50;width:100%}.btn{width:100%;padding:15px;border:none;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:20px;position:relative;overflow:hidden}.btn-primary{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}.btn-secondary{background:linear-gradient(45deg,#2196F3,#1976D2);color:white;margin-top:10px;font-size:14px;padding:10px}.btn-danger{background:linear-gradient(45deg,#f44336,#d32f2f);color:white;margin-top:10px;font-size:14px;padding:10px}.btn:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(76,175,80,0.4)}.btn:disabled{background:#ccc;cursor:not-allowed;transform:none}.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:0.5s}.btn:hover::before{left:100%}.forgot-password-link{color:#2196F3;text-decoration:none;font-size:14px;display:block;margin-top:15px;transition:all 0.3s ease}.forgot-password-link:hover{color:#1976D2;text-shadow:0 0 5px rgba(33,150,243,0.5)}.message{margin-top:15px;padding:12px;border-radius:8px;font-size:14px;opacity:0;transform:translateY(-10px);transition:all 0.3s ease}.message.show{opacity:1;transform:translateY(0)}.message.success{background:rgba(76,175,80,0.2);border:1px solid rgba(76,175,80,0.5);color:#4CAF50}.message.error{background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.5);color:#ff6b6b}.message.info{background:rgba(33,150,243,0.2);border:1px solid rgba(33,150,243,0.5);color:#2196F3}.message.warning{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#ffc107}.footer{margin-top:30px;font-size:12px;opacity:0.7;text-align:center}.loading{display:none;margin-top:10px}.spinner{border:3px solid rgba(255,255,255,0.3);border-radius:50%;border-top:3px solid white;width:30px;height:30px;animation:spin 1s linear infinite;margin:0 auto}@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.email-status{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#ffc107;padding:10px;border-radius:8px;margin-bottom:20px;font-size:13px;text-align:center}.forgot-container{display:none;text-align:center}.forgot-container.active{display:block;animation:slideIn 0.5s ease}.forgot-icon{font-size:4rem;margin-bottom:20px;color:#2196F3}.forgot-title{font-size:1.5rem;margin-bottom:15px;color:#2196F3}.forgot-text{margin-bottom:20px;opacity:0.8}.back-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:white;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.3s ease;margin-top:10px}.back-btn:hover{background:rgba(255,255,255,0.1)}.security-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;backdrop-filter:blur(5px)}.security-modal.show{display:flex;justify-content:center;align-items:center}.security-modal-content{background:rgba(255,255,255,0.95);padding:30px;border-radius:15px;max-width:500px;width:90%;color:#003366;text-align:center;animation:modalSlideIn 0.5s ease}@keyframes modalSlideIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}.security-icon{font-size:3rem;margin-bottom:15px}.security-title{font-size:1.5rem;margin-bottom:15px;font-weight:bold}.security-text{margin-bottom:20px;line-height:1.5}.attempt-counter{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#f57c00;padding:10px;border-radius:8px;margin:15px 0;font-weight:bold}.security-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.modal-btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:500;transition:all 0.3s ease}.modal-btn-primary{background:#4CAF50;color:white}.modal-btn-secondary{background:#2196F3;color:white}.modal-btn-danger{background:#f44336;color:white}.modal-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}@media (max-width:480px){.container{padding:30px 20px;margin:20px}.logo{font-size:2.5rem}.tab{padding:10px 15px;font-size:14px}.security-buttons{flex-direction:column}.modal-btn{width:100%}}
   </style>
 </head>
 <body>
-  <!-- Security Warning Modal -->
   <div id="securityModal" class="security-modal">
     <div class="security-modal-content">
       <div class="security-icon" id="securityIcon">⚠️</div>
       <div class="security-title" id="securityTitle">Security Warning</div>
-      <div class="security-text" id="securityText">We detected you trying to access developer tools. This action is monitored for security purposes.</div>
+      <div class="security-text" id="securityText">We detected you trying to access developer tools.</div>
       <div class="attempt-counter" id="attemptCounter">Attempts: <span id="attemptCount">1</span>/3</div>
       <div class="security-buttons">
         <button class="modal-btn modal-btn-primary" onclick="acknowledgeWarning()">I Understand</button>
@@ -108,18 +32,14 @@
   <div class="container">
     <div class="logo">🛠️ Tank Tools</div>
     <div class="subtitle">Kuwait National Petroleum Company</div>
-    
-    <!-- Email Service Status Alert -->
     <div class="email-status">⚠️ Email service temporarily limited. Use "Forgot Password" if needed.</div>
     
-    <!-- Main Container -->
     <div id="mainContainer">
       <div class="tab-container">
         <button class="tab active" onclick="switchTab('login')">Login</button>
         <button class="tab" onclick="switchTab('register')">Register</button>
       </div>
 
-      <!-- Login Form -->
       <div id="loginForm" class="form-container active">
         <form onsubmit="handleLogin(event)">
           <div class="form-group">
@@ -130,23 +50,19 @@
             </div>
             <div class="validation-message" id="loginUsernameMsg"></div>
           </div>
-          
           <div class="form-group">
             <label for="loginPassword">🔒 Password:</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
           </div>
-          
           <div class="form-group">
             <label><input type="checkbox" id="rememberMe" style="width:auto;margin-right:8px;">Remember me</label>
           </div>
-          
           <button type="submit" class="btn btn-primary" id="loginBtn">🚀 Login</button>
           <a href="#" class="forgot-password-link" onclick="showForgotPassword()">🔑 Forgot Password?</a>
           <div class="loading" id="loginLoading"><div class="spinner"></div><div>Logging in...</div></div>
         </form>
       </div>
 
-      <!-- Registration Form -->
       <div id="registerForm" class="form-container">
         <form onsubmit="handleRegister(event)">
           <div class="form-group">
@@ -154,7 +70,6 @@
             <input type="text" id="fullName" placeholder="Enter your full name" required minlength="3">
             <div class="validation-message" id="fullNameMsg"></div>
           </div>
-          
           <div class="form-group">
             <label for="username">📧 Username (Email):</label>
             <div class="username-container">
@@ -163,32 +78,27 @@
             </div>
             <div class="validation-message" id="usernameMsg"></div>
           </div>
-          
           <div class="form-group">
             <label for="password">🔒 Password:</label>
             <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
             <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
             <div class="validation-message" id="passwordMsg"></div>
           </div>
-          
           <div class="form-group">
             <label for="confirmPassword">🔒 Confirm Password:</label>
             <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
             <div class="validation-message" id="confirmPasswordMsg"></div>
           </div>
-          
           <button type="submit" class="btn btn-primary" id="registerBtn">✨ Create Account</button>
           <div class="loading" id="registerLoading"><div class="spinner"></div><div>Creating account...</div></div>
         </form>
       </div>
     </div>
 
-    <!-- Forgot Password Screen -->
     <div id="forgotContainer" class="forgot-container">
       <div class="forgot-icon">🔑</div>
       <div class="forgot-title">Reset Password</div>
       <div class="forgot-text">Enter your username to reset your password</div>
-      
       <form onsubmit="handleForgotPassword(event)">
         <div class="form-group">
           <label for="forgotUsername">👤 Username:</label>
@@ -197,7 +107,6 @@
             <div class="email-suffix">@knpc.com</div>
           </div>
         </div>
-        
         <button type="submit" class="btn btn-secondary" id="resetBtn">📧 Send Reset Link</button>
         <button type="button" class="btn btn-danger" onclick="contactAdmin()" style="margin-top:10px;">📱 Contact Admin</button>
         <button type="button" class="back-btn" onclick="backToLogin()">Back to Login</button>
@@ -206,370 +115,68 @@
     </div>
 
     <div id="messageContainer"></div>
-    
-    <div class="footer">
-      <strong>🔒 Secure System</strong><br>
-      By <strong>Fahad - 17877</strong> | Version 3.0<br>
-      <small>All activities are monitored and logged</small>
-    </div>
+    <div class="footer"><strong>🔒 Secure System</strong><br>By <strong>Fahad - 17877</strong> | Version 3.0<br><small>All activities are monitored and logged</small></div>
   </div>
 
-  <!-- EmailJS Script -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
   <script>
-    // 🔒 Smart Security System
-    (function(){
-      let attempts=0,modalOpen=false;
-      function initSecurity(){
-        document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));
-        document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});
-        document.addEventListener('keydown',e=>{
-          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];
-          if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)
-        });
-        let devOpen=false;
-        setInterval(()=>{
-          const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;
-          if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}
-        },2000)
-      }
-      function handleViolation(type){
-        return function(e){
-          if(e&&e.preventDefault)e.preventDefault();
-          attempts++;
-          if(attempts===1)showWarning('first');
-          else if(attempts===2)showWarning('second');
-          else if(attempts>=3)showWarning('final');
-          return false
-        }
-      }
-      function showWarning(level){
-        if(modalOpen)return;
-        const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');
-        modalOpen=true;countSpan.textContent=attempts;
-        if(level==='first'){
-          icon.textContent='👀';title.textContent='Security Notice';
-          text.innerHTML='<p>We noticed you tried to access developer tools or copy content.</p><p><strong>If this was accidental:</strong> No problem! Just click "I Understand" to continue.</p><p><strong>Why this happens:</strong> This system contains sensitive KNPC data and is protected for security.</p>';
-          counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'
-        }else if(level==='second'){
-          icon.textContent='⚠️';title.textContent='Security Warning';
-          text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>If you\'re trying to inspect or copy this system, please note:</p><ul style="text-align:left;margin:10px 0"><li>This system is protected by copyright</li><li>Unauthorized access attempts are logged</li><li>For legitimate development needs, contact the admin</li></ul><p>One more attempt will restrict access.</p>';
-          counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'
-        }else{
-          icon.textContent='🚫';title.textContent='Access Restricted';
-          text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p><p>For security purposes, further access has been limited.</p><p>If you need legitimate access to this system:</p><ul style="text-align:left;margin:10px 0"><li>Contact the system administrator</li><li>Use the "Reset Page" button to try again</li><li>Ensure you\'re using the system as intended</li></ul>';
-          counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';
-          setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)
-        }
-        modal.classList.add('show')
-      }
-      function implementRestrictions(){
-        document.body.style.filter='blur(5px)';document.body.style.pointerEvents='none';
-        const overlay=document.createElement('div');
-        overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><div style="font-size:4rem;margin-bottom:20px">🔒</div><h2 style="color:#f44336;margin-bottom:15px">Security Access Restricted</h2><p style="margin-bottom:20px;max-width:500px;line-height:1.5">Multiple unauthorized access attempts detected. This system is protected and all activities are monitored.</p><p style="margin-bottom:30px;font-size:18px;color:#ffc107">System developed by <strong>Fahad - 17877</strong> for KNPC</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;transition:all 0.3s ease" onmouseover="this.style.background=\'#45a049\'" onmouseout="this.style.background=\'#4CAF50\'">🔄 Refresh Page</button></div>';
-        document.body.appendChild(overlay)
-      }
-      window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false;showMessage(attempts>=3?'⚠️ Please use the system normally. Further violations may restrict access.':'✅ Thank you for understanding. Please continue using the system normally.','success')};
-      window.resetPage=()=>window.location.reload();
-      window.learnMore=()=>{showMessage('🔒 <strong>Security Information:</strong><br>• This system contains sensitive KNPC operational data<br>• Developer tools are disabled to prevent unauthorized access<br>• All user activities are monitored and logged<br>• For technical support, contact Fahad - 17877','info');document.getElementById('securityModal').classList.remove('show');modalOpen=false};
-      initSecurity()
-    })();
+    (function(){let attempts=0,modalOpen=false;function initSecurity(){document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});document.addEventListener('keydown',e=>{const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)});let devOpen=false;setInterval(()=>{const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}},2000)}function handleViolation(type){return function(e){if(e&&e.preventDefault)e.preventDefault();attempts++;if(attempts===1)showWarning('first');else if(attempts===2)showWarning('second');else if(attempts>=3)showWarning('final');return false}}function showWarning(level){if(modalOpen)return;const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');modalOpen=true;countSpan.textContent=attempts;if(level==='first'){icon.textContent='👀';title.textContent='Security Notice';text.innerHTML='<p>We noticed you tried to access developer tools.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'}else if(level==='second'){icon.textContent='⚠️';title.textContent='Security Warning';text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>This system is protected for KNPC operations.</p>';counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'}else{icon.textContent='🚫';title.textContent='Access Restricted';text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p>';counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)}modal.classList.add('show')}function implementRestrictions(){document.body.style.filter='blur(5px)';const overlay=document.createElement('div');overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">Security Restricted</h2><p>Contact Fahad - 17877</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh</button></div>';document.body.appendChild(overlay)}window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};window.resetPage=()=>window.location.reload();window.learnMore=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};initSecurity()})();
 
-    // GitHub Configuration
     const GITHUB_CONFIG={owner:'fahadq8y',repo:'tank-tools',path:'database/users.json',token:'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'};
-    
-    // Enhanced EmailJS Configuration
     emailjs.init("E8PE3MsUZrT5IKF-E");
-    let pendingUser=null;
     const WHATSAPP_ADMIN="96555222550";
+    let usersDatabase;
 
-    // GitHub API Functions
-    async function fetchUsersFromGitHub(){
-      try{
-        const response=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{
-          headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json'}
-        });
-        if(!response.ok)throw new Error('فشل في تحميل قاعدة البيانات');
-        const data=await response.json();
-        return JSON.parse(atob(data.content))
-      }catch(error){console.error('خطأ في تحميل البيانات:',error);throw error}
-    }
+    async function fetchUsersFromGitHub(){try{const response=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json'}});if(!response.ok)throw new Error('فشل في تحميل قاعدة البيانات');const data=await response.json();return JSON.parse(atob(data.content))}catch(error){console.error('خطأ في تحميل البيانات:',error);throw error}}
 
-    async function updateUsersInGitHub(userData){
-      try{
-        const currentFile=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{
-          headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json'}
-        });
-        const currentData=await currentFile.json();
-        const response=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{
-          method:'PUT',
-          headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-          body:JSON.stringify({message:'تحديث قاعدة بيانات المستخدمين',content:btoa(JSON.stringify(userData,null,2)),sha:currentData.sha})
-        });
-        if(!response.ok)throw new Error('فشل في تحديث قاعدة البيانات');
-        return true
-      }catch(error){console.error('خطأ في تحديث البيانات:',error);throw error}
-    }
+    async function updateUsersInGitHub(userData){try{const currentFile=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json'}});const currentData=await currentFile.json();const response=await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,{method:'PUT',headers:{'Authorization':`token ${GITHUB_CONFIG.token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify({message:'تحديث قاعدة بيانات المستخدمين',content:btoa(JSON.stringify(userData,null,2)),sha:currentData.sha})});if(!response.ok)throw new Error('فشل في تحديث قاعدة البيانات');return true}catch(error){console.error('خطأ في تحديث البيانات:',error);throw error}}
 
-    // Activity & Stats Functions
-    function addActivity(action,username=null){
-      const activity={id:Date.now(),timestamp:new Date().toISOString(),action:action,username:username,ip:'غير محدد',userAgent:navigator.userAgent.substring(0,50)+'...'};
-      usersDatabase.activityLog.unshift(activity);
-      if(usersDatabase.activityLog.length>100)usersDatabase.activityLog=usersDatabase.activityLog.slice(0,100)
-    }
+    function addActivity(action,username=null){const activity={id:Date.now(),timestamp:new Date().toISOString(),action:action,username:username,ip:'غير محدد',userAgent:navigator.userAgent.substring(0,50)+'...'};usersDatabase.activityLog.unshift(activity);if(usersDatabase.activityLog.length>100)usersDatabase.activityLog=usersDatabase.activityLog.slice(0,100)}
 
-    function updateStats(){
-      const today=new Date().toDateString();
-      const todayActivities=usersDatabase.activityLog.filter(activity=>new Date(activity.timestamp).toDateString()===today&&activity.action==='تسجيل دخول');
-      usersDatabase.stats.totalUsers=Object.keys(usersDatabase.users).length;
-      usersDatabase.stats.todayLogins=todayActivities.length
-    }
+    function updateStats(){const today=new Date().toDateString();const todayActivities=usersDatabase.activityLog.filter(activity=>new Date(activity.timestamp).toDateString()===today&&activity.action==='تسجيل دخول');usersDatabase.stats.totalUsers=Object.keys(usersDatabase.users).length;usersDatabase.stats.todayLogins=todayActivities.length}
 
-    // Validation Functions
-    function validateUsername(){
-      const username=document.getElementById('username').value,msg=document.getElementById('usernameMsg'),pattern=/^[a-zA-Z]{3}[0-9]{3}$/;
-      if(username.length===0){hideValidation(msg);return false}
-      if(!pattern.test(username)){showValidation(msg,'❌ Must be 3 letters + 3 numbers (e.g., abc123)','error');return false}
-      showValidation(msg,'✅ Username format valid','success');return true
-    }
+    function validateUsername(){const username=document.getElementById('username').value,msg=document.getElementById('usernameMsg'),pattern=/^[a-zA-Z]{3}[0-9]{3}$/;if(username.length===0){hideValidation(msg);return false}if(!pattern.test(username)){showValidation(msg,'❌ Must be 3 letters + 3 numbers','error');return false}showValidation(msg,'✅ Username format valid','success');return true}
 
-    function validateLoginUsername(){
-      const username=document.getElementById('loginUsername').value,msg=document.getElementById('loginUsernameMsg'),pattern=/^[a-zA-Z]{3}[0-9]{3}$/;
-      if(username.length===0){hideValidation(msg);return false}
-      if(!pattern.test(username)){showValidation(msg,'❌ Must be 3 letters + 3 numbers','error');return false}
-      hideValidation(msg);return true
-    }
+    function validateLoginUsername(){const username=document.getElementById('loginUsername').value,msg=document.getElementById('loginUsernameMsg'),pattern=/^[a-zA-Z]{3}[0-9]{3}$/;if(username.length===0){hideValidation(msg);return false}if(!pattern.test(username)){showValidation(msg,'❌ Must be 3 letters + 3 numbers','error');return false}hideValidation(msg);return true}
 
-    function validatePassword(){
-      const password=document.getElementById('password').value,msg=document.getElementById('passwordMsg'),strengthBar=document.getElementById('strengthBar');
-      if(password.length===0){hideValidation(msg);strengthBar.className='password-strength-bar';return false}
-      let strength=0,issues=[];
-      if(password.length>=8)strength++;else issues.push('8+ characters');
-      if(/[A-Z]/.test(password))strength++;else issues.push('uppercase letter');
-      if(/[a-z]/.test(password))strength++;else issues.push('lowercase letter');
-      if(/[0-9]/.test(password))strength++;else issues.push('number');
-      if(/[^A-Za-z0-9]/.test(password))strength++;else issues.push('special character');
-      strengthBar.className='password-strength-bar';
-      if(strength<=2)strengthBar.classList.add('strength-weak');
-      else if(strength===3)strengthBar.classList.add('strength-fair');
-      else if(strength===4)strengthBar.classList.add('strength-good');
-      else strengthBar.classList.add('strength-strong');
-      if(strength<3){showValidation(msg,`❌ Need: ${issues.join(', ')}`,'error');return false}
-      if(strength>=4)showValidation(msg,'✅ Strong password!','success');
-      else showValidation(msg,'⚡ Good password','success');
-      return true
-    }
+    function validatePassword(){const password=document.getElementById('password').value,msg=document.getElementById('passwordMsg'),strengthBar=document.getElementById('strengthBar');if(password.length===0){hideValidation(msg);strengthBar.className='password-strength-bar';return false}let strength=0,issues=[];if(password.length>=8)strength++;else issues.push('8+ characters');if(/[A-Z]/.test(password))strength++;else issues.push('uppercase');if(/[a-z]/.test(password))strength++;else issues.push('lowercase');if(/[0-9]/.test(password))strength++;else issues.push('number');if(/[^A-Za-z0-9]/.test(password))strength++;else issues.push('special');strengthBar.className='password-strength-bar';if(strength<=2)strengthBar.classList.add('strength-weak');else if(strength===3)strengthBar.classList.add('strength-fair');else if(strength===4)strengthBar.classList.add('strength-good');else strengthBar.classList.add('strength-strong');if(strength<3){showValidation(msg,`❌ Need: ${issues.join(', ')}`,'error');return false}showValidation(msg,strength>=4?'✅ Strong password!':'⚡ Good password','success');return true}
 
-    function validateConfirmPassword(){
-      const password=document.getElementById('password').value,confirmPassword=document.getElementById('confirmPassword').value,msg=document.getElementById('confirmPasswordMsg');
-      if(confirmPassword.length===0){hideValidation(msg);return false}
-      if(password!==confirmPassword){showValidation(msg,'❌ Passwords do not match','error');return false}
-      showValidation(msg,'✅ Passwords match','success');return true
-    }
+    function validateConfirmPassword(){const password=document.getElementById('password').value,confirmPassword=document.getElementById('confirmPassword').value,msg=document.getElementById('confirmPasswordMsg');if(confirmPassword.length===0){hideValidation(msg);return false}if(password!==confirmPassword){showValidation(msg,'❌ Passwords do not match','error');return false}showValidation(msg,'✅ Passwords match','success');return true}
 
-    function validateFullName(){
-      const fullName=document.getElementById('fullName').value,msg=document.getElementById('fullNameMsg');
-      if(fullName.length===0){hideValidation(msg);return false}
-      if(fullName.length<3){showValidation(msg,'❌ Name must be at least 3 characters','error');return false}
-      showValidation(msg,'✅ Valid name','success');return true
-    }
+    function validateFullName(){const fullName=document.getElementById('fullName').value,msg=document.getElementById('fullNameMsg');if(fullName.length===0){hideValidation(msg);return false}if(fullName.length<3){showValidation(msg,'❌ Name must be at least 3 characters','error');return false}showValidation(msg,'✅ Valid name','success');return true}
 
     function showValidation(element,message,type){element.textContent=message;element.className=`validation-message show ${type}`}
     function hideValidation(element){element.className='validation-message'}
 
-    // Main Login Handler with Fallback
-    async function handleLogin(event){
-      event.preventDefault();
-      const username=document.getElementById('loginUsername').value.trim(),password=document.getElementById('loginPassword').value,rememberMe=document.getElementById('rememberMe').checked;
-      if(!validateLoginUsername()){showMessage('❌ Please enter a valid username format','error');return}
-      if(!password){showMessage('❌ Please enter your password','error');return}
-      showLoading('login',true);
-      try{
-        await new Promise(resolve=>setTimeout(resolve,1200));
-        let usersDatabase,usingGitHub=true;
-        try{
-          usersDatabase=await fetchUsersFromGitHub()
-        }catch{
-          console.log('GitHub failed, using localStorage fallback');
-          usingGitHub=false;
-          const users=JSON.parse(localStorage.getItem('tanktools_users')||'[]');
-          usersDatabase={users:{},activityLog:JSON.parse(localStorage.getItem('tanktools_activities')||'[]'),stats:{totalUsers:users.length,todayLogins:0}};
-          users.forEach(u=>usersDatabase.users[u.username]=u)
-        }
-        const user=usersDatabase.users[username];
-        if(!user)throw new Error('Invalid username or password');
-        if(user.password!==btoa(password))throw new Error('Invalid username or password');
-        if(!user.isActive)throw new Error('Your account is not activated yet. Please check your email for activation link or contact admin for manual activation.');
-        user.lastLogin=new Date().toISOString();
-        if(usingGitHub){
-          addActivity('تسجيل دخول',username);
-          updateStats();
-          try{await updateUsersInGitHub(usersDatabase)}catch{console.log('Failed to update GitHub, saved locally')}
-        }else{
-          const users=Object.values(usersDatabase.users);
-          localStorage.setItem('tanktools_users',JSON.stringify(users))
-        }
-        const sessionData={id:user.id||Date.now(),username:user.username,fullName:user.fullName,email:user.email,role:user.role||'user',loginTime:new Date().toISOString()};
-        localStorage.setItem('tanktools_current_user',JSON.stringify(sessionData));
-        sessionStorage.setItem('tanktools_session','active');
-        if(rememberMe)localStorage.setItem('tanktools_remember',JSON.stringify({username:username,rememberMe:true}));
-        logActivity('user_login',user.username);
-        showMessage('✅ Login successful! Redirecting...','success');
-        setTimeout(()=>{
-          if(user.username==='fam030'||user.role==='admin')window.location.href='dashboard.html';
-          else window.location.href='index.html'
-        },1500)
-      }catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('login',false)}
-    }
+    async function handleLogin(event){event.preventDefault();const username=document.getElementById('loginUsername').value.trim(),password=document.getElementById('loginPassword').value,rememberMe=document.getElementById('rememberMe').checked;if(!validateLoginUsername()){showMessage('❌ Please enter a valid username format','error');return}if(!password){showMessage('❌ Please enter your password','error');return}showLoading('login',true);try{await new Promise(resolve=>setTimeout(resolve,1200));usersDatabase=await fetchUsersFromGitHub();const user=usersDatabase.users[username];if(!user)throw new Error('Invalid username or password');if(user.password!==btoa(password))throw new Error('Invalid username or password');if(!user.isActive)throw new Error('Your account is not activated yet');user.lastLogin=new Date().toISOString();addActivity('تسجيل دخول',username);updateStats();await updateUsersInGitHub(usersDatabase);const sessionData={id:user.id||Date.now(),username:user.username,fullName:user.fullName,email:user.email,role:user.role||'user',loginTime:new Date().toISOString()};localStorage.setItem('tanktools_current_user',JSON.stringify(sessionData));sessionStorage.setItem('tanktools_session','active');if(rememberMe)localStorage.setItem('tanktools_remember',JSON.stringify({username:username,rememberMe:true}));logActivity('user_login',user.username);showMessage('✅ Login successful! Redirecting...','success');setTimeout(()=>{if(user.username==='fam030'||user.role==='admin')window.location.href='dashboard.html';else window.location.href='index.html'},1500)}catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('login',false)}}
 
-    // Enhanced Registration Handler with Fallback
-    async function handleRegister(event){
-      event.preventDefault();
-      const fullName=document.getElementById('fullName').value.trim(),username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,confirmPassword=document.getElementById('confirmPassword').value;
-      const isValidName=validateFullName(),isValidUsername=validateUsername(),isValidPassword=validatePassword(),isValidConfirm=validateConfirmPassword();
-      if(!isValidName||!isValidUsername||!isValidPassword||!isValidConfirm){showMessage('❌ Please fix all validation errors','error');return}
-      showLoading('register',true);
-      try{
-        await new Promise(resolve=>setTimeout(resolve,1500));
-        let usersDatabase,usingGitHub=true;
-        try{
-          usersDatabase=await fetchUsersFromGitHub()
-        }catch{
-          console.log('GitHub failed, using localStorage fallback');
-          usingGitHub=false;
-          const users=JSON.parse(localStorage.getItem('tanktools_users')||'[]');
-          usersDatabase={users:{},activityLog:[],stats:{totalUsers:0,todayLogins:0}};
-          users.forEach(u=>usersDatabase.users[u.username]=u)
-        }
-        if(usersDatabase.users[username])throw new Error('Username already exists');
-        const newUser={username:username,email:`${username}@knpc.com`,fullName:fullName,password:btoa(password),isActive:true,isAdmin:false,createdAt:new Date().toISOString(),lastLogin:null,id:Date.now()};
-        usersDatabase.users[username]=newUser;
-        if(usingGitHub){
-          addActivity('إنشاء حساب جديد',username);
-          updateStats();
-          try{await updateUsersInGitHub(usersDatabase)}catch{console.log('Failed to update GitHub, saved locally')}
-        }else{
-          const users=Object.values(usersDatabase.users);
-          localStorage.setItem('tanktools_users',JSON.stringify(users))
-        }
-        logActivity('user_registered',newUser.username);
-        showMessage('✅ Account created successfully! You can now login.','success');
-        setTimeout(()=>{switchTab('login');document.getElementById('loginUsername').value=username},2000)
-      }catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('register',false)}
-    }
+    async function handleRegister(event){event.preventDefault();const fullName=document.getElementById('fullName').value.trim(),username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,confirmPassword=document.getElementById('confirmPassword').value;const isValidName=validateFullName(),isValidUsername=validateUsername(),isValidPassword=validatePassword(),isValidConfirm=validateConfirmPassword();if(!isValidName||!isValidUsername||!isValidPassword||!isValidConfirm){showMessage('❌ Please fix all validation errors','error');return}showLoading('register',true);try{await new Promise(resolve=>setTimeout(resolve,1500));usersDatabase=await fetchUsersFromGitHub();if(usersDatabase.users[username])throw new Error('Username already exists');const newUser={username:username,email:`${username}@knpc.com`,fullName:fullName,password:btoa(password),isActive:true,isAdmin:false,createdAt:new Date().toISOString(),lastLogin:null,id:Date.now()};usersDatabase.users[username]=newUser;addActivity('إنشاء حساب جديد',username);updateStats();await updateUsersInGitHub(usersDatabase);logActivity('user_registered',newUser.username);showMessage('✅ Account created successfully! You can now login.','success');setTimeout(()=>{switchTab('login');document.getElementById('loginUsername').value=username},2000)}catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('register',false)}}
 
-    // Tab switching and other UI functions
-    function switchTab(tab){
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.form-container').forEach(f=>f.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById(tab+'Form').classList.add('active');
-      clearMessages()
-    }
+    function switchTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.form-container').forEach(f=>f.classList.remove('active'));event.target.classList.add('active');document.getElementById(tab+'Form').classList.add('active');clearMessages()}
 
-    function showForgotPassword(){
-      document.getElementById('mainContainer').style.display='none';
-      document.getElementById('forgotContainer').classList.add('active');
-      clearMessages()
-    }
+    function showForgotPassword(){document.getElementById('mainContainer').style.display='none';document.getElementById('forgotContainer').classList.add('active');clearMessages()}
 
-    function backToLogin(){
-      document.getElementById('forgotContainer').classList.remove('active');
-      document.getElementById('mainContainer').style.display='block';
-      clearMessages()
-    }
+    function backToLogin(){document.getElementById('forgotContainer').classList.remove('active');document.getElementById('mainContainer').style.display='block';clearMessages()}
 
-    function contactAdmin(){
-      const message="Hello, I need help with Tank Tools password reset. My username is: "+document.getElementById('forgotUsername').value+"@knpc.com";
-      const whatsappURL=`https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
-      try{
-        const newWindow=window.open(whatsappURL,'_blank','noopener,noreferrer');
-        if(!newWindow)window.location.href=whatsappURL;
-        showMessage('📱 WhatsApp opened. Contact admin for password reset.','info')
-      }catch(error){showMessage('📱 Please contact admin via WhatsApp: +965 55222550','info')}
-    }
+    function contactAdmin(){const message="Hello, I need help with Tank Tools password reset. My username is: "+document.getElementById('forgotUsername').value+"@knpc.com";const whatsappURL=`https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;try{const newWindow=window.open(whatsappURL,'_blank','noopener,noreferrer');if(!newWindow)window.location.href=whatsappURL;showMessage('📱 WhatsApp opened. Contact admin for password reset.','info')}catch(error){showMessage('📱 Please contact admin via WhatsApp: +965 55222550','info')}}
 
-    async function handleForgotPassword(event){
-      event.preventDefault();
-      const username=document.getElementById('forgotUsername').value.trim();
-      if(!/^[a-zA-Z]{3}[0-9]{3}$/.test(username)){showMessage('❌ Please enter a valid username format','error');return}
-      showLoading('reset',true);
-      try{
-        await new Promise(resolve=>setTimeout(resolve,1500));
-        const usersDatabase=await fetchUsersFromGitHub();
-        const user=usersDatabase.users[username];
-        if(!user)throw new Error('Username not found in our system');
-        showMessage('📧 Reset request sent to admin. You can also contact admin directly.','info');
-        logActivity('password_reset_requested',username)
-      }catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('reset',false)}
-    }
+    async function handleForgotPassword(event){event.preventDefault();const username=document.getElementById('forgotUsername').value.trim();if(!/^[a-zA-Z]{3}[0-9]{3}$/.test(username)){showMessage('❌ Please enter a valid username format','error');return}showLoading('reset',true);try{await new Promise(resolve=>setTimeout(resolve,1500));const usersDatabase=await fetchUsersFromGitHub();const user=usersDatabase.users[username];if(!user)throw new Error('Username not found in our system');showMessage('📧 Reset request sent to admin.','info');logActivity('password_reset_requested',username)}catch(error){showMessage(`❌ ${error.message}`,'error')}finally{showLoading('reset',false)}}
 
-    // Utility functions
-    function showLoading(form,show){
-      const btn=document.getElementById(form+'Btn'),loading=document.getElementById(form+'Loading');
-      if(show){btn.style.display='none';loading.style.display='block'}
-      else{btn.style.display='block';loading.style.display='none'}
-    }
+    function showLoading(form,show){const btn=document.getElementById(form+'Btn'),loading=document.getElementById(form+'Loading');if(show){btn.style.display='none';loading.style.display='block'}else{btn.style.display='block';loading.style.display='none'}}
 
-    function showMessage(message,type){
-      const container=document.getElementById('messageContainer');
-      container.innerHTML=`<div class="message ${type}">${message}</div>`;
-      setTimeout(()=>container.querySelector('.message').classList.add('show'),100);
-      setTimeout(()=>container.innerHTML='',7000)
-    }
+    function showMessage(message,type){const container=document.getElementById('messageContainer');container.innerHTML=`<div class="message ${type}">${message}</div>`;setTimeout(()=>container.querySelector('.message').classList.add('show'),100);setTimeout(()=>container.innerHTML='',7000)}
 
-    function clearMessages(){
-      document.getElementById('messageContainer').innerHTML='';
-      document.querySelectorAll('.validation-message').forEach(msg=>msg.className='validation-message')
-    }
+    function clearMessages(){document.getElementById('messageContainer').innerHTML='';document.querySelectorAll('.validation-message').forEach(msg=>msg.className='validation-message')}
 
-    function loadSavedCredentials(){
-      const saved=localStorage.getItem('tanktools_remember');
-      if(saved){
-        try{
-          const data=JSON.parse(saved);
-          if(data.rememberMe){
-            document.getElementById('loginUsername').value=data.username;
-            document.getElementById('rememberMe').checked=true
-          }
-        }catch(error){console.log('Error loading saved credentials')}
-      }
-    }
+    function loadSavedCredentials(){const saved=localStorage.getItem('tanktools_remember');if(saved){try{const data=JSON.parse(saved);if(data.rememberMe){document.getElementById('loginUsername').value=data.username;document.getElementById('rememberMe').checked=true}}catch(error){console.log('Error loading saved credentials')}}}
 
-    function checkExistingSession(){
-      const session=sessionStorage.getItem('tanktools_session'),userData=localStorage.getItem('tanktools_current_user');
-      if(session==='active'&&userData){
-        try{
-          const user=JSON.parse(userData);
-          showMessage('✅ Active session found, redirecting...','success');
-          setTimeout(()=>{
-            if(user.username==='fam030'||user.role==='admin')window.location.href='dashboard.html';
-            else window.location.href='index.html'
-          },1000)
-        }catch(error){sessionStorage.removeItem('tanktools_session');localStorage.removeItem('tanktools_current_user')}
-      }
-    }
+    function checkExistingSession(){const session=sessionStorage.getItem('tanktools_session'),userData=localStorage.getItem('tanktools_current_user');if(session==='active'&&userData){try{const user=JSON.parse(userData);showMessage('✅ Active session found, redirecting...','success');setTimeout(()=>{if(user.username==='fam030'||user.role==='admin')window.location.href='dashboard.html';else window.location.href='index.html'},1000)}catch(error){sessionStorage.removeItem('tanktools_session');localStorage.removeItem('tanktools_current_user')}}}
 
-    function logActivity(action,username){
-      const activities=JSON.parse(localStorage.getItem('tanktools_activities')||'[]');
-      activities.unshift({id:Date.now(),action,username,timestamp:new Date().toISOString(),ip:'local',userAgent:navigator.userAgent.substring(0,100)});
-      activities.splice(100);
-      localStorage.setItem('tanktools_activities',JSON.stringify(activities))
-    }
+    function logActivity(action,username){const activities=JSON.parse(localStorage.getItem('tanktools_activities')||'[]');activities.unshift({id:Date.now(),action,username,timestamp:new Date().toISOString(),ip:'local',userAgent:navigator.userAgent.substring(0,100)});activities.splice(100);localStorage.setItem('tanktools_activities',JSON.stringify(activities))}
 
-    // Initialize
-    window.addEventListener('load',()=>{
-      loadSavedCredentials();
-      checkExistingSession();
-      document.getElementById('username').addEventListener('input',validateUsername);
-      document.getElementById('loginUsername').addEventListener('input',validateLoginUsername);
-      document.getElementById('password').addEventListener('input',validatePassword);
-      document.getElementById('confirmPassword').addEventListener('input',validateConfirmPassword);
-      document.getElementById('fullName').addEventListener('input',validateFullName)
-    });
+    window.addEventListener('load',()=>{loadSavedCredentials();checkExistingSession();document.getElementById('username').addEventListener('input',validateUsername);document.getElementById('loginUsername').addEventListener('input',validateLoginUsername);document.getElementById('password').addEventListener('input',validatePassword);document.getElementById('confirmPassword').addEventListener('input',validateConfirmPassword);document.getElementById('fullName').addEventListener('input',validateFullName)});
 
-    console.log('%c🔒 TANK TOOLS - GITHUB INTEGRATION v3.0','color:red;font-size:20px;font-weight:bold');
+    console.log('%c🔒 TANK TOOLS - GITHUB ONLY v3.0','color:red;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877','color:green;font-size:16px');
   </script>
 </body>
