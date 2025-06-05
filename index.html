@@ -132,10 +132,15 @@
     
     <div class="result" id="output"></div>
     
-    <div style="margin-top:20px">
-      <a href="#" id="calendarLink" target="_blank">
-        <button class="reminder-btn">Add Reminder</button>
-      </a>
+    <div style="margin-top:20px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:8px">
+        <a href="#" id="calendarLink" target="_blank">
+          <button class="reminder-btn">Add Reminder</button>
+        </a>
+        <button onclick="openCalendarInfo()" style="padding:6px 10px;font-size:12px;border-radius:6px;background:rgba(255,165,0,0.9);color:#fff;font-weight:bold;border:1px solid #ff8c00;cursor:pointer" title="Compatible with Google Calendar">❗</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:center">
       <button onclick="addToTable()" class="add-btn">Add to Table</button>
     </div>
 
@@ -294,7 +299,8 @@
           const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000),ft=finish.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),fd=finish.toLocaleDateString();
           output.innerHTML=`Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;
           const s=new Date(finish.getTime()-600000),e=new Date(s.getTime()+900000),S=s.toISOString().replace(/[-:]|\.\d{3}/g,""),E=e.toISOString().replace(/[-:]|\.\d{3}/g,"");
-          calendar.href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+Reminder&details=Completion+Alert&dates=${S}/${E}`;
+          const tankNum=document.getElementById("tankInput").value||"Tank";
+          calendar.href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+${tankNum}+Reminder&details=Tank+${tankNum}+Completion+Alert+-+PBCR+System&dates=${S}/${E}`;
           output.style.color=isSameShift(now,finish)?"red":"lightgreen"
         }
       }
@@ -405,6 +411,41 @@
       catch{navigator.clipboard.writeText(whatsappURL).then(()=>alert(`تم نسخ رابط الواتساب:\n${whatsappURL}`)).catch(()=>alert(`رابط الواتساب:\n${whatsappURL}`))}
     };
     
+    window.openCalendarInfo=()=>{
+      const userAgent=navigator.userAgent||navigator.vendor||window.opera;
+      let calendarURL='',deviceType='';
+      
+      if(/iPad|iPhone|iPod/.test(userAgent)&&!window.MSStream){
+        calendarURL='https://apps.apple.com/app/google-calendar/id909319292';
+        deviceType='iOS'
+      }else if(/android/i.test(userAgent)){
+        calendarURL='https://play.google.com/store/apps/details?id=com.google.android.calendar';
+        deviceType='Android'
+      }else{
+        calendarURL='https://calendar.google.com';
+        deviceType='Desktop'
+      }
+      
+      let message='🗓️ زر الريمايندر متوافق مع Google Calendar\n\n';
+      
+      if(deviceType==='iOS'){
+        message+='📱 لجهازك الآيفون:\nقم بتحميل Google Calendar من App Store أولاً\nثم استخدم زر "Add Reminder"\n\nهل تريد فتح App Store الآن؟'
+      }else if(deviceType==='Android'){
+        message+='📱 لجهازك الأندرويد:\nقم بتحميل Google Calendar من Play Store أولاً\nثم استخدم زر "Add Reminder"\n\nهل تريد فتح Play Store الآن؟'
+      }else{
+        message+='💻 لجهاز الكمبيوتر:\nسيفتح Google Calendar مباشرة في المتصفح\nاستخدم زر "Add Reminder" عادي\n\nهل تريد فتح Google Calendar الآن؟'
+      }
+      
+      if(confirm(message)){
+        try{
+          const newWindow=window.open(calendarURL,'_blank','noopener,noreferrer');
+          if(!newWindow)window.location.href=calendarURL
+        }catch{
+          window.location.href=calendarURL
+        }
+      }
+    };
+    
     function logActivity(action,username){
       const activities=JSON.parse(localStorage.getItem('tanktools_activities')||'[]');
       activities.unshift({id:Date.now(),action,username,timestamp:new Date().toISOString(),ip:'local',userAgent:navigator.userAgent.substring(0,100)});
@@ -416,7 +457,7 @@
     document.addEventListener('input',e=>{if(e.target.matches('#tankInput,#level,#target,#flowrate'))saveDataToLocalStorage()});
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
-    console.log('%c🔒 PBCR SYSTEM - COMPACT VERSION','color:red;font-size:16px;font-weight:bold');
+    console.log('%c🔒 PBCR SYSTEM - UPDATED VERSION','color:red;font-size:16px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877','color:green;font-size:14px');
   </script>
 </body>
