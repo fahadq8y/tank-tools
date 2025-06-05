@@ -231,6 +231,20 @@
         // Check if user is active (approved by admin)
         if (!userData.isActive) {
           showMessage('⏳ Your account is pending admin approval. Please wait for activation.', 'warning');
+          
+          // Show contact admin button for pending users
+          setTimeout(() => {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML += `
+              <div class="message info show" style="margin-top: 10px;">
+                <div style="margin-bottom: 10px;">📞 Need help? Contact admin:</div>
+                <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${userData.fullName || username}')" style="width: 100%; margin-top: 0;">
+                  📱 Contact Admin for Activation
+                </button>
+              </div>
+            `;
+          }, 1000);
+          
           return;
         }
         
@@ -349,6 +363,19 @@
         
         showMessage('✅ Registration successful! Your account is pending admin approval. You will be able to login once approved.', 'success');
         
+        // Show contact admin button after successful registration
+        setTimeout(() => {
+          const messageContainer = document.getElementById('messageContainer');
+          messageContainer.innerHTML += `
+            <div class="message info show" style="margin-top: 10px;">
+              <div style="margin-bottom: 10px;">📞 Need faster approval? Contact admin directly:</div>
+              <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${fullName}')" style="width: 100%; margin-top: 0;">
+                📱 Contact Admin for Activation
+              </button>
+            </div>
+          `;
+        }, 1000);
+        
         // Clear form manually
         document.getElementById('fullName').value = '';
         document.getElementById('username').value = '';
@@ -416,13 +443,41 @@
     }
 
     function contactAdmin() {
-      const message = "Hello, I need help with Tank Tools password reset. My username is: " + document.getElementById('forgotUsername').value + "@knpc.com";
+      const message = "Hello Fahad, I need help with Tank Tools password reset. My username is: " + document.getElementById('forgotUsername').value + "@knpc.com";
       const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
       
       try {
         const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
         if (!newWindow) window.location.href = whatsappURL;
         showMessage('📱 WhatsApp opened. Contact admin for password reset.', 'info');
+      } catch (error) {
+        showMessage('📱 Please contact admin via WhatsApp: +965 55222550', 'info');
+      }
+    }
+
+    // New function for account activation requests
+    function contactAdminForActivation(username, fullName) {
+      const currentDate = new Date().toLocaleDateString();
+      const message = `Hello Fahad,
+
+I am requesting account activation for Tank Tools system.
+
+User Details:
+- Name: ${fullName}
+- Username: ${username}@knpc.com
+- Registration Date: ${currentDate}
+- Status: Pending Approval
+
+Please activate my account so I can access the PBCR & WASHERY system.
+
+Thank you.`;
+
+      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
+      
+      try {
+        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+        if (!newWindow) window.location.href = whatsappURL;
+        showMessage('📱 WhatsApp opened. Message sent to admin for activation.', 'success');
       } catch (error) {
         showMessage('📱 Please contact admin via WhatsApp: +965 55222550', 'info');
       }
@@ -578,6 +633,7 @@
     window.showForgotPassword = showForgotPassword;
     window.backToLogin = backToLogin;
     window.contactAdmin = contactAdmin;
+    window.contactAdminForActivation = contactAdminForActivation;
     window.handleForgotPassword = handleForgotPassword;
 
     // Initialize when page loads
