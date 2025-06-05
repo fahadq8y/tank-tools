@@ -79,6 +79,17 @@
             <div class="validation-message" id="usernameMsg"></div>
           </div>
           <div class="form-group">
+            <label for="department">🏢 Department:</label>
+            <select id="department" style="width:100%;padding:15px;border:none;border-radius:10px;background:rgba(255,255,255,0.9);color:#003366;font-size:16px;" required>
+              <option value="">Select Department</option>
+              <option value="operations">Operations</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="engineering">Engineering</option>
+              <option value="management">Management</option>
+            </select>
+            <div class="validation-message" id="departmentMsg"></div>
+          </div>
+          <div class="form-group">
             <label for="password">🔒 Password:</label>
             <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
             <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
@@ -118,13 +129,46 @@
     <div class="footer"><strong>🔥 Firebase Powered</strong><br>By <strong>Fahad - 17877</strong> | Version 4.0<br><small>Real-time cloud database</small></div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
+      authDomain: "tank-tools-knpc-c2d95.firebaseapp.com",
+      projectId: "tank-tools-knpc-c2d95",
+      storageBucket: "tank-tools-knpc-c2d95.firebasestorage.app",
+      messagingSenderId: "510062594324",
+      appId: "1:510062594324:web:b892fd02007a5ca2f0da01"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make Firebase functions globally available
+    window.db = db;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.setDoc = setDoc;
+    window.updateDoc = updateDoc;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.serverTimestamp = serverTimestamp;
+    window.query = query;
+    window.where = where;
+    window.getDocs = getDocs;
+
+    console.log('🔥 Firebase initialized successfully!');
+  </script>
+
   <script>
     // Security system
     (function(){let attempts=0,modalOpen=false;function initSecurity(){document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});document.addEventListener('keydown',e=>{const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)});let devOpen=false;setInterval(()=>{const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}},2000)}function handleViolation(type){return function(e){if(e&&e.preventDefault)e.preventDefault();attempts++;if(attempts===1)showWarning('first');else if(attempts===2)showWarning('second');else if(attempts>=3)showWarning('final');return false}}function showWarning(level){if(modalOpen)return;const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');modalOpen=true;countSpan.textContent=attempts;if(level==='first'){icon.textContent='👀';title.textContent='Security Notice';text.innerHTML='<p>We noticed you tried to access developer tools.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'}else if(level==='second'){icon.textContent='⚠️';title.textContent='Security Warning';text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>This system is protected for KNPC operations.</p>';counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'}else{icon.textContent='🚫';title.textContent='Access Restricted';text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p>';counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)}modal.classList.add('show')}function implementRestrictions(){document.body.style.filter='blur(5px)';const overlay=document.createElement('div');overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">Security Restricted</h2><p>Contact Fahad - 17877</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh</button></div>';document.body.appendChild(overlay)}window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};window.resetPage=()=>window.location.reload();window.learnMore=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};initSecurity()})();
 
     const WHATSAPP_ADMIN = "96555222550";
 
-    // Regular login function
+    // Enhanced login function with Firebase
     async function handleLogin(event) {
       event.preventDefault();
       
@@ -142,84 +186,214 @@
       showLoading('login', true);
       
       try {
-        // Simulate login process
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Check if user exists in Firebase
+        const userDocRef = doc(db, 'users', username);
+        const userDoc = await getDoc(userDocRef);
         
-        let userData;
-        
-        // Check credentials
-        if (username === 'fam030' && password === 'admin123') {
-          console.log('✅ Admin login successful');
-          userData = {
-            id: 1,
-            username: 'fam030',
-            fullName: 'Fahad Admin',
-            email: 'fam030@knpc.com',
-            role: 'admin',
-            loginTime: new Date().toISOString()
-          };
-        } else {
-          console.log('✅ User login successful');
-          userData = {
-            id: Date.now(),
-            username: username,
-            fullName: 'KNPC User',
-            email: `${username}@knpc.com`,
-            role: 'user',
-            loginTime: new Date().toISOString()
-          };
+        if (!userDoc.exists()) {
+          // Check if it's admin account
+          if (username === 'fam030' && password === 'admin123') {
+            console.log('✅ Admin login successful');
+            const userData = {
+              id: 1,
+              username: 'fam030',
+              fullName: 'Fahad Admin',
+              email: 'fam030@knpc.com',
+              role: 'admin',
+              department: 'management',
+              isActive: true,
+              loginTime: new Date().toISOString()
+            };
+            
+            // Save session data
+            localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
+            sessionStorage.setItem('tanktools_session', 'active');
+            
+            // Add login activity to Firebase
+            await addActivity('admin_login', username);
+            
+            showMessage('✅ Admin login successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+              const redirect = sessionStorage.getItem('tanktools_redirect');
+              if (redirect) {
+                sessionStorage.removeItem('tanktools_redirect');
+                window.location.href = redirect;
+              } else {
+                window.location.href = 'dashboard.html';
+              }
+            }, 1500);
+            return;
+          } else {
+            showMessage('❌ User not found. Please register first.', 'error');
+            return;
+          }
         }
         
-        // Save session data
-        console.log('💾 Saving session data...');
-        localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
-        sessionStorage.setItem('tanktools_session', 'active');
+        const userData = userDoc.data();
         
-        // Verify data was saved
-        const savedSession = sessionStorage.getItem('tanktools_session');
-        const savedUser = localStorage.getItem('tanktools_current_user');
-        console.log('✅ Session saved:', savedSession);
-        console.log('✅ User data saved:', savedUser);
+        // Check password
+        if (userData.password !== password) {
+          showMessage('❌ Invalid password', 'error');
+          await addActivity('failed_login_attempt', username);
+          return;
+        }
+        
+        // Check if user is active (approved by admin)
+        if (!userData.isActive) {
+          showMessage('⏳ Your account is pending admin approval. Please wait for activation.', 'warning');
+          return;
+        }
+        
+        console.log('✅ User login successful');
+        
+        // Update last login time
+        await updateDoc(userDocRef, {
+          lastLogin: serverTimestamp()
+        });
+        
+        // Prepare user data for session
+        const sessionUserData = {
+          id: userData.id || Date.now(),
+          username: userData.username,
+          fullName: userData.fullName,
+          email: userData.email,
+          role: userData.role || 'user',
+          department: userData.department,
+          isActive: userData.isActive,
+          loginTime: new Date().toISOString()
+        };
+        
+        // Save session data
+        localStorage.setItem('tanktools_current_user', JSON.stringify(sessionUserData));
+        sessionStorage.setItem('tanktools_session', 'active');
         
         if (rememberMe) {
           localStorage.setItem('tanktools_remember', JSON.stringify({
             username: username,
             rememberMe: true
           }));
-          console.log('✅ Remember me enabled');
         }
+        
+        // Add login activity to Firebase
+        await addActivity('user_login', username);
         
         showMessage('✅ Login successful! Redirecting...', 'success');
         
         setTimeout(() => {
           const redirect = sessionStorage.getItem('tanktools_redirect');
-          console.log('🔄 Redirect URL:', redirect);
-          
           if (redirect) {
             sessionStorage.removeItem('tanktools_redirect');
-            console.log('🎯 Redirecting to:', redirect);
             window.location.href = redirect;
           } else {
             const defaultUrl = userData.role === 'admin' ? 'dashboard.html' : 'index.html';
-            console.log('🎯 Redirecting to default:', defaultUrl);
             window.location.href = defaultUrl;
           }
         }, 1500);
         
       } catch (error) {
         console.error('❌ Login error:', error);
-        showMessage(`❌ ${error.message}`, 'error');
+        showMessage(`❌ Login failed: ${error.message}`, 'error');
       } finally {
         showLoading('login', false);
       }
     }
 
+    // Enhanced registration function with Firebase
     async function handleRegister(event) {
       event.preventDefault();
-      showMessage('✅ Registration completed! You can now login.', 'success');
-      setTimeout(() => {
-        switchTabDirect('login');
-      }, 2000);
+      
+      const fullName = document.getElementById('fullName').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const department = document.getElementById('department').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      console.log('📝 Registration attempt for:', username);
+      
+      // Validation
+      if (!fullName || !username || !department || !password || !confirmPassword) {
+        showMessage('❌ Please fill all fields', 'error');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showMessage('❌ Passwords do not match', 'error');
+        return;
+      }
+      
+      if (password.length < 8) {
+        showMessage('❌ Password must be at least 8 characters', 'error');
+        return;
+      }
+      
+      showLoading('register', true);
+      
+      try {
+        // Check if username already exists
+        const userDocRef = doc(db, 'users', username);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          showMessage('❌ Username already exists. Please choose another.', 'error');
+          return;
+        }
+        
+        // Create user data
+        const userData = {
+          id: Date.now(),
+          username: username,
+          fullName: fullName,
+          email: `${username}@knpc.com`,
+          department: department,
+          password: password, // In production, this should be hashed
+          role: 'user',
+          isActive: false, // User needs admin approval
+          createdAt: serverTimestamp(),
+          emailVerified: false
+        };
+        
+        // Save user to Firebase
+        await setDoc(userDocRef, userData);
+        
+        // Add registration activity
+        await addActivity('user_registered', username);
+        
+        console.log('✅ User registered successfully in Firebase');
+        
+        showMessage('✅ Registration successful! Your account is pending admin approval. You will be able to login once approved.', 'success');
+        
+        // Clear form
+        document.getElementById('registerForm').reset();
+        
+        // Switch to login tab after delay
+        setTimeout(() => {
+          switchTabDirect('login');
+          showMessage('ℹ️ Please wait for admin approval before attempting to login.', 'info');
+        }, 3000);
+        
+      } catch (error) {
+        console.error('❌ Registration error:', error);
+        showMessage(`❌ Registration failed: ${error.message}`, 'error');
+      } finally {
+        showLoading('register', false);
+      }
+    }
+
+    // Add activity to Firebase
+    async function addActivity(action, username) {
+      try {
+        await addDoc(collection(db, 'activities'), {
+          action: action,
+          username: username,
+          timestamp: serverTimestamp(),
+          ip: 'login-page',
+          userAgent: navigator.userAgent.substring(0, 100)
+        });
+        console.log('✅ Activity logged:', action, username);
+      } catch (error) {
+        console.error('❌ Error logging activity:', error);
+      }
     }
 
     function switchTab(tab) {
@@ -267,7 +441,34 @@
 
     async function handleForgotPassword(event) {
       event.preventDefault();
-      showMessage('📧 Reset request sent to admin.', 'info');
+      const username = document.getElementById('forgotUsername').value.trim();
+      
+      if (!username) {
+        showMessage('❌ Please enter your username', 'error');
+        return;
+      }
+      
+      showLoading('forgot', true);
+      
+      try {
+        // Add password reset request to Firebase
+        await addDoc(collection(db, 'passwordResets'), {
+          username: username,
+          email: `${username}@knpc.com`,
+          requestTime: serverTimestamp(),
+          status: 'pending'
+        });
+        
+        await addActivity('password_reset_requested', username);
+        
+        showMessage('📧 Password reset request sent to admin. You will be contacted soon.', 'info');
+        
+      } catch (error) {
+        console.error('Error requesting password reset:', error);
+        showMessage('❌ Error sending reset request. Please try again.', 'error');
+      } finally {
+        showLoading('forgot', false);
+      }
     }
 
     function showLoading(form, show) {
@@ -292,43 +493,6 @@
 
     function clearMessages() {
       document.getElementById('messageContainer').innerHTML = '';
-    }
-
-    function checkExistingSession() {
-      const session = sessionStorage.getItem('tanktools_session');
-      const userData = localStorage.getItem('tanktools_current_user');
-      
-      if (session === 'active' && userData) {
-        try {
-          const user = JSON.parse(userData);
-          showMessage('✅ Active session found, redirecting...', 'success');
-          setTimeout(() => {
-            if (user.username === 'fam030' || user.role === 'admin') {
-              window.location.href = 'dashboard.html';
-            } else {
-              window.location.href = 'index.html';
-            }
-          }, 1000);
-        } catch (error) {
-          sessionStorage.removeItem('tanktools_session');
-          localStorage.removeItem('tanktools_current_user');
-        }
-      }
-    }
-
-    function loadSavedCredentials() {
-      const saved = localStorage.getItem('tanktools_remember');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          if (data.rememberMe) {
-            document.getElementById('loginUsername').value = data.username;
-            document.getElementById('rememberMe').checked = true;
-          }
-        } catch (error) {
-          console.log('Error loading saved credentials');
-        }
-      }
     }
 
     function checkExistingSession() {
@@ -361,7 +525,7 @@
                 window.location.href = defaultUrl;
               }
             }, 1000);
-            return; // Stop here if redirecting
+            return;
           } else {
             console.log('❌ Invalid user data structure, clearing session');
             sessionStorage.removeItem('tanktools_session');
@@ -377,6 +541,47 @@
       }
     }
 
+    function loadSavedCredentials() {
+      const saved = localStorage.getItem('tanktools_remember');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.rememberMe) {
+            document.getElementById('loginUsername').value = data.username;
+            document.getElementById('rememberMe').checked = true;
+          }
+        } catch (error) {
+          console.log('Error loading saved credentials');
+        }
+      }
+    }
+
+    // Password strength checker
+    document.getElementById('password').addEventListener('input', function() {
+      const password = this.value;
+      const strengthBar = document.getElementById('strengthBar');
+      const strengthMsg = document.getElementById('passwordMsg');
+      
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      
+      const classes = ['strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
+      const messages = ['Weak', 'Fair', 'Good', 'Strong'];
+      
+      strengthBar.className = 'password-strength-bar ' + (classes[strength - 1] || '');
+      
+      if (password.length > 0) {
+        strengthMsg.textContent = messages[strength - 1] || 'Very Weak';
+        strengthMsg.classList.add('show');
+        strengthMsg.style.color = strength >= 3 ? '#4CAF50' : '#ff6b6b';
+      } else {
+        strengthMsg.classList.remove('show');
+      }
+    });
+
     // Make functions global
     window.handleLogin = handleLogin;
     window.handleRegister = handleRegister;
@@ -389,12 +594,16 @@
     // Initialize when page loads
     window.addEventListener('load', () => {
       loadSavedCredentials();
-      checkExistingSession();
+      
+      // Wait for Firebase to initialize before checking session
+      setTimeout(() => {
+        checkExistingSession();
+      }, 1000);
     });
 
-    console.log('%c🔥 TANK TOOLS - SIMPLIFIED LOGIN', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 TANK TOOLS - FIREBASE REGISTRATION SYSTEM', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cQuick Login Available for Testing', 'color:blue;font-size:14px');
+    console.log('%cUsers require admin approval after registration', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>
