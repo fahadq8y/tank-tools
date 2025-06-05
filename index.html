@@ -312,17 +312,46 @@
       if(!tankNum||!output.includes("Finish Time"))return;
       const timeMatch=output.match(/Finish Time: (.*?)<br>/),dateMatch=output.match(/Finish Date: (.*?)($|<br>)/);
       if(!timeMatch||!dateMatch)return;
-      const time=timeMatch[1],date=dateMatch[1],table=document.querySelector("#tankTable tbody"),row=table.insertRow();
-      row.insertCell().textContent=tankNum;
-      row.insertCell().textContent=date;
-      row.insertCell().textContent=time;
-      const cell4=row.insertCell(),delBtn=document.createElement("button");
-      delBtn.innerHTML="🗑️";delBtn.style.cssText="background:none;border:none;cursor:pointer";
-      delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
-      cell4.appendChild(delBtn);
-      const finishDate=new Date(date+" "+time),now=new Date();
-      row.style.color=isSameShift(now,finishDate)?"red":"green";
-      sortAndColorTable();saveDataToLocalStorage();logActivity('tank_calculation',currentUser.username)
+      const time=timeMatch[1],date=dateMatch[1],table=document.querySelector("#tankTable tbody");
+      
+      // Create new row data
+      const newRowData={tankNum,date,time,finishDateTime:new Date(date+" "+time)};
+      
+      // Get existing rows data
+      const existingRows=Array.from(table.rows).map(row=>({
+        row:row,
+        tankNum:row.cells[0].textContent,
+        date:row.cells[1].textContent,
+        time:row.cells[2].textContent,
+        finishDateTime:new Date(row.cells[1].textContent+" "+row.cells[2].textContent)
+      }));
+      
+      // Add new row data to array
+      existingRows.push(newRowData);
+      
+      // Sort by finish time (earliest first)
+      existingRows.sort((a,b)=>a.finishDateTime-b.finishDateTime);
+      
+      // Clear table
+      table.innerHTML='';
+      
+      // Rebuild table with sorted data
+      existingRows.forEach(item=>{
+        const row=table.insertRow();
+        row.insertCell().textContent=item.tankNum;
+        row.insertCell().textContent=item.date;
+        row.insertCell().textContent=item.time;
+        const cell4=row.insertCell(),delBtn=document.createElement("button");
+        delBtn.innerHTML="🗑️";delBtn.style.cssText="background:none;border:none;cursor:pointer;font-size:16px";
+        delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
+        cell4.appendChild(delBtn);
+        
+        // Color coding based on shift
+        const now=new Date();
+        row.style.color=isSameShift(now,item.finishDateTime)?"red":"green";
+      });
+      
+      saveDataToLocalStorage();logActivity('tank_calculation',currentUser.username)
     };
     
     function getShiftCode(hour,minute){
@@ -380,17 +409,24 @@
       const tableDataStr=localStorage.getItem('pbcrTableData');
       if(tableDataStr){
         const tableData=JSON.parse(tableDataStr),tbody=document.querySelector('#tankTable tbody');
+        
+        // Sort table data by finish time before loading
+        tableData.sort((a,b)=>new Date(a.date+" "+a.time)-new Date(b.date+" "+b.time));
+        
         tableData.forEach(item=>{
           const row=tbody.insertRow();
           row.insertCell().textContent=item.tankNum;
           row.insertCell().textContent=item.date;
           row.insertCell().textContent=item.time;
           const cell4=row.insertCell(),delBtn=document.createElement('button');
-          delBtn.innerHTML='🗑️';delBtn.style.cssText='background:none;border:none;cursor:pointer';
+          delBtn.innerHTML='🗑️';delBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:16px';
           delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
-          cell4.appendChild(delBtn)
+          cell4.appendChild(delBtn);
+          
+          // Color coding
+          const now=new Date(),finishDate=new Date(item.date+" "+item.time);
+          row.style.color=isSameShift(now,finishDate)?"red":"green";
         });
-        sortAndColorTable()
       }
     }
     
