@@ -511,7 +511,32 @@
         else if(mode==="level"&&unit==="mtr"){const meterDiff=Math.abs(level-target);time=meterDiff/flowRaw}
         else{time=Math.abs(diff)/flow}
         if(!isNaN(time)&&time>0){
-          const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000),ft=finish.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),fd=finish.toLocaleDateString();
+          const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000);
+          
+          // Format time with better iPhone compatibility
+          let ft, fd;
+          try {
+            // Try Arabic format first
+            ft = finish.toLocaleTimeString('ar-SA', {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true
+            });
+            fd = finish.toLocaleDateString('ar-SA');
+          } catch (error) {
+            // Fallback to English format
+            ft = finish.toLocaleTimeString('en-US', {
+              hour: "2-digit", 
+              minute: "2-digit",
+              hour12: true
+            });
+            fd = finish.toLocaleDateString('en-US');
+          }
+          
+          // Clean up any HTML entities or weird characters
+          ft = ft.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
+          fd = fd.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
+          
           output.innerHTML=`Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;
           const s=new Date(finish.getTime()-600000),e=new Date(s.getTime()+900000),S=s.toISOString().replace(/[-:]|\.\d{3}/g,""),E=e.toISOString().replace(/[-:]|\.\d{3}/g,"");
           const tankNum=document.getElementById("tankInput").value||"Tank";
@@ -527,7 +552,17 @@
       if(!tankNum||!output.includes("Finish Time"))return;
       const timeMatch=output.match(/Finish Time: (.*?)<br>/),dateMatch=output.match(/Finish Date: (.*?)($|<br>)/);
       if(!timeMatch||!dateMatch)return;
-      const time=timeMatch[1],date=dateMatch[1],table=document.querySelector("#tankTable tbody");
+      
+      let time = timeMatch[1].trim();
+      let date = dateMatch[1].trim();
+      
+      // Clean up time and date for iPhone compatibility
+      time = time.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
+      date = date.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
+      
+      console.log('Adding to table - Time:', time, 'Date:', date);
+      
+      const table=document.querySelector("#tankTable tbody");
       
       // Create new row data
       const newRowData={tankNum,date,time,finishDateTime:new Date(date+" "+time)};
@@ -555,7 +590,11 @@
         const row=table.insertRow();
         row.insertCell().textContent=item.tankNum;
         row.insertCell().textContent=item.date;
-        row.insertCell().textContent=item.time;
+        
+        // Clean the time before adding to table
+        const cleanTime = item.time.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
+        row.insertCell().textContent=cleanTime;
+        
         const cell4=row.insertCell(),delBtn=document.createElement("button");
         delBtn.innerHTML="🗑️";delBtn.style.cssText="background:none;border:none;cursor:pointer;font-size:16px";
         delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
