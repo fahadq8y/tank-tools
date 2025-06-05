@@ -58,6 +58,9 @@
     .modal-btn-secondary{background:#2196F3;color:white}
     .modal-btn-danger{background:#f44336;color:white}
     .modal-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
+    .firebase-status{position:fixed;top:70px;right:20px;background:rgba(76,175,80,0.2);border:1px solid rgba(76,175,80,0.5);color:#4CAF50;padding:8px 12px;border-radius:8px;font-size:12px;backdrop-filter:blur(10px);z-index:1000}
+    .firebase-status.saving{background:rgba(255,193,7,0.2);border-color:rgba(255,193,7,0.5);color:#ffc107}
+    .firebase-status.error{background:rgba(244,67,54,0.2);border-color:rgba(244,67,54,0.5);color:#f44336}
     @media (max-width:600px){
       input,select{width:90%!important}
       .row{flex-direction:row!important;justify-content:center;gap:5px;max-width:350px}
@@ -69,10 +72,14 @@
       .nav-admin{padding:10px 15px;font-size:14px;display:inline-flex;align-items:center}
       .security-buttons{flex-direction:column}
       .modal-btn{width:100%}
+      .firebase-status{position:relative;top:auto;right:auto;margin:10px auto;display:block;text-align:center}
     }
   </style>
 </head>
 <body>
+  <!-- Firebase Status Indicator -->
+  <div id="firebaseStatus" class="firebase-status">🔥 Firebase Connected</div>
+
   <!-- Security Modal -->
   <div id="securityModal" class="security-modal">
     <div class="security-modal-content">
@@ -115,7 +122,7 @@
       </div>
     </div>
 
-    <h2>PBCR & WASHERY (Version 3.0)</h2>
+    <h2>PBCR & WASHERY (Version 3.1 - Cloud Storage)</h2>
     
     <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
     <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
@@ -156,7 +163,7 @@
       <button onclick="addToTable()" class="add-btn">Add to Table</button>
     </div>
 
-    <h3 style="margin-top:40px">Tanks finishing in current shift:</h3>
+    <h3 style="margin-top:40px">Your tanks finishing in current shift:</h3>
     <table id="tankTable">
       <thead>
         <tr><th>Tank Number</th><th>Finish Date</th><th>Finish Time</th><th>Delete</th></tr>
@@ -167,10 +174,39 @@
     <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
     
     <footer>
-      By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.0
-      <br><small style="color:#999;font-size:10px;margin-top:5px;display:block">📱 WhatsApp: +965 55222550</small>
+      By <a href="#" class="whatsapp-link" onclick="openWhatsApp(); return false;">Fahad - 17877</a> – Version 3.1
+      <br><small style="color:#999;font-size:10px;margin-top:5px;display:block">📱 WhatsApp: +965 55222550 | 🔥 Firebase Cloud Storage</small>
     </footer>
   </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
+      authDomain: "tank-tools-knpc-c2d95.firebaseapp.com",
+      projectId: "tank-tools-knpc-c2d95",
+      storageBucket: "tank-tools-knpc-c2d95.firebasestorage.app",
+      messagingSenderId: "510062594324",
+      appId: "1:510062594324:web:b892fd02007a5ca2f0da01"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.setDoc = setDoc;
+    window.updateDoc = updateDoc;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.serverTimestamp = serverTimestamp;
+
+    console.log('🔥 Firebase initialized successfully for user storage!');
+  </script>
 
   <script>
     // 🔒 Smart Security System - iPhone Optimized
@@ -178,10 +214,8 @@
       let attempts=0,modalOpen=false,isTyping=false,typingTimer=null;
       
       function initSecurity(){
-        // Enhanced iPhone detection and typing tracking
         const isIPhone=/iPad|iPhone|iPod/.test(navigator.userAgent);
         
-        // Multiple event listeners for comprehensive input tracking
         ['focusin','focus','input','keydown','keyup','touchstart'].forEach(eventType=>{
           document.addEventListener(eventType,e=>{
             if(e.target.matches('input,textarea,select')){
@@ -192,7 +226,6 @@
           },true);
         });
         
-        // Additional safety for form interactions
         document.addEventListener('change',e=>{
           if(e.target.matches('input,textarea,select')){
             isTyping=true;
@@ -201,7 +234,6 @@
           }
         });
         
-        // Enhanced event blocking when typing
         document.addEventListener('contextmenu',e=>{
           if(isTyping||e.target.matches('input,textarea,select')||e.target.closest('input,textarea,select'))return;
           handleViolation('context-menu')(e);
@@ -218,7 +250,6 @@
           if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e);
         });
         
-        // DevTools detection with typing check
         let devOpen=false;
         setInterval(()=>{
           if(isTyping)return;
@@ -271,7 +302,7 @@
       initSecurity()
     })();
 
-    // Main Application - Compact Version
+    // Main Application with Firebase User Storage
     const WHATSAPP_NUMBER="96555222550";
     let currentUser=null,c=0,m=0,x=0;
     
@@ -292,9 +323,7 @@
       
       console.log('Session value:', session);
       console.log('User data exists:', !!userData);
-      console.log('User data content:', userData);
       
-      // Clear invalid session first
       if(!session || session !== 'active') {
         console.log('❌ Invalid or missing session');
         clearInvalidSession();
@@ -320,7 +349,6 @@
         return;
       }
       
-      // Validate user data structure
       if(!parsedUser || !parsedUser.username || !parsedUser.role) {
         console.log('❌ Invalid user data structure');
         clearInvalidSession();
@@ -328,7 +356,6 @@
         return;
       }
       
-      // All checks passed
       console.log('✅ All validation passed for user:', parsedUser.username);
       currentUser = parsedUser;
       initializeApp();
@@ -373,7 +400,7 @@
       }
       
       loadUserInfo();
-      loadDataFromLocalStorage();
+      loadDataFromFirebase(); // Changed from localStorage
       setupDarkMode();
       
       console.log('✅ PBCR app initialized successfully');
@@ -415,6 +442,13 @@
       document.body.appendChild(div);
       setTimeout(()=>div.remove(),5000)
     }
+
+    // Firebase Status Indicator
+    function updateFirebaseStatus(status, message) {
+      const statusElement = document.getElementById('firebaseStatus');
+      statusElement.className = `firebase-status ${status}`;
+      statusElement.textContent = message;
+    }
     
     window.loadTank=()=>{
       const id=document.getElementById("tankInput").value.trim();
@@ -452,26 +486,21 @@
         if(!isNaN(time)&&time>0){
           const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000);
           
-          // Format time and date - Gregorian calendar, English numbers, 24-hour format
           let ft, fd;
           try {
-            // 24-hour format with English numbers
             ft = finish.toLocaleTimeString('en-GB', {
               hour: "2-digit", 
               minute: "2-digit",
               hour12: false
             });
-            // Gregorian date with English numbers
             fd = finish.toLocaleDateString('en-GB');
           } catch (error) {
-            // Simple fallback with manual formatting
             const hours = finish.getHours().toString().padStart(2, '0');
             const minutes = finish.getMinutes().toString().padStart(2, '0');
             ft = `${hours}:${minutes}`;
             fd = `${finish.getDate()}/${finish.getMonth() + 1}/${finish.getFullYear()}`;
           }
           
-          // Clean up any HTML entities or weird characters
           ft = ft.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
           fd = fd.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
           
@@ -482,7 +511,7 @@
           output.style.color=isSameShift(now,finish)?"red":"lightgreen"
         }
       }
-      saveDataToLocalStorage()
+      saveDataToFirebase() // Changed from localStorage
     };
     
     window.addToTable=()=>{
@@ -494,7 +523,6 @@
       let time = timeMatch[1].trim();
       let date = dateMatch[1].trim();
       
-      // Clean up time and date for iPhone compatibility
       time = time.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
       date = date.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
       
@@ -502,10 +530,8 @@
       
       const table=document.querySelector("#tankTable tbody");
       
-      // Create new row data
       const newRowData={tankNum,date,time,finishDateTime:new Date(date+" "+time)};
       
-      // Get existing rows data
       const existingRows=Array.from(table.rows).map(row=>({
         row:row,
         tankNum:row.cells[0].textContent,
@@ -514,36 +540,30 @@
         finishDateTime:new Date(row.cells[1].textContent+" "+row.cells[2].textContent)
       }));
       
-      // Add new row data to array
       existingRows.push(newRowData);
-      
-      // Sort by finish time (earliest first)
       existingRows.sort((a,b)=>a.finishDateTime-b.finishDateTime);
       
-      // Clear table
       table.innerHTML='';
       
-      // Rebuild table with sorted data
       existingRows.forEach(item=>{
         const row=table.insertRow();
         row.insertCell().textContent=item.tankNum;
         row.insertCell().textContent=item.date;
         
-        // Clean the time before adding to table
         const cleanTime = item.time.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
         row.insertCell().textContent=cleanTime;
         
         const cell4=row.insertCell(),delBtn=document.createElement("button");
         delBtn.innerHTML="🗑️";delBtn.style.cssText="background:none;border:none;cursor:pointer;font-size:16px";
-        delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
+        delBtn.onclick=()=>{row.remove();saveDataToFirebase()};
         cell4.appendChild(delBtn);
         
-        // Color coding based on shift
         const now=new Date();
         row.style.color=isSameShift(now,item.finishDateTime)?"red":"green";
       });
       
-      saveDataToLocalStorage();logActivity('tank_calculation',currentUser.username)
+      saveDataToFirebase();
+      logActivity('tank_calculation',currentUser.username)
     };
     
     function getShiftCode(hour,minute){
@@ -568,47 +588,116 @@
       return nowDate.toDateString()===finishDate.toDateString()
     }
     
-    function saveDataToLocalStorage(){
-      const data={tankInput:document.getElementById('tankInput').value,level:document.getElementById('level').value,target:document.getElementById('target').value,mode:document.getElementById('mode').value,flowrate:document.getElementById('flowrate').value,flowUnit:document.getElementById('flowUnit').value};
-      localStorage.setItem('pbcrData',JSON.stringify(data));
-      const table=document.getElementById('tankTable'),rows=Array.from(table.getElementsByTagName('tbody')[0].rows);
-      const tableData=rows.map(row=>({tankNum:row.cells[0].textContent,date:row.cells[1].textContent,time:row.cells[2].textContent}));
-      localStorage.setItem('pbcrTableData',JSON.stringify(tableData))
+    // Firebase Data Management
+    async function saveDataToFirebase(){
+      if (!currentUser) return;
+      
+      updateFirebaseStatus('saving', '💾 Saving to Cloud...');
+      
+      try {
+        // Save user's calculation data
+        const data={
+          tankInput: document.getElementById('tankInput').value,
+          level: document.getElementById('level').value,
+          target: document.getElementById('target').value,
+          mode: document.getElementById('mode').value,
+          flowrate: document.getElementById('flowrate').value,
+          flowUnit: document.getElementById('flowUnit').value,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        await setDoc(doc(db, 'userTables', currentUser.username), {
+          pbcrData: data
+        }, { merge: true });
+        
+        // Save table data
+        const table=document.getElementById('tankTable');
+        const rows=Array.from(table.getElementsByTagName('tbody')[0].rows);
+        const tableData=rows.map(row=>({
+          tankNum: row.cells[0].textContent,
+          date: row.cells[1].textContent,
+          time: row.cells[2].textContent,
+          addedAt: new Date().toISOString()
+        }));
+        
+        await setDoc(doc(db, 'userTables', currentUser.username), {
+          pbcrTables: tableData
+        }, { merge: true });
+        
+        updateFirebaseStatus('', '🔥 Saved to Cloud');
+        console.log('✅ Data saved to Firebase for user:', currentUser.username);
+        
+      } catch (error) {
+        console.error('❌ Error saving to Firebase:', error);
+        updateFirebaseStatus('error', '❌ Save Failed');
+        setTimeout(() => updateFirebaseStatus('', '🔥 Firebase Connected'), 3000);
+      }
     }
     
-    function loadDataFromLocalStorage(){
-      const dataStr=localStorage.getItem('pbcrData');
-      if(dataStr){
-        const data=JSON.parse(dataStr);
-        document.getElementById('tankInput').value=data.tankInput||'';
-        document.getElementById('level').value=data.level||'';
-        document.getElementById('target').value=data.target||'';
-        document.getElementById('mode').value=data.mode||'pumpable';
-        document.getElementById('flowrate').value=data.flowrate||'';
-        document.getElementById('flowUnit').value=data.flowUnit||'bbl';
-        if(data.tankInput)loadTank()
-      }
-      const tableDataStr=localStorage.getItem('pbcrTableData');
-      if(tableDataStr){
-        const tableData=JSON.parse(tableDataStr),tbody=document.querySelector('#tankTable tbody');
+    async function loadDataFromFirebase(){
+      if (!currentUser) return;
+      
+      updateFirebaseStatus('saving', '📥 Loading from Cloud...');
+      
+      try {
+        const userDocRef = doc(db, 'userTables', currentUser.username);
+        const userDoc = await getDoc(userDocRef);
         
-        // Sort table data by finish time before loading
-        tableData.sort((a,b)=>new Date(a.date+" "+a.time)-new Date(b.date+" "+b.time));
-        
-        tableData.forEach(item=>{
-          const row=tbody.insertRow();
-          row.insertCell().textContent=item.tankNum;
-          row.insertCell().textContent=item.date;
-          row.insertCell().textContent=item.time;
-          const cell4=row.insertCell(),delBtn=document.createElement('button');
-          delBtn.innerHTML='🗑️';delBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:16px';
-          delBtn.onclick=()=>{row.remove();saveDataToLocalStorage()};
-          cell4.appendChild(delBtn);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
           
-          // Color coding
-          const now=new Date(),finishDate=new Date(item.date+" "+item.time);
-          row.style.color=isSameShift(now,finishDate)?"red":"green";
-        });
+          // Load calculation data
+          if (userData.pbcrData) {
+            const data = userData.pbcrData;
+            document.getElementById('tankInput').value = data.tankInput || '';
+            document.getElementById('level').value = data.level || '';
+            document.getElementById('target').value = data.target || '';
+            document.getElementById('mode').value = data.mode || 'pumpable';
+            document.getElementById('flowrate').value = data.flowrate || '';
+            document.getElementById('flowUnit').value = data.flowUnit || 'bbl';
+            
+            if(data.tankInput) loadTank();
+          }
+          
+          // Load table data
+          if (userData.pbcrTables) {
+            const tableData = userData.pbcrTables;
+            const tbody = document.querySelector('#tankTable tbody');
+            
+            // Sort by finish time
+            tableData.sort((a,b) => new Date(a.date + " " + a.time) - new Date(b.date + " " + b.time));
+            
+            tableData.forEach(item => {
+              const row = tbody.insertRow();
+              row.insertCell().textContent = item.tankNum;
+              row.insertCell().textContent = item.date;
+              row.insertCell().textContent = item.time;
+              
+              const cell4 = row.insertCell();
+              const delBtn = document.createElement('button');
+              delBtn.innerHTML = '🗑️';
+              delBtn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:16px';
+              delBtn.onclick = () => {row.remove(); saveDataToFirebase()};
+              cell4.appendChild(delBtn);
+              
+              // Color coding
+              const now = new Date();
+              const finishDate = new Date(item.date + " " + item.time);
+              row.style.color = isSameShift(now, finishDate) ? "red" : "green";
+            });
+          }
+          
+          console.log('✅ Data loaded from Firebase for user:', currentUser.username);
+        } else {
+          console.log('ℹ️ No saved data found for user:', currentUser.username);
+        }
+        
+        updateFirebaseStatus('', '🔥 Firebase Connected');
+        
+      } catch (error) {
+        console.error('❌ Error loading from Firebase:', error);
+        updateFirebaseStatus('error', '❌ Load Failed');
+        setTimeout(() => updateFirebaseStatus('', '🔥 Firebase Connected'), 3000);
       }
     }
     
@@ -671,13 +760,27 @@
       localStorage.setItem('tanktools_activities',JSON.stringify(activities))
     }
     
-    // Auto-save and PWA
-    document.addEventListener('input',e=>{if(e.target.matches('#tankInput,#level,#target,#flowrate'))saveDataToLocalStorage()});
+    // Auto-save to Firebase
+    document.addEventListener('input',e=>{
+      if(e.target.matches('#tankInput,#level,#target,#flowrate')) {
+        // Debounce saves to avoid too many Firebase calls
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(saveDataToFirebase, 2000);
+      }
+    });
+    
+    // Save on mode/unit changes
+    document.addEventListener('change',e=>{
+      if(e.target.matches('#mode,#flowUnit')) {
+        saveDataToFirebase();
+      }
+    });
+    
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
-    console.log('%c🔒 PBCR SYSTEM - SECURED VERSION','color:green;font-size:16px;font-weight:bold');
-    console.log('%cQuick Fix Security Vulnerability Removed','color:red;font-size:14px');
-    console.log('%cDeveloper: Fahad - 17877','color:blue;font-size:14px');
+    console.log('%c🔒 PBCR SYSTEM - FIREBASE CLOUD STORAGE','color:green;font-size:16px;font-weight:bold');
+    console.log('%cUser-Specific Data Storage Enabled','color:blue;font-size:14px');
+    console.log('%cDeveloper: Fahad - 17877','color:orange;font-size:14px');
   </script>
 </body>
 </html>
