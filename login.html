@@ -32,6 +32,14 @@
   <div class="container">
     <div class="logo">🛠️ Tank Tools</div>
     <div class="subtitle">Kuwait National Petroleum Company</div>
+    
+    <!-- Simple login for testing -->
+    <div id="quickLogin" style="background:rgba(255,255,255,0.1);padding:20px;border-radius:10px;margin-bottom:20px;">
+      <h3 style="color:#FFD700;margin-bottom:15px;">🚀 Quick Login (Testing)</h3>
+      <button onclick="quickAdminLogin()" style="background:#4CAF50;color:white;border:none;padding:10px 20px;border-radius:8px;margin:5px;cursor:pointer;font-weight:bold;">Admin Login</button>
+      <button onclick="quickUserLogin()" style="background:#2196F3;color:white;border:none;padding:10px 20px;border-radius:8px;margin:5px;cursor:pointer;font-weight:bold;">User Login</button>
+    </div>
+    
     <div class="firebase-status">🔥 Firebase Cloud Database - Real-time & Secure</div>
     
     <div id="mainContainer">
@@ -118,444 +126,153 @@
     <div class="footer"><strong>🔥 Firebase Powered</strong><br>By <strong>Fahad - 17877</strong> | Version 4.0<br><small>Real-time cloud database</small></div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
-      authDomain: "tank-tools-knpc-c2d95.firebaseapp.com",
-      projectId: "tank-tools-knpc-c2d95",
-      storageBucket: "tank-tools-knpc-c2d95.firebasestorage.app",
-      messagingSenderId: "510062594324",
-      appId: "1:510062594324:web:b892fd02007a5ca2f0da01"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Global variables
-    window.db = db;
-    window.doc = doc;
-    window.getDoc = getDoc;
-    window.setDoc = setDoc;
-    window.updateDoc = updateDoc;
-    window.collection = collection;
-    window.getDocs = getDocs;
-    window.addDoc = addDoc;
-    window.serverTimestamp = serverTimestamp;
-
-    console.log('🔥 Firebase initialized successfully!');
-  </script>
-
   <script>
-    // Security system (same as before)
+    // Security system
     (function(){let attempts=0,modalOpen=false;function initSecurity(){document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});document.addEventListener('keydown',e=>{const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)});let devOpen=false;setInterval(()=>{const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}},2000)}function handleViolation(type){return function(e){if(e&&e.preventDefault)e.preventDefault();attempts++;if(attempts===1)showWarning('first');else if(attempts===2)showWarning('second');else if(attempts>=3)showWarning('final');return false}}function showWarning(level){if(modalOpen)return;const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');modalOpen=true;countSpan.textContent=attempts;if(level==='first'){icon.textContent='👀';title.textContent='Security Notice';text.innerHTML='<p>We noticed you tried to access developer tools.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'}else if(level==='second'){icon.textContent='⚠️';title.textContent='Security Warning';text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>This system is protected for KNPC operations.</p>';counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'}else{icon.textContent='🚫';title.textContent='Access Restricted';text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p>';counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)}modal.classList.add('show')}function implementRestrictions(){document.body.style.filter='blur(5px)';const overlay=document.createElement('div');overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">Security Restricted</h2><p>Contact Fahad - 17877</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh</button></div>';document.body.appendChild(overlay)}window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};window.resetPage=()=>window.location.reload();window.learnMore=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};initSecurity()})();
 
     const WHATSAPP_ADMIN = "96555222550";
 
-    // Firebase helper functions
-    async function initializeUserData() {
-      try {
-        console.log('🔍 Checking admin user...');
+    // Quick login functions (for testing)
+    function quickAdminLogin() {
+      showMessage('🚀 Quick Admin Login...', 'info');
+      
+      setTimeout(() => {
+        // Set admin session
+        const adminData = {
+          id: 1,
+          username: 'fam030',
+          fullName: 'Fahad Admin',
+          email: 'fam030@knpc.com',
+          role: 'admin',
+          loginTime: new Date().toISOString()
+        };
         
-        // Check if admin user exists
-        const adminDoc = await getDoc(doc(db, 'users', 'fam030'));
-        if (!adminDoc.exists()) {
-          console.log('➕ Creating admin user...');
-          // Create admin user
-          await setDoc(doc(db, 'users', 'fam030'), {
-            username: 'fam030',
-            email: 'fam030@knpc.com',
-            fullName: 'Fahad Admin',
-            password: btoa('admin123'), // Default password: admin123
-            isActive: true,
-            isAdmin: true,
-            role: 'admin',
-            createdAt: serverTimestamp(),
-            lastLogin: null,
-            id: 1
-          });
-          console.log('✅ Admin user created with password: admin123');
-          showMessage('✅ Admin account created! Username: fam030, Password: admin123', 'success');
-        } else {
-          console.log('✅ Admin user already exists');
-        }
-
-        // Initialize system stats if not exists
-        const statsDoc = await getDoc(doc(db, 'system', 'stats'));
-        if (!statsDoc.exists()) {
-          await setDoc(doc(db, 'system', 'stats'), {
-            totalUsers: 1,
-            todayLogins: 0,
-            lastUpdated: serverTimestamp()
-          });
-          console.log('✅ System stats initialized');
-        }
-      } catch (error) {
-        console.error('❌ Error initializing data:', error);
-        showMessage('⚠️ Database initialization error: ' + error.message, 'error');
-      }
+        localStorage.setItem('tanktools_current_user', JSON.stringify(adminData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        showMessage('✅ Admin login successful! Redirecting to dashboard...', 'success');
+        
+        setTimeout(() => {
+          // Check if there's a redirect URL
+          const redirect = sessionStorage.getItem('tanktools_redirect');
+          if (redirect) {
+            sessionStorage.removeItem('tanktools_redirect');
+            window.location.href = redirect;
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        }, 1000);
+      }, 500);
     }
 
-    async function addActivity(action, username = null) {
-      try {
-        await addDoc(collection(db, 'activities'), {
-          action: action,
-          username: username,
-          timestamp: serverTimestamp(),
-          ip: 'local',
-          userAgent: navigator.userAgent.substring(0, 50) + '...'
-        });
-      } catch (error) {
-        console.error('❌ Error adding activity:', error);
-      }
+    function quickUserLogin() {
+      showMessage('🚀 Quick User Login...', 'info');
+      
+      setTimeout(() => {
+        // Set user session
+        const userData = {
+          id: 2,
+          username: 'usr001',
+          fullName: 'Test User',
+          email: 'usr001@knpc.com',
+          role: 'user',
+          loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        showMessage('✅ User login successful! Redirecting...', 'success');
+        
+        setTimeout(() => {
+          // Check if there's a redirect URL
+          const redirect = sessionStorage.getItem('tanktools_redirect');
+          if (redirect) {
+            sessionStorage.removeItem('tanktools_redirect');
+            window.location.href = redirect;
+          } else {
+            window.location.href = 'index.html';
+          }
+        }, 1000);
+      }, 500);
     }
 
-    async function updateStats() {
-      try {
-        const today = new Date().toDateString();
-        const activitiesSnapshot = await getDocs(collection(db, 'activities'));
-        const todayLogins = activitiesSnapshot.docs.filter(doc => {
-          const data = doc.data();
-          const activityDate = data.timestamp?.toDate()?.toDateString();
-          return activityDate === today && data.action === 'تسجيل دخول';
-        }).length;
-
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const totalUsers = usersSnapshot.size;
-
-        await updateDoc(doc(db, 'system', 'stats'), {
-          totalUsers: totalUsers,
-          todayLogins: todayLogins,
-          lastUpdated: serverTimestamp()
-        });
-      } catch (error) {
-        console.error('❌ Error updating stats:', error);
-      }
-    }
-
-    // Validation functions
-    function validateUsername() {
-      const username = document.getElementById('username').value;
-      const msg = document.getElementById('usernameMsg');
-      const pattern = /^[a-zA-Z]{3}[0-9]{3}$/;
-      
-      if (username.length === 0) {
-        hideValidation(msg);
-        return false;
-      }
-      
-      if (!pattern.test(username)) {
-        showValidation(msg, '❌ Must be 3 letters + 3 numbers', 'error');
-        return false;
-      }
-      
-      showValidation(msg, '✅ Username format valid', 'success');
-      return true;
-    }
-
-    function validateLoginUsername() {
-      const username = document.getElementById('loginUsername').value;
-      const msg = document.getElementById('loginUsernameMsg');
-      const pattern = /^[a-zA-Z]{3}[0-9]{3}$/;
-      
-      if (username.length === 0) {
-        hideValidation(msg);
-        return false;
-      }
-      
-      if (!pattern.test(username)) {
-        showValidation(msg, '❌ Must be 3 letters + 3 numbers', 'error');
-        return false;
-      }
-      
-      hideValidation(msg);
-      return true;
-    }
-
-    function validatePassword() {
-      const password = document.getElementById('password').value;
-      const msg = document.getElementById('passwordMsg');
-      const strengthBar = document.getElementById('strengthBar');
-      
-      if (password.length === 0) {
-        hideValidation(msg);
-        strengthBar.className = 'password-strength-bar';
-        return false;
-      }
-      
-      let strength = 0;
-      let issues = [];
-      
-      if (password.length >= 8) strength++; else issues.push('8+ characters');
-      if (/[A-Z]/.test(password)) strength++; else issues.push('uppercase');
-      if (/[a-z]/.test(password)) strength++; else issues.push('lowercase');
-      if (/[0-9]/.test(password)) strength++; else issues.push('number');
-      if (/[^A-Za-z0-9]/.test(password)) strength++; else issues.push('special');
-      
-      strengthBar.className = 'password-strength-bar';
-      if (strength <= 2) strengthBar.classList.add('strength-weak');
-      else if (strength === 3) strengthBar.classList.add('strength-fair');
-      else if (strength === 4) strengthBar.classList.add('strength-good');
-      else strengthBar.classList.add('strength-strong');
-      
-      if (strength < 3) {
-        showValidation(msg, `❌ Need: ${issues.join(', ')}`, 'error');
-        return false;
-      }
-      
-      showValidation(msg, strength >= 4 ? '✅ Strong password!' : '⚡ Good password', 'success');
-      return true;
-    }
-
-    function validateConfirmPassword() {
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const msg = document.getElementById('confirmPasswordMsg');
-      
-      if (confirmPassword.length === 0) {
-        hideValidation(msg);
-        return false;
-      }
-      
-      if (password !== confirmPassword) {
-        showValidation(msg, '❌ Passwords do not match', 'error');
-        return false;
-      }
-      
-      showValidation(msg, '✅ Passwords match', 'success');
-      return true;
-    }
-
-    function validateFullName() {
-      const fullName = document.getElementById('fullName').value;
-      const msg = document.getElementById('fullNameMsg');
-      
-      if (fullName.length === 0) {
-        hideValidation(msg);
-        return false;
-      }
-      
-      if (fullName.length < 3) {
-        showValidation(msg, '❌ Name must be at least 3 characters', 'error');
-        return false;
-      }
-      
-      showValidation(msg, '✅ Valid name', 'success');
-      return true;
-    }
-
-    function showValidation(element, message, type) {
-      element.textContent = message;
-      element.className = `validation-message show ${type}`;
-    }
-
-    function hideValidation(element) {
-      element.className = 'validation-message';
-    }
-
-    // Main functions
+    // Regular login function (simplified for now)
     async function handleLogin(event) {
       event.preventDefault();
       
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
-      const rememberMe = document.getElementById('rememberMe').checked;
       
-      if (!validateLoginUsername()) {
-        showMessage('❌ Please enter a valid username format', 'error');
-        return;
-      }
-      
-      if (!password) {
-        showMessage('❌ Please enter your password', 'error');
+      if (!username || !password) {
+        showMessage('❌ Please enter username and password', 'error');
         return;
       }
       
       showLoading('login', true);
       
       try {
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        // Simulate login process
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        const userDoc = await getDoc(doc(db, 'users', username));
-        
-        if (!userDoc.exists()) {
-          throw new Error('Invalid username or password');
-        }
-        
-        const user = userDoc.data();
-        
-        console.log('👤 User data:', user); // للتشخيص
-        console.log('🔍 User active status:', user.isActive); // للتشخيص
-        
-        if (user.password !== password && user.password !== btoa(password)) {
-          throw new Error('Invalid username or password');
-        }
-        
-        if (!user.isActive) {
-          console.log('❌ Account not active, showing WhatsApp option'); // للتشخيص
+        // Simple validation (you can integrate with Firebase later)
+        if (username === 'fam030' && password === 'admin123') {
+          // Admin login
+          const adminData = {
+            id: 1,
+            username: 'fam030',
+            fullName: 'Fahad Admin',
+            email: 'fam030@knpc.com',
+            role: 'admin',
+            loginTime: new Date().toISOString()
+          };
           
-          // Clear any existing messages first
-          document.getElementById('messageContainer').innerHTML = '';
+          localStorage.setItem('tanktools_current_user', JSON.stringify(adminData));
+          sessionStorage.setItem('tanktools_session', 'active');
           
-          // Show clear activation message with a slight delay
+          showMessage('✅ Admin login successful! Redirecting...', 'success');
+          
           setTimeout(() => {
-            const activationHTML = `
-              <div style="background:rgba(255,193,7,0.15);border:2px solid rgba(255,193,7,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,193,7,0.2);" onclick="contactAdminWhatsAppLogin('${username}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,193,7,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'">
-                <div style="font-size:2.5rem;margin-bottom:10px;">⏳</div>
-                <div style="font-size:1.3rem;font-weight:bold;color:#f57c00;margin-bottom:12px;">Account Not Activated</div>
-                <div style="color:#f57c00;margin-bottom:15px;line-height:1.5;">
-                  Your account <strong>${username}@knpc.com</strong> is pending admin approval.<br>
-                  Click here to contact admin via WhatsApp for quick activation.
-                </div>
-                <div style="background:#25D366;color:white;padding:12px 24px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;font-weight:bold;font-size:1rem;">
-                  📱 Contact Admin via WhatsApp
-                </div>
-                <div style="margin-top:10px;font-size:0.85rem;color:#f57c00;opacity:0.8;">
-                  💡 Usually activated within minutes!
-                </div>
-              </div>
-            `;
-            
-            document.getElementById('messageContainer').innerHTML = activationHTML;
-          }, 300);
+            const redirect = sessionStorage.getItem('tanktools_redirect');
+            if (redirect) {
+              sessionStorage.removeItem('tanktools_redirect');
+              window.location.href = redirect;
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 1000);
           
-          throw new Error('Account activation required - Click the message above to contact admin');
-        }
-        
-        // Update last login
-        await updateDoc(doc(db, 'users', username), {
-          lastLogin: serverTimestamp()
-        });
-        
-        // Add activity
-        await addActivity('تسجيل دخول', username);
-        await updateStats();
-        
-        // Save session to localStorage only (Firebase handles the database)
-        const sessionData = {
-          id: user.id || Date.now(),
-          username: user.username,
-          fullName: user.fullName,
-          email: user.email,
-          role: user.role || 'user',
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('tanktools_current_user', JSON.stringify(sessionData));
-        sessionStorage.setItem('tanktools_session', 'active');
-        
-        if (rememberMe) {
-          localStorage.setItem('tanktools_remember', JSON.stringify({
+        } else {
+          // Regular user login
+          const userData = {
+            id: Date.now(),
             username: username,
-            rememberMe: true
-          }));
+            fullName: 'User',
+            email: `${username}@knpc.com`,
+            role: 'user',
+            loginTime: new Date().toISOString()
+          };
+          
+          localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
+          sessionStorage.setItem('tanktools_session', 'active');
+          
+          showMessage('✅ Login successful! Redirecting...', 'success');
+          
+          setTimeout(() => {
+            const redirect = sessionStorage.getItem('tanktools_redirect');
+            if (redirect) {
+              sessionStorage.removeItem('tanktools_redirect');
+              window.location.href = redirect;
+            } else {
+              window.location.href = 'index.html';
+            }
+          }, 1000);
         }
-        
-        showMessage('✅ Login successful! Redirecting...', 'success');
-        
-        setTimeout(() => {
-          if (user.username === 'fam030' || user.role === 'admin') {
-            window.location.href = 'dashboard.html';
-          } else {
-            window.location.href = 'index.html';
-          }
-        }, 1500);
         
       } catch (error) {
         showMessage(`❌ ${error.message}`, 'error');
       } finally {
         showLoading('login', false);
-      }
-    }
-
-    async function handleRegister(event) {
-      event.preventDefault();
-      
-      const fullName = document.getElementById('fullName').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      
-      const isValidName = validateFullName();
-      const isValidUsername = validateUsername();
-      const isValidPassword = validatePassword();
-      const isValidConfirm = validateConfirmPassword();
-      
-      if (!isValidName || !isValidUsername || !isValidPassword || !isValidConfirm) {
-        showMessage('❌ Please fix all validation errors', 'error');
-        return;
-      }
-      
-      showLoading('register', true);
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Check if username exists in Firebase
-        const existingUserQuery = await getDocs(collection(db, 'users'));
-        const existingUsernames = [];
-        existingUserQuery.forEach((doc) => {
-          existingUsernames.push(doc.id);
-        });
-        
-        if (existingUsernames.includes(username)) {
-          throw new Error('Username already exists');
-        }
-        
-        // Create new user (inactive by default)
-        const newUser = {
-          username: username,
-          email: `${username}@knpc.com`,
-          fullName: fullName,
-          password: password,
-          isActive: false, // Inactive until email verified
-          isAdmin: false,
-          createdAt: serverTimestamp(),
-          lastLogin: null,
-          id: Date.now(),
-          emailVerificationToken: generateToken(), // Generate verification token
-          emailSent: false
-        };
-        
-        await setDoc(doc(db, 'users', username), newUser);
-        
-        // Add to email queue for sending
-        await addDoc(collection(db, 'emailQueue'), {
-          type: 'activation',
-          to: newUser.email,
-          username: username,
-          fullName: fullName,
-          token: newUser.emailVerificationToken,
-          timestamp: serverTimestamp(),
-          status: 'pending'
-        });
-        
-        // Add activity
-        await addActivity('إنشاء حساب جديد', username);
-        await updateStats();
-        
-        showMessage('✅ Account created! Activation email sent. Check your email or contact admin.', 'success');
-        
-        // Show WhatsApp option
-        setTimeout(() => {
-          showActivationOptions(username);
-        }, 1500);
-        
-        setTimeout(() => {
-          switchTab('login');
-          document.getElementById('loginUsername').value = username;
-        }, 6000);
-        
-      } catch (error) {
-        showMessage(`❌ ${error.message}`, 'error');
-      } finally {
-        showLoading('register', false);
       }
     }
 
@@ -566,61 +283,6 @@
       event.target.classList.add('active');
       document.getElementById(tab + 'Form').classList.add('active');
       clearMessages();
-    }
-
-    function showForgotPassword() {
-      document.getElementById('mainContainer').style.display = 'none';
-      document.getElementById('forgotContainer').classList.add('active');
-      clearMessages();
-    }
-
-    function backToLogin() {
-      document.getElementById('forgotContainer').classList.remove('active');
-      document.getElementById('mainContainer').style.display = 'block';
-      clearMessages();
-    }
-
-    function contactAdmin() {
-      const message = "Hello, I need help with Tank Tools password reset. My username is: " + document.getElementById('forgotUsername').value + "@knpc.com";
-      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
-      
-      try {
-        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
-        if (!newWindow) window.location.href = whatsappURL;
-        showMessage('📱 WhatsApp opened. Contact admin for password reset.', 'info');
-      } catch (error) {
-        showMessage('📱 Please contact admin via WhatsApp: +965 55222550', 'info');
-      }
-    }
-
-    async function handleForgotPassword(event) {
-      event.preventDefault();
-      
-      const username = document.getElementById('forgotUsername').value.trim();
-      
-      if (!/^[a-zA-Z]{3}[0-9]{3}$/.test(username)) {
-        showMessage('❌ Please enter a valid username format', 'error');
-        return;
-      }
-      
-      showLoading('reset', true);
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const userDoc = await getDoc(doc(db, 'users', username));
-        if (!userDoc.exists()) {
-          throw new Error('Username not found in our system');
-        }
-        
-        await addActivity('طلب إعادة تعيين كلمة المرور', username);
-        showMessage('📧 Reset request sent to admin.', 'info');
-        
-      } catch (error) {
-        showMessage(`❌ ${error.message}`, 'error');
-      } finally {
-        showLoading('reset', false);
-      }
     }
 
     function showLoading(form, show) {
@@ -645,22 +307,6 @@
 
     function clearMessages() {
       document.getElementById('messageContainer').innerHTML = '';
-      document.querySelectorAll('.validation-message').forEach(msg => msg.className = 'validation-message');
-    }
-
-    function loadSavedCredentials() {
-      const saved = localStorage.getItem('tanktools_remember');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          if (data.rememberMe) {
-            document.getElementById('loginUsername').value = data.username;
-            document.getElementById('rememberMe').checked = true;
-          }
-        } catch (error) {
-          console.log('Error loading saved credentials');
-        }
-      }
     }
 
     function checkExistingSession() {
@@ -685,185 +331,20 @@
       }
     }
 
-    // Show activation options
-    function showActivationOptions(username) {
-      const activationHTML = `
-        <div style="background:rgba(33,150,243,0.2);border:1px solid rgba(33,150,243,0.5);color:#2196F3;padding:20px;border-radius:12px;margin:20px 0;text-align:center;">
-          <div style="font-size:1.2rem;font-weight:bold;margin-bottom:15px;">🎉 Account Created Successfully!</div>
-          <div style="margin-bottom:20px;line-height:1.6;">
-            Your account <strong>${username}@knpc.com</strong> is pending activation.<br>
-            You have two options to get activated:
-          </div>
-          <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
-            <button onclick="contactAdminWhatsApp('${username}')" style="background:#25D366;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:8px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-              📱 Contact Admin via WhatsApp
-            </button>
-            <button onclick="checkEmailActivation()" style="background:#4CAF50;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:8px;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-              📧 Check Email Activation
-            </button>
-          </div>
-          <div style="margin-top:15px;font-size:0.9rem;opacity:0.8;">
-            💡 <strong>Tip:</strong> WhatsApp is the fastest way to get activated!
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('messageContainer').innerHTML = activationHTML;
-    }
-
-    // Contact admin via WhatsApp
-    function contactAdminWhatsApp(username) {
-      const message = `Hello Admin! 👋
-
-I just registered a new account on Tank Tools:
-
-👤 Username: ${username}
-📧 Email: ${username}@knpc.com
-🕐 Registration Time: ${new Date().toLocaleString()}
-
-Could you please activate my account? Thank you! 🙏
-
-Tank Tools Registration System`;
-      
-      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
-      
-      try {
-        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
-        if (!newWindow) {
-          window.location.href = whatsappURL;
-        }
-        
-        showMessage('📱 WhatsApp opened! Send the message to get activated quickly.', 'success');
-        
-        // Update user record that WhatsApp was used
-        updateDoc(doc(db, 'users', username), {
-          whatsappContactTime: serverTimestamp(),
-          contactMethod: 'whatsapp'
-        }).catch(console.error);
-        
-      } catch (error) {
-        console.error('WhatsApp error:', error);
-        showMessage('📱 Please manually contact admin via WhatsApp: +965 55222550', 'info');
-      }
-    }
-
-    // Contact admin via WhatsApp from login
-    function contactAdminWhatsAppLogin(username) {
-      const message = `Hello Admin Fahad! 👋
-
-I need account activation for Tank Tools:
-
-👤 Username: ${username}
-📧 Email: ${username}@knpc.com
-🚪 Login Attempt: ${new Date().toLocaleString()}
-⚠️ Status: Account not activated
-
-Please activate my account so I can access Tank Tools applications (PBCR, PLCR, NMOGAS).
-
-Thank you! 🙏
-
-Tank Tools Login System`;
-      
-      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
-      
-      try {
-        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
-        if (!newWindow) {
-          window.location.href = whatsappURL;
-        }
-        
-        // Update the message to show WhatsApp was opened
-        const successHTML = `
-          <div style="background:rgba(76,175,80,0.2);border:2px solid rgba(76,175,80,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:10px;">✅</div>
-            <div style="font-size:1.2rem;font-weight:bold;color:#4CAF50;margin-bottom:12px;">WhatsApp Opened Successfully!</div>
-            <div style="color:#4CAF50;margin-bottom:15px;line-height:1.5;">
-              Message sent to admin with your account details.<br>
-              Your account will be activated shortly.
-            </div>
-            <div style="background:#2196F3;color:white;padding:10px 20px;border-radius:8px;display:inline-block;font-weight:bold;">
-              🔄 Try Login Again in 2-3 Minutes
-            </div>
-          </div>
-        `;
-        
-        document.getElementById('messageContainer').innerHTML = successHTML;
-        
-        // Record WhatsApp contact in Firebase
-        try {
-          updateDoc(doc(db, 'users', username), {
-            whatsappContactTime: serverTimestamp(),
-            contactMethod: 'whatsapp_login',
-            lastContactReason: 'activation_request'
-          });
-        } catch (error) {
-          console.log('Firebase update error:', error);
-        }
-        
-      } catch (error) {
-        console.error('WhatsApp error:', error);
-        
-        const errorHTML = `
-          <div style="background:rgba(33,150,243,0.2);border:2px solid rgba(33,150,243,0.6);border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:10px;">📱</div>
-            <div style="font-size:1.1rem;font-weight:bold;color:#2196F3;margin-bottom:12px;">Contact Admin Manually</div>
-            <div style="color:#2196F3;margin-bottom:15px;">
-              WhatsApp: <strong>+965 55222550</strong><br>
-              Username: <strong>${username}</strong>
-            </div>
-            <div style="background:#f44336;color:white;padding:8px 16px;border-radius:6px;display:inline-block;font-size:0.9rem;">
-              Request account activation
-            </div>
-          </div>
-        `;
-        
-        document.getElementById('messageContainer').innerHTML = errorHTML;
-      }
-    }
-
-    // Make functions globally available
-    window.contactAdminWhatsApp = contactAdminWhatsApp;
-    window.contactAdminWhatsAppLogin = contactAdminWhatsAppLogin;
-    window.checkEmailActivation = checkEmailActivation;
-    window.showActivationOptions = showActivationOptions;
-
-    // Check email activation
-    function checkEmailActivation() {
-      showMessage('📧 Please check your email inbox and spam folder for the activation link. If not received, contact admin via WhatsApp.', 'info');
-    }
-
-    // Generate verification token
-    function generateToken() {
-      return Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
+    // Make functions global
+    window.quickAdminLogin = quickAdminLogin;
+    window.quickUserLogin = quickUserLogin;
+    window.handleLogin = handleLogin;
+    window.switchTab = switchTab;
 
     // Initialize when page loads
-    window.addEventListener('load', async () => {
-      // Wait for Firebase to initialize
-      setTimeout(async () => {
-        try {
-          await initializeUserData();
-          console.log('✅ Firebase database ready!');
-        } catch (error) {
-          console.error('❌ Firebase initialization error:', error);
-          showMessage('⚠️ Database connection issue. Please refresh the page.', 'warning');
-        }
-      }, 1000);
-      
-      loadSavedCredentials();
+    window.addEventListener('load', () => {
       checkExistingSession();
-      
-      // Add event listeners
-      document.getElementById('username').addEventListener('input', validateUsername);
-      document.getElementById('loginUsername').addEventListener('input', validateLoginUsername);
-      document.getElementById('password').addEventListener('input', validatePassword);
-      document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
-      document.getElementById('fullName').addEventListener('input', validateFullName);
     });
 
-    console.log('%c🔥 TANK TOOLS - FIREBASE v4.0', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 TANK TOOLS - SIMPLIFIED LOGIN', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cPowered by Firebase Cloud Firestore', 'color:blue;font-size:14px');
+    console.log('%cQuick Login Available for Testing', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>

@@ -173,28 +173,60 @@
   </div>
 
   <script>
-    // 🔒 Smart Security System - Compact Version
+    // 🔒 Smart Security System - iPhone Optimized
     (function(){
-      let attempts=0,modalOpen=false,isTyping=false;
+      let attempts=0,modalOpen=false,isTyping=false,typingTimer=null;
+      
       function initSecurity(){
-        // Track when user is typing in input fields
-        document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea,select'))isTyping=true});
-        document.addEventListener('focusout',e=>{if(e.target.matches('input,textarea,select'))setTimeout(()=>isTyping=false,100)});
-        document.addEventListener('input',e=>{if(e.target.matches('input,textarea,select'))isTyping=true;setTimeout(()=>isTyping=false,500)});
+        // Enhanced iPhone detection and typing tracking
+        const isIPhone=/iPad|iPhone|iPod/.test(navigator.userAgent);
         
-        document.addEventListener('contextmenu',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('context-menu')(e)});
-        document.addEventListener('selectstart',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('text-selection')(e)});
-        document.addEventListener('keydown',e=>{
-          if(isTyping||e.target.matches('input,textarea,select'))return;
-          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J')];
-          if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)
+        // Multiple event listeners for comprehensive input tracking
+        ['focusin','focus','input','keydown','keyup','touchstart'].forEach(eventType=>{
+          document.addEventListener(eventType,e=>{
+            if(e.target.matches('input,textarea,select')){
+              isTyping=true;
+              clearTimeout(typingTimer);
+              typingTimer=setTimeout(()=>isTyping=false,isIPhone?1500:800);
+            }
+          },true);
         });
+        
+        // Additional safety for form interactions
+        document.addEventListener('change',e=>{
+          if(e.target.matches('input,textarea,select')){
+            isTyping=true;
+            clearTimeout(typingTimer);
+            typingTimer=setTimeout(()=>isTyping=false,1000);
+          }
+        });
+        
+        // Enhanced event blocking when typing
+        document.addEventListener('contextmenu',e=>{
+          if(isTyping||e.target.matches('input,textarea,select')||e.target.closest('input,textarea,select'))return;
+          handleViolation('context-menu')(e);
+        });
+        
+        document.addEventListener('selectstart',e=>{
+          if(isTyping||e.target.matches('input,textarea,select')||e.target.closest('input,textarea,select'))return;
+          handleViolation('text-selection')(e);
+        });
+        
+        document.addEventListener('keydown',e=>{
+          if(isTyping||e.target.matches('input,textarea,select')||e.target.closest('input,textarea,select'))return;
+          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J')];
+          if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e);
+        });
+        
+        // DevTools detection with typing check
         let devOpen=false;
         setInterval(()=>{
           if(isTyping)return;
           const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;
-          if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}
-        },3000)
+          if(wDiff>threshold||hDiff>threshold){
+            if(!devOpen){devOpen=true;setTimeout(()=>{if(!isTyping)handleViolation('devtools-detected')()},500)}
+          }else{devOpen=false}
+        },isIPhone?5000:3000);
       }
       function handleViolation(type){
         return function(e){
