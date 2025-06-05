@@ -282,8 +282,25 @@
     
     function checkLoginStatus(){
       const session=sessionStorage.getItem('tanktools_session'),userData=localStorage.getItem('tanktools_current_user');
-      if(session!=='active'||!userData){showAccessDenied();return}
-      try{currentUser=JSON.parse(userData);initializeApp();logActivity('pbcr_accessed',currentUser.username)}catch{showAccessDenied()}
+      console.log('🔍 Checking login status...');
+      console.log('Session:', session);
+      console.log('User data:', userData);
+      
+      if(session!=='active'||!userData){
+        console.log('❌ No valid session found, redirecting to login');
+        showAccessDenied();
+        return;
+      }
+      
+      try{
+        currentUser=JSON.parse(userData);
+        console.log('✅ Valid session found for user:', currentUser.username);
+        initializeApp();
+        logActivity('pbcr_accessed',currentUser.username);
+      }catch(error){
+        console.log('❌ Error parsing user data:', error);
+        showAccessDenied();
+      }
     }
     
     function showAccessDenied(){document.getElementById('mainContent').style.display='none';document.getElementById('accessDenied').style.display='flex'}
