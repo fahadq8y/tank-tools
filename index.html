@@ -298,51 +298,61 @@
     });
     
     function checkLoginStatus(){
-      const session=sessionStorage.getItem('tanktools_session');
-      const userData=localStorage.getItem('tanktools_current_user');
+      console.log('🔍 PBCR Login Check Started...');
       
-      console.log('🔍 PBCR Login Check:');
-      console.log('Session:', session);
-      console.log('User Data:', userData);
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
       
-      // تحقق أكثر مرونة
-      if(!session || session !== 'active'){
-        console.log('❌ Invalid session, redirecting to login');
+      console.log('Session value:', session);
+      console.log('User data exists:', !!userData);
+      console.log('User data content:', userData);
+      
+      // Clear invalid session first
+      if(!session || session !== 'active') {
+        console.log('❌ Invalid or missing session');
+        clearInvalidSession();
         showAccessDenied();
         return;
       }
       
-      if(!userData){
-        console.log('❌ No user data found, redirecting to login');
+      if(!userData) {
+        console.log('❌ No user data found');
+        clearInvalidSession();
         showAccessDenied();
         return;
       }
       
-      try{
-        currentUser = JSON.parse(userData);
-        if(!currentUser || !currentUser.username){
-          console.log('❌ Invalid user data structure');
-          showAccessDenied();
-          return;
-        }
-        
-        console.log('✅ Valid session found for user:', currentUser.username);
-        console.log('✅ Initializing PBCR app...');
-        
-        // إخفاء رسالة اللوجن وإظهار المحتوى
-        const accessDenied = document.getElementById('accessDenied');
-        const mainContent = document.getElementById('mainContent');
-        
-        if(accessDenied) accessDenied.style.display = 'none';
-        if(mainContent) mainContent.style.display = 'block';
-        
-        initializeApp();
-        logActivity('pbcr_accessed', currentUser.username);
-        
-      }catch(error){
+      let parsedUser;
+      try {
+        parsedUser = JSON.parse(userData);
+        console.log('✅ User data parsed:', parsedUser);
+      } catch(error) {
         console.log('❌ Error parsing user data:', error);
+        clearInvalidSession();
         showAccessDenied();
+        return;
       }
+      
+      // Validate user data structure
+      if(!parsedUser || !parsedUser.username || !parsedUser.role) {
+        console.log('❌ Invalid user data structure');
+        clearInvalidSession();
+        showAccessDenied();
+        return;
+      }
+      
+      // All checks passed
+      console.log('✅ All validation passed for user:', parsedUser.username);
+      currentUser = parsedUser;
+      initializeApp();
+      logActivity('pbcr_accessed', currentUser.username);
+    }
+    
+    function clearInvalidSession() {
+      console.log('🧹 Clearing invalid session data...');
+      sessionStorage.removeItem('tanktools_session');
+      localStorage.removeItem('tanktools_current_user');
+      sessionStorage.removeItem('tanktools_redirect');
     }
     
     function showAccessDenied(){
@@ -363,21 +373,43 @@
     
     // Quick fix function
     window.quickFix = function() {
-      console.log('🔧 Applying quick fix...');
+      console.log('🔧 Applying comprehensive fix...');
       
-      // Create default session
-      sessionStorage.setItem('tanktools_session', 'active');
-      localStorage.setItem('tanktools_current_user', JSON.stringify({
-        id: 1,
-        username: 'fam030',
-        fullName: 'Fahad Admin',
-        email: 'fam030@knpc.com',
-        role: 'admin',
-        loginTime: new Date().toISOString()
-      }));
+      // Clear everything first
+      clearInvalidSession();
       
-      console.log('✅ Session fixed, reloading...');
-      location.reload();
+      // Wait a moment then create fresh session
+      setTimeout(() => {
+        const freshUserData = {
+          id: 1,
+          username: 'fam030',
+          fullName: 'Fahad Admin',
+          email: 'fam030@knpc.com',
+          role: 'admin',
+          loginTime: new Date().toISOString(),
+          sessionId: Date.now()
+        };
+        
+        console.log('💾 Creating fresh session...', freshUserData);
+        
+        localStorage.setItem('tanktools_current_user', JSON.stringify(freshUserData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        // Verify data was saved
+        const verify1 = sessionStorage.getItem('tanktools_session');
+        const verify2 = localStorage.getItem('tanktools_current_user');
+        
+        console.log('✅ Verification - Session:', verify1);
+        console.log('✅ Verification - User data:', verify2);
+        
+        if(verify1 === 'active' && verify2) {
+          console.log('✅ Session created successfully, reloading...');
+          setTimeout(() => location.reload(), 500);
+        } else {
+          console.log('❌ Failed to create session');
+          alert('Failed to fix session. Please try manual login.');
+        }
+      }, 100);
     };
     
     window.goToLogin=()=>{

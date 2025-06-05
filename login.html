@@ -335,27 +335,45 @@
       const session = sessionStorage.getItem('tanktools_session');
       const userData = localStorage.getItem('tanktools_current_user');
       
+      console.log('🔍 Login page checking existing session...');
+      console.log('Session:', session);
+      console.log('User data exists:', !!userData);
+      
+      // Only redirect if BOTH session AND valid user data exist
       if (session === 'active' && userData) {
         try {
           const user = JSON.parse(userData);
-          showMessage('✅ Active session found, redirecting...', 'success');
-          setTimeout(() => {
-            const redirect = sessionStorage.getItem('tanktools_redirect');
-            if (redirect) {
-              sessionStorage.removeItem('tanktools_redirect');
-              window.location.href = redirect;
-            } else {
-              if (user.username === 'fam030' || user.role === 'admin') {
-                window.location.href = 'dashboard.html';
+          console.log('User data parsed:', user);
+          
+          // Validate user data structure
+          if (user && user.username && user.role) {
+            console.log('✅ Valid session found, redirecting...');
+            showMessage('✅ Active session found, redirecting...', 'success');
+            setTimeout(() => {
+              const redirect = sessionStorage.getItem('tanktools_redirect');
+              if (redirect) {
+                sessionStorage.removeItem('tanktools_redirect');
+                console.log('🎯 Redirecting to:', redirect);
+                window.location.href = redirect;
               } else {
-                window.location.href = 'index.html';
+                const defaultUrl = user.role === 'admin' ? 'dashboard.html' : 'index.html';
+                console.log('🎯 Redirecting to default:', defaultUrl);
+                window.location.href = defaultUrl;
               }
-            }
-          }, 1000);
+            }, 1000);
+            return; // Stop here if redirecting
+          } else {
+            console.log('❌ Invalid user data structure, clearing session');
+            sessionStorage.removeItem('tanktools_session');
+            localStorage.removeItem('tanktools_current_user');
+          }
         } catch (error) {
+          console.log('❌ Error parsing user data, clearing session');
           sessionStorage.removeItem('tanktools_session');
           localStorage.removeItem('tanktools_current_user');
         }
+      } else {
+        console.log('ℹ️ No valid session found, staying on login page');
       }
     }
 
