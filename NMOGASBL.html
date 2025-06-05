@@ -10,16 +10,17 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;font-family:Arial,sans-serif;padding:10px;text-align:center;min-height:100vh}
-    .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:10px}
-    .nav-logo{font-size:18px;font-weight:bold;color:white}
-    .nav-links{display:flex;gap:10px}
-    .nav-link{color:white;text-decoration:none;padding:4px 8px;border-radius:5px;transition:background-color 0.3s;font-size:14px}
-    .nav-link:hover{background:rgba(255,255,255,0.2)}
-    .nav-link.active{background:rgba(255,255,255,0.3);font-weight:bold}
-    .nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 15px;text-decoration:none;transition:all 0.3s ease}
-    .nav-user{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;backdrop-filter:blur(10px);font-size:12px}
-    .user-avatar{width:25px;height:25px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px}
-    .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:10px;transition:all 0.3s ease}
+    .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
+    .nav-logo{font-size:24px;font-weight:bold;color:white}
+    .nav-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .nav-link{color:white;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all 0.3s ease;background:rgba(255,255,255,0.1);font-weight:500;border:1px solid rgba(255,255,255,0.2)}
+    .nav-link:hover{background:rgba(255,255,255,0.2);transform:translateY(-1px)}
+    .nav-link.active{background:rgba(255,255,255,0.3);font-weight:bold;border:1px solid rgba(255,255,255,0.4)}
+    .nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 16px;text-decoration:none;transition:all 0.3s ease;border:1px solid #FFA500;font-size:inherit}
+    .nav-admin:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,215,0,0.3)}
+    .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
+    .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
+    .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
     h2{font-size:1.2rem;margin:10px 0}
     input,select{background:rgba(255,255,255,0.9);border-radius:8px;border:none;color:#003366;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:12px;margin:2px;padding:4px;max-width:100px}
     label{font-weight:bold;margin:5px;font-size:14px}
@@ -71,7 +72,28 @@
     .modal-btn-secondary{background:#2196F3;color:white}
     .modal-btn-danger{background:#f44336;color:white}
     .modal-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
-    @media (max-width:440px){input[type="number"]{width:40px;padding:4px 2px}.table-container{padding:2px}table{font-size:10px;width:99%}th,td{padding:4px 2px}select{font-size:9px;padding:2px;width:90%}th:nth-child(1),td:nth-child(1){width:9%}th:nth-child(2),td:nth-child(2){width:8%}th:nth-child(3),td:nth-child(3){width:11%}th:nth-child(4),td:nth-child(4){width:19%}th:nth-child(5),td:nth-child(5){width:19%}th:nth-child(6),td:nth-child(6){width:8%}th:nth-child(7),td:nth-child(7){width:8%}th:nth-child(8),td:nth-child(8){width:18%}.nav-bar{flex-direction:column;gap:5px}.nav-links{order:1}.nav-user{order:2;width:100%;justify-content:space-between}.security-buttons{flex-direction:column}.modal-btn{width:100%}}
+    @media (max-width:440px){
+      input[type="number"]{width:40px;padding:4px 2px}
+      .table-container{padding:2px}
+      table{font-size:10px;width:99%}
+      th,td{padding:4px 2px}
+      select{font-size:9px;padding:2px;width:90%}
+      th:nth-child(1),td:nth-child(1){width:9%}
+      th:nth-child(2),td:nth-child(2){width:8%}
+      th:nth-child(3),td:nth-child(3){width:11%}
+      th:nth-child(4),td:nth-child(4){width:19%}
+      th:nth-child(5),td:nth-child(5){width:19%}
+      th:nth-child(6),td:nth-child(6){width:8%}
+      th:nth-child(7),td:nth-child(7){width:8%}
+      th:nth-child(8),td:nth-child(8){width:18%}
+      .nav-bar{flex-direction:column;gap:15px;padding:15px}
+      .nav-links{order:1;justify-content:center;width:100%}
+      .nav-user{order:2;width:100%;justify-content:space-between}
+      .nav-link{padding:10px 15px;font-size:14px}
+      .nav-admin{padding:10px 15px;font-size:14px;display:inline-flex;align-items:center}
+      .security-buttons{flex-direction:column}
+      .modal-btn{width:100%}
+    }
     @media (max-height:500px){.nav-bar{padding:4px}h2{margin:5px 0;font-size:1rem}label{display:inline-block}}
   </style>
 </head>
@@ -145,19 +167,26 @@
   <script>
     // 🔒 Smart Security System - NMOGAS Version
     (function(){
-      let attempts=0,modalOpen=false;
+      let attempts=0,modalOpen=false,isTyping=false;
       function initSecurity(){
-        document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));
-        document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});
+        // Track when user is typing in input fields
+        document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea,select'))isTyping=true});
+        document.addEventListener('focusout',e=>{if(e.target.matches('input,textarea,select'))setTimeout(()=>isTyping=false,100)});
+        document.addEventListener('input',e=>{if(e.target.matches('input,textarea,select'))isTyping=true;setTimeout(()=>isTyping=false,500)});
+        
+        document.addEventListener('contextmenu',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('context-menu')(e)});
+        document.addEventListener('selectstart',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('text-selection')(e)});
         document.addEventListener('keydown',e=>{
-          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];
+          if(isTyping||e.target.matches('input,textarea,select'))return;
+          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J')];
           if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)
         });
         let devOpen=false;
         setInterval(()=>{
+          if(isTyping)return;
           const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;
           if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}
-        },2000)
+        },3000)
       }
       function handleViolation(type){
         return function(e){
@@ -374,7 +403,7 @@
     document.getElementById("totalRate").addEventListener("input",autoSave);
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
-    console.log('%c🔒 NMOGAS BLENDER - SMART SECURITY','color:red;font-size:16px;font-weight:bold');
+    console.log('%c🔒 NMOGAS BLENDER - UPDATED VERSION','color:red;font-size:16px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877','color:green;font-size:14px');
   </script>
 </body>

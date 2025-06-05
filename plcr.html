@@ -140,19 +140,26 @@
   <script>
     // 🔒 Smart Security System - PLCR Version
     (function(){
-      let attempts=0,modalOpen=false;
+      let attempts=0,modalOpen=false,isTyping=false;
       function initSecurity(){
-        document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));
-        document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});
+        // Track when user is typing in input fields
+        document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea,select'))isTyping=true});
+        document.addEventListener('focusout',e=>{if(e.target.matches('input,textarea,select'))setTimeout(()=>isTyping=false,100)});
+        document.addEventListener('input',e=>{if(e.target.matches('input,textarea,select'))isTyping=true;setTimeout(()=>isTyping=false,500)});
+        
+        document.addEventListener('contextmenu',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('context-menu')(e)});
+        document.addEventListener('selectstart',e=>{if(!isTyping&&!e.target.matches('input,textarea,select'))handleViolation('text-selection')(e)});
         document.addEventListener('keydown',e=>{
-          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];
+          if(isTyping||e.target.matches('input,textarea,select'))return;
+          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J')];
           if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)
         });
         let devOpen=false;
         setInterval(()=>{
+          if(isTyping)return;
           const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;
           if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}
-        },2000)
+        },3000)
       }
       function handleViolation(type){
         return function(e){
