@@ -78,17 +78,7 @@
             </div>
             <div class="validation-message" id="usernameMsg"></div>
           </div>
-          <div class="form-group">
-            <label for="department">🏢 Department:</label>
-            <select id="department" style="width:100%;padding:15px;border:none;border-radius:10px;background:rgba(255,255,255,0.9);color:#003366;font-size:16px;" required>
-              <option value="">Select Department</option>
-              <option value="operations">Operations</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="engineering">Engineering</option>
-              <option value="management">Management</option>
-            </select>
-            <div class="validation-message" id="departmentMsg"></div>
-          </div>
+
           <div class="form-group">
             <label for="password">🔒 Password:</label>
             <input type="password" id="password" placeholder="Create a strong password" required minlength="8">
@@ -200,7 +190,6 @@
               fullName: 'Fahad Admin',
               email: 'fam030@knpc.com',
               role: 'admin',
-              department: 'management',
               isActive: true,
               loginTime: new Date().toISOString()
             };
@@ -259,7 +248,6 @@
           fullName: userData.fullName,
           email: userData.email,
           role: userData.role || 'user',
-          department: userData.department,
           isActive: userData.isActive,
           loginTime: new Date().toISOString()
         };
@@ -305,14 +293,13 @@
       
       const fullName = document.getElementById('fullName').value.trim();
       const username = document.getElementById('username').value.trim();
-      const department = document.getElementById('department').value;
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
       
       console.log('📝 Registration attempt for:', username);
       
       // Validation
-      if (!fullName || !username || !department || !password || !confirmPassword) {
+      if (!fullName || !username || !password || !confirmPassword) {
         showMessage('❌ Please fill all fields', 'error');
         return;
       }
@@ -345,7 +332,6 @@
           username: username,
           fullName: fullName,
           email: `${username}@knpc.com`,
-          department: department,
           password: password, // In production, this should be hashed
           role: 'user',
           isActive: false, // User needs admin approval
@@ -363,8 +349,11 @@
         
         showMessage('✅ Registration successful! Your account is pending admin approval. You will be able to login once approved.', 'success');
         
-        // Clear form
-        document.getElementById('registerForm').reset();
+        // Clear form manually
+        document.getElementById('fullName').value = '';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('confirmPassword').value = '';
         
         // Switch to login tab after delay
         setTimeout(() => {
