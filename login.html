@@ -153,8 +153,204 @@
   </script>
 
   <script>
-    // Security system
-    (function(){let attempts=0,modalOpen=false;function initSecurity(){document.addEventListener('contextmenu',handleViolation.bind(null,'context-menu'));document.addEventListener('selectstart',e=>{if(!e.target.matches('input,textarea'))handleViolation('text-selection')(e)});document.addEventListener('keydown',e=>{const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J'),(e.ctrlKey&&e.key==='c'&&!e.target.matches('input,textarea')),(e.ctrlKey&&e.key==='a'&&!e.target.matches('input,textarea'))];if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e)});let devOpen=false;setInterval(()=>{const threshold=160,wDiff=window.outerWidth-window.innerWidth,hDiff=window.outerHeight-window.innerHeight;if(wDiff>threshold||hDiff>threshold){if(!devOpen){devOpen=true;handleViolation('devtools-detected')()}}else{devOpen=false}},2000)}function handleViolation(type){return function(e){if(e&&e.preventDefault)e.preventDefault();attempts++;if(attempts===1)showWarning('first');else if(attempts===2)showWarning('second');else if(attempts>=3)showWarning('final');return false}}function showWarning(level){if(modalOpen)return;const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');modalOpen=true;countSpan.textContent=attempts;if(level==='first'){icon.textContent='👀';title.textContent='Security Notice';text.innerHTML='<p>We noticed you tried to access developer tools.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'}else if(level==='second'){icon.textContent='⚠️';title.textContent='Security Warning';text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>This system is protected for KNPC operations.</p>';counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'}else{icon.textContent='🚫';title.textContent='Access Restricted';text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p>';counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)}modal.classList.add('show')}function implementRestrictions(){document.body.style.filter='blur(5px)';const overlay=document.createElement('div');overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">Security Restricted</h2><p>Contact Fahad - 17877</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh</button></div>';document.body.appendChild(overlay)}window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};window.resetPage=()=>window.location.reload();window.learnMore=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false};initSecurity()})();
+    // Enhanced Security system with iPhone optimizations
+    (function(){
+      let attempts=0,modalOpen=false,isTyping=false,typingTimer=null;
+      
+      // Enhanced iPhone detection
+      const isIPhone = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+      
+      function initSecurity(){
+        console.log('🔒 Security system initializing - iPhone detected:', isIPhone);
+        
+        // Enhanced input tracking with iPhone-specific handling
+        ['focusin','focus','input','keydown','keyup','touchstart','touchend','click'].forEach(eventType=>{
+          document.addEventListener(eventType,e=>{
+            if(e.target.matches('input,textarea,select,button,a,label')){
+              isTyping=true;
+              clearTimeout(typingTimer);
+              // Much longer timeout for iPhone users
+              typingTimer=setTimeout(()=>isTyping=false, isIPhone ? 3000 : 1000);
+            }
+          },true);
+        });
+        
+        // Additional iPhone-specific events
+        if(isIPhone) {
+          ['touchmove','scroll','resize','orientationchange','focus','blur'].forEach(eventType=>{
+            document.addEventListener(eventType,()=>{
+              isTyping=true;
+              clearTimeout(typingTimer);
+              typingTimer=setTimeout(()=>isTyping=false, 3000);
+            },true);
+          });
+        }
+        
+        // Form interaction safety
+        document.addEventListener('change',e=>{
+          if(e.target.matches('input,textarea,select')){
+            isTyping=true;
+            clearTimeout(typingTimer);
+            typingTimer=setTimeout(()=>isTyping=false, isIPhone ? 2000 : 1000);
+          }
+        });
+        
+        // Enhanced event blocking with iPhone exceptions
+        document.addEventListener('contextmenu',e=>{
+          if(isTyping||e.target.matches('input,textarea,select,button,a,label')||e.target.closest('form')){
+            console.log('Context menu allowed - user is interacting with form');
+            return;
+          }
+          handleViolation('context-menu')(e);
+        });
+        
+        document.addEventListener('selectstart',e=>{
+          if(isTyping||e.target.matches('input,textarea,select,button,a,label')||e.target.closest('form')){
+            console.log('Text selection allowed - user is interacting with form');
+            return;
+          }
+          // Allow text selection on iPhone for better UX
+          if(isIPhone && e.target.closest('.container')) {
+            console.log('Text selection allowed on iPhone');
+            return;
+          }
+          handleViolation('text-selection')(e);
+        });
+        
+        document.addEventListener('keydown',e=>{
+          if(isTyping||e.target.matches('input,textarea,select,button,a,label')||e.target.closest('form')){
+            console.log('Keyboard input allowed - user is interacting with form');
+            return;
+          }
+          
+          const dangerous=[(e.ctrlKey&&e.key==='u'),(e.ctrlKey&&e.key==='s'),(e.ctrlKey&&e.shiftKey&&e.key==='I'),(e.key==='F12'),(e.ctrlKey&&e.shiftKey&&e.key==='C'),(e.ctrlKey&&e.shiftKey&&e.key==='J')];
+          
+          // iPhone doesn't have these shortcuts, so be more lenient
+          if(isIPhone && (e.ctrlKey || e.metaKey)) {
+            console.log('iPhone keyboard shortcut allowed');
+            return;
+          }
+          
+          if(dangerous.some(c=>c))handleViolation('keyboard-shortcut')(e);
+        });
+        
+        // DevTools detection with iPhone-specific handling
+        let devOpen=false;
+        setInterval(()=>{
+          if(isTyping){
+            console.log('Skipping DevTools check - user is typing');
+            return;
+          }
+          
+          // More lenient threshold for iPhone
+          const threshold = isIPhone ? 200 : 160;
+          const wDiff=window.outerWidth-window.innerWidth;
+          const hDiff=window.outerHeight-window.innerHeight;
+          
+          // iPhone Safari has different window behavior
+          if(isIPhone && isSafari) {
+            // Skip DevTools detection on iPhone Safari due to dynamic UI
+            return;
+          }
+          
+          if(wDiff>threshold||hDiff>threshold){
+            if(!devOpen){
+              devOpen=true;
+              setTimeout(()=>{
+                if(!isTyping && !modalOpen) {
+                  console.log('DevTools detected after delay check');
+                  handleViolation('devtools-detected')();
+                }
+              }, isIPhone ? 1000 : 500);
+            }
+          }else{
+            devOpen=false;
+          }
+        }, isIPhone ? 8000 : 3000); // Much less frequent checks on iPhone
+      }
+      
+      function handleViolation(type){
+        return function(e){
+          // Double check if user is still interacting
+          if(isTyping) {
+            console.log('Violation ignored - user is still typing');
+            return false;
+          }
+          
+          if(e&&e.preventDefault)e.preventDefault();
+          attempts++;
+          console.log('Security violation:', type, 'Attempt:', attempts);
+          
+          if(attempts===1)showWarning('first');
+          else if(attempts===2)showWarning('second');
+          else if(attempts>=3)showWarning('final');
+          return false;
+        }
+      }
+      
+      function showWarning(level){
+        if(modalOpen)return;
+        const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');
+        modalOpen=true;countSpan.textContent=attempts;
+        
+        if(level==='first'){
+          icon.textContent='👀';title.textContent='Security Notice';
+          if(isIPhone) {
+            text.innerHTML='<p>We noticed unusual activity. This might be due to iPhone browser behavior.</p><p><strong>If you were just using the login form:</strong> No problem! Click "I Understand" to continue.</p>';
+          } else {
+            text.innerHTML='<p>We noticed you tried to access developer tools.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';
+          }
+          counter.style.background='rgba(33,150,243,0.2)';counter.style.borderColor='rgba(33,150,243,0.5)';counter.style.color='#2196F3'
+        }else if(level==='second'){
+          icon.textContent='⚠️';title.textContent='Security Warning';
+          if(isIPhone) {
+            text.innerHTML='<p><strong>Second detection on iPhone.</strong></p><p>This might be caused by:</p><ul style="text-align:left;margin:10px 0"><li>Auto-fill or password manager</li><li>Copy/paste actions</li><li>Browser zoom or rotation</li></ul><p>If you\'re just trying to login, click "I Understand".</p>';
+          } else {
+            text.innerHTML='<p><strong>Second attempt detected.</strong></p><p>This system is protected for KNPC operations.</p>';
+          }
+          counter.style.background='rgba(255,193,7,0.2)';counter.style.borderColor='rgba(255,193,7,0.5)';counter.style.color='#ffc107'
+        }else{
+          icon.textContent='🚫';title.textContent='Access Restricted';
+          if(isIPhone) {
+            text.innerHTML='<p><strong>Multiple detections on iPhone.</strong></p><p>This could be due to:</p><ul style="text-align:left;margin:10px 0"><li>Browser compatibility issues</li><li>Aggressive security detection</li><li>iPhone-specific behavior</li></ul><p>Use "Reset Page" if you\'re having trouble logging in.</p>';
+          } else {
+            text.innerHTML='<p><strong>Maximum attempts exceeded.</strong></p>';
+          }
+          counter.style.background='rgba(244,67,54,0.2)';counter.style.borderColor='rgba(244,67,54,0.5)';counter.style.color='#f44336';
+          setTimeout(()=>{if(attempts>=3)implementRestrictions()},5000)
+        }
+        modal.classList.add('show')
+      }
+      
+      function implementRestrictions(){
+        document.body.style.filter='blur(5px)';
+        const overlay=document.createElement('div');
+        if(isIPhone) {
+          overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">iPhone Detection Issue</h2><p>This might be a compatibility issue with iPhone browsers.</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh & Try Again</button></div>';
+        } else {
+          overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><h2 style="color:#f44336">Security Restricted</h2><p>Contact Fahad - 17877</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer">🔄 Refresh</button></div>';
+        }
+        document.body.appendChild(overlay)
+      }
+      
+      window.acknowledgeWarning=()=>{
+        document.getElementById('securityModal').classList.remove('show');
+        modalOpen=false;
+        isTyping=true; // Give user some grace period
+        setTimeout(()=>isTyping=false, 2000);
+      };
+      window.resetPage=()=>window.location.reload();
+      window.learnMore=()=>{
+        document.getElementById('securityModal').classList.remove('show');
+        modalOpen=false;
+        isTyping=true;
+        setTimeout(()=>isTyping=false, 2000);
+      };
+      
+      initSecurity()
+    })();
 
     const WHATSAPP_ADMIN = "96555222550";
 
