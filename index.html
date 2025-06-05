@@ -94,19 +94,6 @@
       <div class="access-denied-icon">🔒</div>
       <div class="access-denied-title">Login Required</div>
       <div class="access-denied-text">You need to login to access PBCR & WASHERY application.<br>Please login with your KNPC credentials.</div>
-      
-      <!-- Debug info -->
-      <div style="background:rgba(255,255,255,0.1);padding:15px;border-radius:8px;margin:20px 0;text-align:left;font-family:monospace;font-size:12px;">
-        <div style="color:#FFD700;font-weight:bold;margin-bottom:10px;">🔍 Debug Info:</div>
-        <div id="debugSession">Session: Loading...</div>
-        <div id="debugUser">User Data: Loading...</div>
-      </div>
-      
-      <!-- Quick fix button -->
-      <button onclick="quickFix()" style="background:#ff9800;color:white;border:none;padding:10px 20px;border-radius:8px;margin:10px;cursor:pointer;font-weight:bold;">
-        🔧 Quick Fix Session
-      </button>
-      
       <button class="login-btn" onclick="goToLogin()">Go to Login</button>
     </div>
   </div>
@@ -294,7 +281,6 @@
     // Core Functions
     window.addEventListener('load',()=>{
       console.log('🔄 PBCR page loaded, checking login status...');
-      // تأخير قصير للتأكد من تحميل كل شيء
       setTimeout(checkLoginStatus, 100);
     });
     
@@ -363,55 +349,7 @@
       
       if(mainContent) mainContent.style.display='none';
       if(accessDenied) accessDenied.style.display='flex';
-      
-      // Show debug info
-      const session = sessionStorage.getItem('tanktools_session');
-      const userData = localStorage.getItem('tanktools_current_user');
-      
-      document.getElementById('debugSession').textContent = `Session: ${session || 'null'}`;
-      document.getElementById('debugUser').textContent = `User Data: ${userData ? 'Found' : 'null'}`;
     }
-    
-    // Quick fix function
-    window.quickFix = function() {
-      console.log('🔧 Applying comprehensive fix...');
-      
-      // Clear everything first
-      clearInvalidSession();
-      
-      // Wait a moment then create fresh session
-      setTimeout(() => {
-        const freshUserData = {
-          id: 1,
-          username: 'fam030',
-          fullName: 'Fahad Admin',
-          email: 'fam030@knpc.com',
-          role: 'admin',
-          loginTime: new Date().toISOString(),
-          sessionId: Date.now()
-        };
-        
-        console.log('💾 Creating fresh session...', freshUserData);
-        
-        localStorage.setItem('tanktools_current_user', JSON.stringify(freshUserData));
-        sessionStorage.setItem('tanktools_session', 'active');
-        
-        // Verify data was saved
-        const verify1 = sessionStorage.getItem('tanktools_session');
-        const verify2 = localStorage.getItem('tanktools_current_user');
-        
-        console.log('✅ Verification - Session:', verify1);
-        console.log('✅ Verification - User data:', verify2);
-        
-        if(verify1 === 'active' && verify2) {
-          console.log('✅ Session created successfully, reloading...');
-          setTimeout(() => location.reload(), 500);
-        } else {
-          console.log('❌ Failed to create session');
-          alert('Failed to fix session. Please try manual login.');
-        }
-      }, 100);
-    };
     
     window.goToLogin=()=>{
       console.log('🔄 Redirecting to login page');
@@ -737,8 +675,9 @@
     document.addEventListener('input',e=>{if(e.target.matches('#tankInput,#level,#target,#flowrate'))saveDataToLocalStorage()});
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
-    console.log('%c🔒 PBCR SYSTEM - UPDATED VERSION','color:red;font-size:16px;font-weight:bold');
-    console.log('%cDeveloper: Fahad - 17877','color:green;font-size:14px');
+    console.log('%c🔒 PBCR SYSTEM - SECURED VERSION','color:green;font-size:16px;font-weight:bold');
+    console.log('%cQuick Fix Security Vulnerability Removed','color:red;font-size:14px');
+    console.log('%cDeveloper: Fahad - 17877','color:blue;font-size:14px');
   </script>
 </body>
 </html>
