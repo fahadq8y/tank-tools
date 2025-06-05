@@ -241,6 +241,7 @@
           }else{devOpen=false}
         },isIPhone?5000:3000);
       }
+      
       function handleViolation(type){
         return function(e){
           if(e&&e.preventDefault)e.preventDefault();
@@ -513,24 +514,23 @@
         if(!isNaN(time)&&time>0){
           const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000);
           
-          // Format time with better iPhone compatibility
+          // Format time and date - Gregorian calendar, English numbers, 24-hour format
           let ft, fd;
           try {
-            // Try Arabic format first
-            ft = finish.toLocaleTimeString('ar-SA', {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true
-            });
-            fd = finish.toLocaleDateString('ar-SA');
-          } catch (error) {
-            // Fallback to English format
-            ft = finish.toLocaleTimeString('en-US', {
+            // 24-hour format with English numbers
+            ft = finish.toLocaleTimeString('en-GB', {
               hour: "2-digit", 
               minute: "2-digit",
-              hour12: true
+              hour12: false
             });
-            fd = finish.toLocaleDateString('en-US');
+            // Gregorian date with English numbers
+            fd = finish.toLocaleDateString('en-GB');
+          } catch (error) {
+            // Simple fallback with manual formatting
+            const hours = finish.getHours().toString().padStart(2, '0');
+            const minutes = finish.getMinutes().toString().padStart(2, '0');
+            ft = `${hours}:${minutes}`;
+            fd = `${finish.getDate()}/${finish.getMonth() + 1}/${finish.getFullYear()}`;
           }
           
           // Clean up any HTML entities or weird characters
@@ -628,16 +628,6 @@
         return false
       }
       return nowDate.toDateString()===finishDate.toDateString()
-    }
-    
-    function sortAndColorTable(){
-      const table=document.querySelector("#tankTable tbody"),rows=Array.from(table.rows),now=new Date();
-      rows.sort((a,b)=>new Date(a.cells[1].textContent+" "+a.cells[2].textContent)-new Date(b.cells[1].textContent+" "+b.cells[2].textContent));
-      rows.forEach(row=>{
-        const finishDate=new Date(row.cells[1].textContent+" "+row.cells[2].textContent);
-        row.style.color=isSameShift(now,finishDate)?"red":"green";
-        table.appendChild(row)
-      })
     }
     
     function saveDataToLocalStorage(){
