@@ -281,36 +281,88 @@
     window.addEventListener('load',()=>checkLoginStatus());
     
     function checkLoginStatus(){
-      const session=sessionStorage.getItem('tanktools_session'),userData=localStorage.getItem('tanktools_current_user');
-      console.log('🔍 Checking login status...');
-      console.log('Session:', session);
-      console.log('User data:', userData);
+      const session=sessionStorage.getItem('tanktools_session');
+      const userData=localStorage.getItem('tanktools_current_user');
       
-      if(session!=='active'||!userData){
-        console.log('❌ No valid session found, redirecting to login');
+      console.log('🔍 PBCR Login Check:');
+      console.log('Session:', session);
+      console.log('User Data:', userData);
+      
+      // تحقق أكثر مرونة
+      if(!session || session !== 'active'){
+        console.log('❌ Invalid session, redirecting to login');
+        showAccessDenied();
+        return;
+      }
+      
+      if(!userData){
+        console.log('❌ No user data found, redirecting to login');
         showAccessDenied();
         return;
       }
       
       try{
-        currentUser=JSON.parse(userData);
+        currentUser = JSON.parse(userData);
+        if(!currentUser || !currentUser.username){
+          console.log('❌ Invalid user data structure');
+          showAccessDenied();
+          return;
+        }
+        
         console.log('✅ Valid session found for user:', currentUser.username);
+        console.log('✅ Initializing PBCR app...');
+        
+        // إخفاء رسالة اللوجن وإظهار المحتوى
+        const accessDenied = document.getElementById('accessDenied');
+        const mainContent = document.getElementById('mainContent');
+        
+        if(accessDenied) accessDenied.style.display = 'none';
+        if(mainContent) mainContent.style.display = 'block';
+        
         initializeApp();
-        logActivity('pbcr_accessed',currentUser.username);
+        logActivity('pbcr_accessed', currentUser.username);
+        
       }catch(error){
         console.log('❌ Error parsing user data:', error);
         showAccessDenied();
       }
     }
     
-    function showAccessDenied(){document.getElementById('mainContent').style.display='none';document.getElementById('accessDenied').style.display='flex'}
+    function showAccessDenied(){
+      console.log('🚫 Showing access denied screen');
+      const mainContent = document.getElementById('mainContent');
+      const accessDenied = document.getElementById('accessDenied');
+      
+      if(mainContent) mainContent.style.display='none';
+      if(accessDenied) accessDenied.style.display='flex';
+    }
     
-    window.goToLogin=()=>{sessionStorage.setItem('tanktools_redirect','index.html');window.location.href='login.html'};
+    window.goToLogin=()=>{
+      console.log('🔄 Redirecting to login page');
+      sessionStorage.setItem('tanktools_redirect','index.html');
+      window.location.href='login.html';
+    };
     
     function initializeApp(){
-      document.getElementById('mainContent').style.display='block';
-      document.getElementById('accessDenied').style.display='none';
-      loadUserInfo();loadDataFromLocalStorage();setupDarkMode()
+      console.log('🚀 Initializing PBCR application...');
+      
+      const mainContent = document.getElementById('mainContent');
+      const accessDenied = document.getElementById('accessDenied');
+      
+      if(mainContent) {
+        mainContent.style.display='block';
+        console.log('✅ Main content displayed');
+      }
+      if(accessDenied) {
+        accessDenied.style.display='none';
+        console.log('✅ Access denied hidden');
+      }
+      
+      loadUserInfo();
+      loadDataFromLocalStorage();
+      setupDarkMode();
+      
+      console.log('✅ PBCR app initialized successfully');
     }
     
     function loadUserInfo(){
