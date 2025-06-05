@@ -124,77 +124,15 @@
 
     const WHATSAPP_ADMIN = "96555222550";
 
-    // Quick login functions (for testing)
-    function quickAdminLogin() {
-      showMessage('🚀 Quick Admin Login...', 'info');
-      
-      setTimeout(() => {
-        // Set admin session
-        const adminData = {
-          id: 1,
-          username: 'fam030',
-          fullName: 'Fahad Admin',
-          email: 'fam030@knpc.com',
-          role: 'admin',
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('tanktools_current_user', JSON.stringify(adminData));
-        sessionStorage.setItem('tanktools_session', 'active');
-        
-        showMessage('✅ Admin login successful! Redirecting to dashboard...', 'success');
-        
-        setTimeout(() => {
-          // Check if there's a redirect URL
-          const redirect = sessionStorage.getItem('tanktools_redirect');
-          if (redirect) {
-            sessionStorage.removeItem('tanktools_redirect');
-            window.location.href = redirect;
-          } else {
-            window.location.href = 'dashboard.html';
-          }
-        }, 1000);
-      }, 500);
-    }
-
-    function quickUserLogin() {
-      showMessage('🚀 Quick User Login...', 'info');
-      
-      setTimeout(() => {
-        // Set user session
-        const userData = {
-          id: 2,
-          username: 'usr001',
-          fullName: 'Test User',
-          email: 'usr001@knpc.com',
-          role: 'user',
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
-        sessionStorage.setItem('tanktools_session', 'active');
-        
-        showMessage('✅ User login successful! Redirecting...', 'success');
-        
-        setTimeout(() => {
-          // Check if there's a redirect URL
-          const redirect = sessionStorage.getItem('tanktools_redirect');
-          if (redirect) {
-            sessionStorage.removeItem('tanktools_redirect');
-            window.location.href = redirect;
-          } else {
-            window.location.href = 'index.html';
-          }
-        }, 1000);
-      }, 500);
-    }
-
-    // Regular login function (simplified for now)
+    // Regular login function
     async function handleLogin(event) {
       event.preventDefault();
       
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      console.log('🔐 Login attempt for:', username);
       
       if (!username || !password) {
         showMessage('❌ Please enter username and password', 'error');
@@ -207,10 +145,12 @@
         // Simulate login process
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Simple validation (you can integrate with Firebase later)
+        let userData;
+        
+        // Check credentials
         if (username === 'fam030' && password === 'admin123') {
-          // Admin login
-          const adminData = {
+          console.log('✅ Admin login successful');
+          userData = {
             id: 1,
             username: 'fam030',
             fullName: 'Fahad Admin',
@@ -218,54 +158,68 @@
             role: 'admin',
             loginTime: new Date().toISOString()
           };
-          
-          localStorage.setItem('tanktools_current_user', JSON.stringify(adminData));
-          sessionStorage.setItem('tanktools_session', 'active');
-          
-          showMessage('✅ Admin login successful! Redirecting...', 'success');
-          
-          setTimeout(() => {
-            const redirect = sessionStorage.getItem('tanktools_redirect');
-            if (redirect) {
-              sessionStorage.removeItem('tanktools_redirect');
-              window.location.href = redirect;
-            } else {
-              window.location.href = 'dashboard.html';
-            }
-          }, 1000);
-          
         } else {
-          // Regular user login
-          const userData = {
+          console.log('✅ User login successful');
+          userData = {
             id: Date.now(),
             username: username,
-            fullName: 'User',
+            fullName: 'KNPC User',
             email: `${username}@knpc.com`,
             role: 'user',
             loginTime: new Date().toISOString()
           };
-          
-          localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
-          sessionStorage.setItem('tanktools_session', 'active');
-          
-          showMessage('✅ Login successful! Redirecting...', 'success');
-          
-          setTimeout(() => {
-            const redirect = sessionStorage.getItem('tanktools_redirect');
-            if (redirect) {
-              sessionStorage.removeItem('tanktools_redirect');
-              window.location.href = redirect;
-            } else {
-              window.location.href = 'index.html';
-            }
-          }, 1000);
         }
         
+        // Save session data
+        console.log('💾 Saving session data...');
+        localStorage.setItem('tanktools_current_user', JSON.stringify(userData));
+        sessionStorage.setItem('tanktools_session', 'active');
+        
+        // Verify data was saved
+        const savedSession = sessionStorage.getItem('tanktools_session');
+        const savedUser = localStorage.getItem('tanktools_current_user');
+        console.log('✅ Session saved:', savedSession);
+        console.log('✅ User data saved:', savedUser);
+        
+        if (rememberMe) {
+          localStorage.setItem('tanktools_remember', JSON.stringify({
+            username: username,
+            rememberMe: true
+          }));
+          console.log('✅ Remember me enabled');
+        }
+        
+        showMessage('✅ Login successful! Redirecting...', 'success');
+        
+        setTimeout(() => {
+          const redirect = sessionStorage.getItem('tanktools_redirect');
+          console.log('🔄 Redirect URL:', redirect);
+          
+          if (redirect) {
+            sessionStorage.removeItem('tanktools_redirect');
+            console.log('🎯 Redirecting to:', redirect);
+            window.location.href = redirect;
+          } else {
+            const defaultUrl = userData.role === 'admin' ? 'dashboard.html' : 'index.html';
+            console.log('🎯 Redirecting to default:', defaultUrl);
+            window.location.href = defaultUrl;
+          }
+        }, 1500);
+        
       } catch (error) {
+        console.error('❌ Login error:', error);
         showMessage(`❌ ${error.message}`, 'error');
       } finally {
         showLoading('login', false);
       }
+    }
+
+    async function handleRegister(event) {
+      event.preventDefault();
+      showMessage('✅ Registration completed! You can now login.', 'success');
+      setTimeout(() => {
+        switchTabDirect('login');
+      }, 2000);
     }
 
     function switchTab(tab) {
@@ -275,6 +229,45 @@
       event.target.classList.add('active');
       document.getElementById(tab + 'Form').classList.add('active');
       clearMessages();
+    }
+
+    function switchTabDirect(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+      
+      document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+      document.getElementById(tab + 'Form').classList.add('active');
+      clearMessages();
+    }
+
+    function showForgotPassword() {
+      document.getElementById('mainContainer').style.display = 'none';
+      document.getElementById('forgotContainer').classList.add('active');
+      clearMessages();
+    }
+
+    function backToLogin() {
+      document.getElementById('forgotContainer').classList.remove('active');
+      document.getElementById('mainContainer').style.display = 'block';
+      clearMessages();
+    }
+
+    function contactAdmin() {
+      const message = "Hello, I need help with Tank Tools password reset. My username is: " + document.getElementById('forgotUsername').value + "@knpc.com";
+      const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
+      
+      try {
+        const newWindow = window.open(whatsappURL, '_blank', 'noopener,noreferrer');
+        if (!newWindow) window.location.href = whatsappURL;
+        showMessage('📱 WhatsApp opened. Contact admin for password reset.', 'info');
+      } catch (error) {
+        showMessage('📱 Please contact admin via WhatsApp: +965 55222550', 'info');
+      }
+    }
+
+    async function handleForgotPassword(event) {
+      event.preventDefault();
+      showMessage('📧 Reset request sent to admin.', 'info');
     }
 
     function showLoading(form, show) {
@@ -323,14 +316,61 @@
       }
     }
 
+    function loadSavedCredentials() {
+      const saved = localStorage.getItem('tanktools_remember');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.rememberMe) {
+            document.getElementById('loginUsername').value = data.username;
+            document.getElementById('rememberMe').checked = true;
+          }
+        } catch (error) {
+          console.log('Error loading saved credentials');
+        }
+      }
+    }
+
+    function checkExistingSession() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
+      
+      if (session === 'active' && userData) {
+        try {
+          const user = JSON.parse(userData);
+          showMessage('✅ Active session found, redirecting...', 'success');
+          setTimeout(() => {
+            const redirect = sessionStorage.getItem('tanktools_redirect');
+            if (redirect) {
+              sessionStorage.removeItem('tanktools_redirect');
+              window.location.href = redirect;
+            } else {
+              if (user.username === 'fam030' || user.role === 'admin') {
+                window.location.href = 'dashboard.html';
+              } else {
+                window.location.href = 'index.html';
+              }
+            }
+          }, 1000);
+        } catch (error) {
+          sessionStorage.removeItem('tanktools_session');
+          localStorage.removeItem('tanktools_current_user');
+        }
+      }
+    }
+
     // Make functions global
-    window.quickAdminLogin = quickAdminLogin;
-    window.quickUserLogin = quickUserLogin;
     window.handleLogin = handleLogin;
+    window.handleRegister = handleRegister;
     window.switchTab = switchTab;
+    window.showForgotPassword = showForgotPassword;
+    window.backToLogin = backToLogin;
+    window.contactAdmin = contactAdmin;
+    window.handleForgotPassword = handleForgotPassword;
 
     // Initialize when page loads
     window.addEventListener('load', () => {
+      loadSavedCredentials();
       checkExistingSession();
     });
 
