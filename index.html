@@ -10,13 +10,14 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;font-family:Arial,sans-serif;padding:20px;text-align:center;min-height:100vh}
-    .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px}
+    .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
     .nav-logo{font-size:24px;font-weight:bold;color:white}
-    .nav-links{display:flex;gap:20px}
-    .nav-link{color:white;text-decoration:none;padding:5px 10px;border-radius:5px;transition:background-color 0.3s}
-    .nav-link:hover{background:rgba(255,255,255,0.2)}
-    .nav-link.active{background:rgba(255,255,255,0.3);font-weight:bold}
-    .nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 15px;text-decoration:none;transition:all 0.3s ease}
+    .nav-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .nav-link{color:white;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all 0.3s ease;background:rgba(255,255,255,0.1);font-weight:500;border:1px solid rgba(255,255,255,0.2)}
+    .nav-link:hover{background:rgba(255,255,255,0.2);transform:translateY(-1px)}
+    .nav-link.active{background:rgba(255,255,255,0.3);font-weight:bold;border:1px solid rgba(255,255,255,0.4)}
+    .nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 16px;text-decoration:none;transition:all 0.3s ease;border:1px solid #FFA500;font-size:inherit}
+    .nav-admin:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,215,0,0.3)}
     .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
     .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
     .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
@@ -57,7 +58,18 @@
     .modal-btn-secondary{background:#2196F3;color:white}
     .modal-btn-danger{background:#f44336;color:white}
     .modal-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
-    @media (max-width:600px){input,select{width:90%!important}.row{flex-direction:row!important;justify-content:center;gap:5px;max-width:350px}.row input,.row select{width:50%!important;margin:0!important;flex:1}.nav-bar{flex-direction:column;gap:10px}.nav-links{order:1}.nav-user{order:2;width:100%;justify-content:space-between}.security-buttons{flex-direction:column}.modal-btn{width:100%}}
+    @media (max-width:600px){
+      input,select{width:90%!important}
+      .row{flex-direction:row!important;justify-content:center;gap:5px;max-width:350px}
+      .row input,.row select{width:50%!important;margin:0!important;flex:1}
+      .nav-bar{flex-direction:column;gap:15px;padding:15px}
+      .nav-links{order:1;justify-content:center;width:100%}
+      .nav-user{order:2;width:100%;justify-content:space-between}
+      .nav-link{padding:10px 15px;font-size:14px}
+      .nav-admin{padding:10px 15px;font-size:14px;display:inline-flex;align-items:center}
+      .security-buttons{flex-direction:column}
+      .modal-btn{width:100%}
+    }
   </style>
 </head>
 <body>
