@@ -525,22 +525,40 @@
         // Test Firebase connection first
         await testFirebaseConnection();
         
-        // Set up real-time listener
-        const q = query(collection(db, 'liveTanks'), orderBy('finishDateTime', 'asc'));
+        // Use simpler query first (without orderBy)
+        const liveTanksRef = collection(db, 'liveTanks');
         
         console.log('📡 Setting up real-time listener...');
         
-        unsubscribe = onSnapshot(q, (snapshot) => {
+        unsubscribe = onSnapshot(liveTanksRef, (snapshot) => {
           console.log('📥 Received snapshot, size:', snapshot.size);
           
           const tanks = [];
           snapshot.forEach((doc) => {
             const tankData = { id: doc.id, ...doc.data() };
-            console.log('🏷️ Tank loaded:', tankData.tankNumber, tankData.department);
+            console.log('🏷️ Tank loaded:', tankData.tankNumber, tankData.department, tankData);
             tanks.push(tankData);
           });
           
           console.log('✅ Total tanks loaded:', tanks.length);
+          
+          // Sort manually after receiving data
+          tanks.sort((a, b) => {
+            // Sort by product priority first, then by finish time
+            const priorityA = productPriority[a.product] || 999;
+            const priorityB = productPriority[b.product] || 999;
+            
+            if (priorityA !== priorityB) {
+              return priorityA - priorityB;
+            }
+            
+            // If finishDateTime exists, use it, otherwise use date + time
+            const dateA = a.finishDateTime ? new Date(a.finishDateTime.seconds * 1000) : new Date(a.finishDate + ' ' + a.finishTime);
+            const dateB = b.finishDateTime ? new Date(b.finishDateTime.seconds * 1000) : new Date(b.finishDate + ' ' + b.finishTime);
+            
+            return dateA - dateB;
+          });
+          
           displayTanksByDepartment(tanks);
           showRefreshIndicator();
         }, (error) => {
@@ -601,6 +619,8 @@
     }
 
     function displayTanksByDepartment(tanks) {
+      console.log('🏭 Displaying tanks by department, total:', tanks.length);
+      
       const departments = ['PBCR', 'WASHERY', 'PLCR'];
       
       departments.forEach(dept => {
@@ -608,8 +628,14 @@
         const containerId = dept.toLowerCase() + 'Container';
         const countId = dept.toLowerCase() + 'Count';
         
+        console.log(`📊 ${dept} tanks:`, deptTanks.length);
+        
         displayTanksInTable(containerId, deptTanks);
-        document.getElementById(countId).textContent = `(${deptTanks.length} tanks)`;
+        
+        const countElement = document.getElementById(countId);
+        if (countElement) {
+          countElement.textContent = `(${deptTanks.length} tanks)`;
+        }
       });
     }
 
