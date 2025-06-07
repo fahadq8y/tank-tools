@@ -26,8 +26,11 @@
     .result{margin-top:10px;font-weight:bold;color:#00ffff;text-align:center}
     #tankTable{margin:auto;background:rgba(255,255,255,0.85);color:#003366;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;min-width:300px}
     #tankTable th{padding:10px;border-bottom:1px solid #003366}
-    .reminder-btn,.add-btn{padding:12px 40px;font-size:16px;border-radius:12px;background:white;color:#003366;border:none;cursor:pointer;margin:5px}
+    .reminder-btn,.add-btn,.live-tanks-btn{padding:12px 20px;font-size:14px;border-radius:12px;background:white;color:#003366;border:none;cursor:pointer;margin:5px;transition:all 0.3s ease;font-weight:600}
     .add-btn{padding:8px 20px;font-size:14px;background:rgba(255,255,255,0.8)}
+    .live-tanks-btn{background:linear-gradient(45deg,#ff4444,#ff6666);color:white;display:inline-flex;align-items:center;gap:8px}
+    .live-tanks-btn:hover{background:linear-gradient(45deg,#ff3333,#ff5555);transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,68,68,0.3)}
+    .buttons-container{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;align-items:center;margin-top:15px}
     footer{margin-top:40px;color:#ccc;text-align:center}
     .whatsapp-link{color:#25D366;text-decoration:none;font-weight:bold;transition:all 0.3s ease;cursor:pointer}
     .whatsapp-link:hover{color:#128C7E;text-shadow:0 0 5px rgba(37,211,102,0.5);transform:scale(1.05)}
@@ -72,6 +75,8 @@
       .security-buttons{flex-direction:column}
       .modal-btn{width:100%}
       .firebase-status{position:relative;top:auto;right:auto;margin:10px auto;display:block;text-align:center}
+      .buttons-container{flex-direction:column}
+      .live-tanks-btn,.reminder-btn,.add-btn{width:90%;margin:5px auto}
     }
   </style>
 </head>
@@ -152,16 +157,15 @@
       
       <div class="result" id="output"></div>
       
-      <div style="margin-top:20px">
+      <div class="buttons-container">
         <div style="display:inline-flex;align-items:center;gap:8px">
           <a href="#" id="calendarLink" target="_blank">
-            <button class="reminder-btn">Add Reminder</button>
+            <button class="reminder-btn">📅 Add Reminder</button>
           </a>
           <button onclick="openCalendarInfo()" style="padding:6px 10px;font-size:12px;border-radius:6px;background:rgba(255,165,0,0.9);color:#fff;font-weight:bold;border:1px solid #ff8c00;cursor:pointer" title="Compatible with Google Calendar">❗</button>
         </div>
-      </div>
-      <div style="margin-top:10px">
-        <button onclick="addToTable()" class="add-btn">Add to Table</button>
+        <button onclick="addToTable()" class="add-btn">📊 Add to Table</button>
+        <button onclick="addToLiveTanks()" class="live-tanks-btn" id="liveTanksBtn" style="display:none">🔴 Add to Live Tanks</button>
       </div>
 
       <h3 style="margin-top:40px">Your tanks finishing in current shift:</h3>
@@ -314,6 +318,9 @@
     
     // Tank data (compressed)
     const tanks={"225":{comment:12879,min:3.353,max:15.24},"226":{comment:12879,min:3.353,max:15.24},"227":{comment:11327,min:2,max:17.95},"253":{comment:10781,min:2,max:17.093},"254":{comment:12288,min:2,max:14.96},"255":{comment:12287,min:2,max:14.96},"256":{comment:12287,min:2,max:14.96},"260":{comment:2249,min:2,max:13},"272":{comment:7217,min:2,max:15.309},"273":{comment:4198,min:2,max:13.468},"274":{comment:4198,min:2,max:13.458},"275":{comment:9563,min:2,max:17.897},"276":{comment:7236,min:2,max:15.442},"277":{comment:4188,min:2,max:13.714},"278":{comment:9506,min:1.98,max:17.89},"279":{comment:4118,min:1.98,max:15.977},"301":{comment:7756,min:3.048,max:18.54},"302":{comment:7756,min:3.048,max:18.54},"303":{comment:6070,min:2.59,max:14.173},"304":{comment:6070,min:2.59,max:14.173},"305":{comment:7171,min:0.533,max:18.797},"450":{comment:3155,min:2,max:14.2},"451":{comment:930,min:2,max:13},"452":{comment:4587,min:2,max:13},"453":{comment:5067,min:2,max:17.8},"454":{comment:1653,min:2,max:11.36},"455":{comment:1654,min:2,max:11.36},"456":{comment:11574,min:2.68,max:13.41},"457":{comment:9697,min:5.4,max:16.45},"458":{comment:9697,min:5.4,max:16.45},"459":{comment:9466,min:2,max:14.35},"460":{comment:14213,min:2,max:17.65},"461":{comment:14213,min:2,max:17.653},"462":{comment:12354,min:2,max:16.46},"463":{comment:9578,min:2,max:17.89},"464":{comment:9578,min:2,max:17.889},"465":{comment:9572,min:2,max:17.89},"467":{comment:12375,min:2,max:17.771},"468":{comment:12375,min:2,max:17.771},"469":{comment:12375,min:2,max:17.771},"470":{comment:12375,min:2,max:17.77},"503":{comment:2888,min:2.13,max:10.97},"504":{comment:2888,min:2.13,max:10.97},"506":{comment:930,min:0.92,max:14.33},"507":{comment:413,min:2,max:6.5},"508":{comment:1130,min:1.67,max:12.65},"509":{comment:1130,min:1.67,max:12.65},"510":{comment:529,min:2,max:10.363},"511":{comment:4531,min:0.198,max:9},"512":{comment:2939,min:0.92,max:11.6},"514":{comment:2942,min:0.92,max:12},"515":{comment:2942,min:0.92,max:12},"520":{comment:4142,min:1.88,max:14.29},"521":{comment:4142,min:1.88,max:14.29},"522":{comment:11990,min:1.61,max:15.6},"531":{comment:12377,min:2,max:17.77},"532":{comment:12377,min:2,max:17.772},"533":{comment:12377,min:2,max:17.772},"534":{comment:12377,min:2,max:17.772},"600":{comment:9490,min:2,max:13.3},"601":{comment:9490,min:2,max:13.3},"602":{comment:9512,min:2,max:13.73},"603":{comment:11695,min:2,max:13.325},"605":{comment:12964,min:2,max:14.325},"608":{comment:1060,min:2,max:11.887},"620":{comment:11981,min:1.65,max:16.5},"621":{comment:11981,min:1.65,max:16.5},"622":{comment:5019,min:2,max:15.76},"623":{comment:5050,min:1.6,max:15.76},"633":{comment:412,min:2,max:6},"634":{comment:412,min:2,max:6},"651":{comment:6543,min:2,max:13.325},"652":{comment:6543,min:2,max:13.32},"661":{comment:12354,min:2,max:17.759},"662":{comment:5074,min:2,max:14.802},"663":{comment:1507,min:2,max:10.23},"664":{comment:7250,min:2,max:15.22},"665":{comment:7250,min:2,max:15.22},"667":{comment:12278,min:2,max:17.922},"668":{comment:16858,min:2,max:18.165},"669":{comment:16858,min:2,max:18.17},"670":{comment:16856,min:2,max:18.165},"671":{comment:12863,min:2,max:16.45},"672":{comment:13046,min:2,max:16.45},"703":{comment:12931,min:2,max:14.88},"705":{comment:12931,min:2,max:14.88},"725":{comment:1080,min:0.914,max:11.887},"751":{comment:12834,min:2,max:15.1},"752":{comment:12834,min:2,max:15.1},"753":{comment:12834,min:2,max:15.1},"754":{comment:12834,min:2,max:15.1},"755":{comment:12834,min:2,max:15.1},"756":{comment:12962,min:2,max:15.1},"757":{comment:10989,min:2,max:17.8},"761":{comment:20546,min:2,max:14.2},"762":{comment:20546,min:2,max:18.798},"820":{comment:16656,min:1.6,max:18.48},"821":{comment:16656,min:1.6,max:18.48},"822":{comment:16856,min:1.6,max:18.48},"831":{comment:11297,min:2,max:18.41},"832":{comment:11297,min:2,max:18.409},"833":{comment:7279,min:3.25,max:18.012},"834":{comment:7279,min:3.25,max:18.012},"835":{comment:7305,min:2,max:15.226},"836":{comment:7305,min:2,max:15.226},"900":{comment:2644,min:1.6,max:11.9},"901":{comment:2692,min:2,max:12.02},"760":{comment:20546,min:2,max:18.798},"702":{comment:12931,min:2,max:16.15},"758":{comment:20546,min:2,max:14.5},"759":{comment:20546,min:2,max:14.5}};
+
+    // Global variables for Live Tanks integration
+    let calculatedTankData = null;
 
     // Core Functions
     window.addEventListener('load',()=>{
@@ -475,6 +482,12 @@
     window.calculate=()=>{
       const level=parseFloat(document.getElementById("level").value||0),target=parseFloat(document.getElementById("target").value||0),flowRaw=parseFloat(document.getElementById("flowrate").value||0),unit=document.getElementById("flowUnit").value,mode=document.getElementById("mode").value;
       const available=document.getElementById("availablePumpable"),ullageDiv=document.getElementById("currentUllage"),levelEst=document.getElementById("levelEstimate"),valueDiff=document.getElementById("valueDiff"),output=document.getElementById("output"),calendar=document.getElementById("calendarLink");
+      
+      // Reset Live Tanks button and data
+      calculatedTankData = null;
+      const liveTanksBtn = document.getElementById('liveTanksBtn');
+      liveTanksBtn.style.display = 'none';
+      
       if(!c||isNaN(level)){available.innerText=ullageDiv.innerText=valueDiff.innerText=levelEst.innerText=output.innerHTML="";return}
       const availablePumpable=(level-m)*c,currentUllage=(x-level)*c;
       available.innerText=`Available Pumpable: ${availablePumpable.toFixed(2)} bbl`;
@@ -522,10 +535,44 @@
           const s=new Date(finish.getTime()-600000),e=new Date(s.getTime()+900000),S=s.toISOString().replace(/[-:]|\.\d{3}/g,""),E=e.toISOString().replace(/[-:]|\.\d{3}/g,"");
           const tankNum=document.getElementById("tankInput").value||"Tank";
           calendar.href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+${tankNum}+Reminder&details=Tank+${tankNum}+Completion+Alert+-+PBCR+System&dates=${S}/${E}`;
-          output.style.color=isSameShift(now,finish)?"red":"lightgreen"
+          output.style.color=isSameShift(now,finish)?"red":"lightgreen";
+          
+          // Store calculated data for Live Tanks
+          calculatedTankData = {
+            tankNumber: tankNum,
+            finishDate: finish.toISOString().split('T')[0], // YYYY-MM-DD format
+            finishTime: ft,
+            finishDateTime: finish
+          };
+          
+          // Show Live Tanks button if user has access
+          const allowedRoles = ["admin", "panel_operator", "supervisor", "section_head", "operator", "planning"];
+          if(currentUser && allowedRoles.includes(currentUser.role)) {
+            liveTanksBtn.style.display = 'inline-flex';
+          }
         }
       }
       saveDataToFirebase()
+    };
+    
+    // Add to Live Tanks function
+    window.addToLiveTanks = () => {
+      if (!calculatedTankData) {
+        showMessage('❌ Please calculate tank finish time first!', 'error');
+        return;
+      }
+      
+      // Store data in sessionStorage for Live Tanks page
+      sessionStorage.setItem('tanktools_live_tank_data', JSON.stringify({
+        tankNumber: calculatedTankData.tankNumber,
+        finishDate: calculatedTankData.finishDate,
+        finishTime: calculatedTankData.finishTime,
+        addedBy: currentUser.username,
+        fromPBCR: true
+      }));
+      
+      // Navigate to Live Tanks page
+      window.location.href = 'live-tanks.html';
     };
     
     window.addToTable=()=>{
@@ -791,7 +838,7 @@
     
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
-    console.log('%c🔒 PBCR SYSTEM - FIREBASE CLOUD STORAGE','color:green;font-size:16px;font-weight:bold');
+    console.log('%c🔒 PBCR SYSTEM - LIVE TANKS INTEGRATION','color:green;font-size:16px;font-weight:bold');
     console.log('%cUser-Specific Data Storage Enabled','color:blue;font-size:14px');
     console.log('%cDeveloper: Fahad - 17877','color:orange;font-size:14px');
   </script>

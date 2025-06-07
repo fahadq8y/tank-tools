@@ -35,15 +35,16 @@
     .add-tank-btn{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all 0.3s ease;display:flex;align-items:center;gap:8px;margin-bottom:20px}
     .add-tank-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,215,0,0.3)}
     .add-tank-btn:disabled{background:#666;color:#999;cursor:not-allowed;transform:none}
-    .tanks-table{width:100%;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;table-layout:fixed}
-    .tanks-table th,.tanks-table td{padding:6px 4px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:11px}
-    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:12%}
-    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:25%}
-    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:15%}
-    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:15%}
-    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:20%}
-    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:13%}
+    .tanks-table{width:100%;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;table-layout:fixed}
+    .tanks-table th,.tanks-table td{padding:8px 6px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:12px}
+    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:10%}
+    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:20%}
+    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:12%}
+    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:12%}
+    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:15%}
+    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:20%}
+    .tanks-table th:nth-child(7),.tanks-table td:nth-child(7){width:11%}
     .tank-row-critical{background:#ffe0e0!important;font-weight:bold!important;color:#900!important}
     .tank-row-warning{background:#fff8e1!important;font-weight:bold!important;color:#f57c00!important}
     .tank-row-normal{background:#e8f5e8!important;color:#2e7d2e!important}
@@ -125,9 +126,9 @@
       .action-buttons{flex-direction:column;gap:3px}
       .modal-buttons{flex-direction:column}
       .btn{width:100%}
-      .tanks-table{overflow-x:auto;display:block;white-space:nowrap;font-size:10px}
+      .tanks-table{overflow-x:auto;display:block;white-space:nowrap;font-size:11px}
       .tanks-table thead,.tanks-table tbody,.tanks-table tr{display:table;width:100%;table-layout:fixed}
-      .tanks-table th,.tanks-table td{padding:4px 2px}
+      .tanks-table th,.tanks-table td{padding:6px 3px}
     }
   </style>
 </head>
@@ -470,6 +471,10 @@
       
       loadUserInfo();
       setupPermissions();
+      
+      // Check for data from PBCR
+      checkForPBCRData();
+      
       loadLiveTanks();
       
       // Set default date to today
@@ -572,6 +577,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Added By</th>
+              <th>Notes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -590,6 +596,9 @@
         const dateObj = new Date(tank.finishDate);
         const formattedDate = String(dateObj.getDate()).padStart(2, '0') + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
         
+        // Format notes for display
+        const displayNotes = tank.notes ? (tank.notes.length > 15 ? tank.notes.substring(0, 15) + '...' : tank.notes) : '-';
+        
         html += `
           <tr class="${rowClass}">
             <td class="tank-number">${tank.tankNumber}</td>
@@ -597,6 +606,7 @@
             <td>${formattedDate}</td>
             <td>${tank.finishTime}</td>
             <td>${tank.addedBy}</td>
+            <td title="${tank.notes || 'No notes'}">${displayNotes}</td>
             <td>
               <div class="action-buttons">
                 ${permissions.canEdit ? `
@@ -670,24 +680,52 @@
       return classMap[product] || 'product-default';
     }
 
-    function isSameShift(date1, date2) {
-      const getShift = (date) => {
-        const hour = date.getHours();
-        if (hour >= 6 && hour < 14) return 'morning';
-        if (hour >= 14 && hour < 22) return 'evening';
-        return 'night';
-      };
-      
-      const shift1 = getShift(date1);
-      const shift2 = getShift(date2);
-      
-      // For night shift, handle day boundary
-      if (shift1 === 'night' || shift2 === 'night') {
-        const dayDiff = Math.abs(date1.getDate() - date2.getDate());
-        return dayDiff <= 1 && shift1 === shift2;
+    // Check for data from PBCR page
+    function checkForPBCRData() {
+      const pbcrData = sessionStorage.getItem('tanktools_live_tank_data');
+      if (pbcrData) {
+        try {
+          const data = JSON.parse(pbcrData);
+          console.log('📥 Received data from PBCR:', data);
+          
+          // Clear the session data
+          sessionStorage.removeItem('tanktools_live_tank_data');
+          
+          // Auto-fill and open modal
+          if (data.fromPBCR) {
+            // Determine department based on tank number (you can customize this logic)
+            let department = 'PBCR'; // Default
+            
+            // Auto-open the modal with pre-filled data
+            setTimeout(() => {
+              openAddModalWithData(department, data);
+            }, 500);
+            
+            showMessage('✅ Tank data imported from PBCR! Please select department and product.', 'success');
+          }
+        } catch (error) {
+          console.error('Error parsing PBCR data:', error);
+          sessionStorage.removeItem('tanktools_live_tank_data');
+        }
       }
+    }
+
+    // Open add modal with pre-filled data from PBCR
+    function openAddModalWithData(department, data) {
+      document.getElementById('addModalTitle').textContent = `➕ Add Tank from PBCR Calculation`;
+      document.getElementById('addDepartment').value = department;
+      document.getElementById('addTankNumber').value = data.tankNumber || '';
+      document.getElementById('addFinishDate').value = data.finishDate || '';
+      document.getElementById('addFinishTime').value = data.finishTime || '';
+      document.getElementById('addNotes').value = `Imported from PBCR calculation by ${data.addedBy}`;
       
-      return date1.toDateString() === date2.toDateString() && shift1 === shift2;
+      updateProductOptions();
+      document.getElementById('addTankModal').classList.add('show');
+      
+      // Focus on department selector for user to choose
+      setTimeout(() => {
+        document.getElementById('addDepartment').focus();
+      }, 100);
     }
 
     function openAddModal(department) {
@@ -913,6 +951,7 @@
 
     // Make functions globally available
     window.openAddModal = openAddModal;
+    window.openAddModalWithData = openAddModalWithData;
     window.closeAddModal = closeAddModal;
     window.updateProductOptions = updateProductOptions;
     window.editTank = editTank;
