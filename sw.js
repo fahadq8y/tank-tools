@@ -1,9 +1,9 @@
-// 🔒 Tank Tools Service Worker - Enhanced PWA + Push Notifications
+// 🔒 Tank Tools Service Worker - Enhanced PWA
 // Developer: Fahad - 17877
-// Version: 4.0.0
+// Version: 3.0.0
 
-const CACHE_NAME = 'tanktools-v4.0.0';
-const CACHE_VERSION = '4.0.0';
+const CACHE_NAME = 'tanktools-v3.0.0';
+const CACHE_VERSION = '3.0.0';
 
 // Files to cache for offline functionality
 const CORE_ASSETS = [
@@ -344,59 +344,37 @@ async function clearOfflineData() {
   // Implementation depends on your storage method
 }
 
-// Handle push notifications - Enhanced for Tank Tools Admin
+// Handle push notifications
 self.addEventListener('push', event => {
   console.log('🔔 Tank Tools SW: Push notification received');
   
-  let notificationData = {
-    title: 'Tank Tools Notification',
-    body: 'You have a new notification',
-    icon: '/icon.png',
-    badge: '/icon.png'
-  };
+  let notificationData = {};
   
   if (event.data) {
-    try {
-      notificationData = {...notificationData, ...event.data.json()};
-    } catch (error) {
-      console.log('Using default notification data');
-    }
+    notificationData = event.data.json();
   }
   
-  // Enhanced options for Tank Tools
   const options = {
-    title: notificationData.title,
-    body: notificationData.body,
+    title: notificationData.title || 'Tank Tools Notification',
+    body: notificationData.body || 'You have a new notification',
     icon: '/icon.png',
     badge: '/icon.png',
-    tag: 'tanktools-admin-notification',
+    tag: 'tanktools-notification',
     requireInteraction: true,
-    silent: false,
-    renotify: true,
-    timestamp: Date.now(),
     actions: [
       {
-        action: 'open_dashboard',
-        title: '🔐 Open Dashboard',
-        icon: '/icon.png'
-      },
-      {
-        action: 'view_pending',
-        title: '⏳ View Pending',
+        action: 'open',
+        title: 'Open App',
         icon: '/icon.png'
       },
       {
         action: 'dismiss',
-        title: '❌ Dismiss'
+        title: 'Dismiss'
       }
     ],
     data: {
-      url: notificationData.url || '/dashboard.html',
-      action: notificationData.action || 'dashboard',
-      username: notificationData.username,
-      timestamp: Date.now()
-    },
-    vibrate: [200, 100, 200] // For mobile devices
+      url: notificationData.url || '/dashboard.html'
+    }
   };
   
   event.waitUntil(
@@ -404,173 +382,37 @@ self.addEventListener('push', event => {
   );
 });
 
-// Urgent Reminder System for New User Registrations
-function setupUrgentReminder(username, fullName) {
-  console.log('⏰ Setting up urgent reminder system for:', username);
-  
-  // Reminder after 5 minutes if not handled
-  setTimeout(() => {
-    self.registration.getNotifications().then(notifications => {
-      // Check if original notification still exists (not handled)
-      const stillPending = notifications.some(n => 
-        n.tag === 'urgent-new-user-registration' && 
-        n.data && n.data.username === username
-      );
-      
-      if(stillPending) {
-        // Send reminder notification
-        self.registration.showNotification('🚨 REMINDER: Urgent User Approval', {
-          body: `${fullName || username} is STILL waiting for approval! Please review immediately.`,
-          icon: '/icon.png',
-          badge: '/icon.png',
-          tag: 'urgent-reminder-' + username,
-          requireInteraction: true,
-          renotify: true,
-          vibrate: [1000, 500, 1000, 500, 1000],
-          data: {
-            action: 'pending',
-            username,
-            fullName,
-            url: '/dashboard.html#pending',
-            reminder: true
-          }
-        });
-        
-        console.log('🚨 Urgent reminder sent for:', username);
-      }
-    });
-  }, 5 * 60 * 1000); // 5 minutes
-  
-  // Final warning after 15 minutes
-  setTimeout(() => {
-    self.registration.getNotifications().then(notifications => {
-      const stillPending = notifications.some(n => 
-        n.tag.includes('urgent') && 
-        n.data && n.data.username === username
-      );
-      
-      if(stillPending) {
-        self.registration.showNotification('🔥 FINAL WARNING: User Approval', {
-          body: `${fullName || username} has been waiting 15+ minutes! IMMEDIATE ACTION REQUIRED!`,
-          icon: '/icon.png',
-          badge: '/icon.png', 
-          tag: 'final-warning-' + username,
-          requireInteraction: true,
-          renotify: true,
-          vibrate: [2000, 500, 2000, 500, 2000],
-          data: {
-            action: 'pending',
-            username,
-            fullName,
-            url: '/dashboard.html#pending',
-            finalWarning: true
-          }
-        });
-        
-        console.log('🔥 Final warning sent for:', username);
-      }
-    });
-  }, 15 * 60 * 1000); // 15 minutes
-}
-
-// Handle notification clicks - Enhanced for urgent notifications
+// Handle notification clicks
 self.addEventListener('notificationclick', event => {
-  console.log('👆 Tank Tools SW: Urgent notification clicked', event.action);
+  console.log('👆 Tank Tools SW: Notification clicked');
   
   event.notification.close();
   
-  let urlToOpen = '/dashboard.html';
-  
-  // Handle different actions
-  switch (event.action) {
-    case 'review_now':
-    case 'view_pending':
-      urlToOpen = '/dashboard.html#pending';
-      break;
-    case 'open_dashboard':
-      urlToOpen = '/dashboard.html';
-      break;
-    case 'remind_later':
-      // Set reminder for 5 minutes
-      setTimeout(() => {
-        const { username, fullName } = event.notification.data;
-        self.registration.showNotification('⏰ Reminder: User Approval', {
-          body: `Don't forget: ${fullName || username} is waiting for approval`,
-          icon: '/icon.png',
-          tag: 'reminder-' + username,
-          requireInteraction: true,
-          data: event.notification.data
-        });
-      }, 5 * 60 * 1000);
-      return;
-    case 'dismiss':
-      return;
-    default:
-      // Default click (no action button)
-      urlToOpen = event.notification.data?.url || '/dashboard.html#pending';
-      break;
-  }
-  
-  event.waitUntil(
-    clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then(clientList => {
-      // Check if Tank Tools Dashboard is already open
-      for (const client of clientList) {
-        if (client.url.includes('/dashboard.html') && 'focus' in client) {
-          // Send message to show pending users immediately
-          client.postMessage({
-            type: 'SHOW_PENDING_USERS',
-            urgent: true,
-            timestamp: Date.now()
-          });
-          return client.focus();
-        }
-      }
-      
-      // If Tank Tools is open but not dashboard, navigate to dashboard
-      for (const client of clientList) {
-        if (client.url.includes('tanktools') || client.url.includes('login.html') || client.url.includes('index.html')) {
-          if ('navigate' in client) {
-            return client.navigate(urlToOpen).then(() => client.focus());
-          } else {
-            client.postMessage({
-              type: 'NAVIGATE_TO',
-              url: urlToOpen
-            });
+  if (event.action === 'open') {
+    const urlToOpen = event.notification.data?.url || '/dashboard.html';
+    
+    event.waitUntil(
+      clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      }).then(clientList => {
+        // If app is already open, focus it
+        for (const client of clientList) {
+          if (client.url.includes(urlToOpen) && 'focus' in client) {
             return client.focus();
           }
         }
-      }
-      
-      // Otherwise open new window/tab
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
+        
+        // Otherwise open new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  }
 });
 
-// Handle notification close
-self.addEventListener('notificationclose', event => {
-  console.log('🔕 Tank Tools SW: Notification closed', event.notification.tag);
-  
-  // Track notification dismissal for analytics
-  event.waitUntil(
-    clients.matchAll().then(clientList => {
-      clientList.forEach(client => {
-        client.postMessage({
-          type: 'NOTIFICATION_CLOSED',
-          tag: event.notification.tag,
-          timestamp: Date.now()
-        });
-      });
-    })
-  );
-});
-
-// Handle messages from main thread - Enhanced
+// Handle messages from main thread
 self.addEventListener('message', event => {
   console.log('💬 Tank Tools SW: Message received:', event.data);
   
@@ -581,157 +423,20 @@ self.addEventListener('message', event => {
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({
       version: CACHE_VERSION,
-      cacheName: CACHE_NAME,
-      features: ['push-notifications', 'offline-support', 'admin-alerts']
+      cacheName: CACHE_NAME
     });
-  }
-  
-  // Handle admin notification requests
-  if (event.data && event.data.type === 'SEND_ADMIN_NOTIFICATION') {
-    const { title, body, data } = event.data;
-    
-    const notificationOptions = {
-      body,
-      icon: '/icon.png',
-      badge: '/icon.png',
-      tag: 'tanktools-admin-alert',
-      requireInteraction: true,
-      data: data || {}
-    };
-    
-    event.waitUntil(
-      self.registration.showNotification(title, notificationOptions)
-    );
-  }
-  
-  // Handle registration notification (from login page) - Enhanced Alarm Style
-  if (event.data && event.data.type === 'NEW_USER_REGISTERED') {
-    const { username, fullName, urgent } = event.data;
-    
-    console.log('🚨 Service Worker: Received new user registration notification');
-    
-    const notificationOptions = {
-      body: urgent ? 
-        `🚨 ${fullName || username} is waiting for approval - ACTION REQUIRED!` :
-        `${fullName || username} needs admin approval`,
-      icon: '/icon.png',
-      badge: '/icon.png',
-      tag: 'urgent-new-user-registration',
-      requireInteraction: true,
-      persistent: true,
-      renotify: true,
-      silent: false,
-      timestamp: Date.now(),
-      actions: [
-        {
-          action: 'review_now',
-          title: '🔍 Review Immediately',
-          icon: '/icon.png'
-        },
-        {
-          action: 'open_dashboard',
-          title: '🔐 Open Dashboard',
-          icon: '/icon.png'
-        },
-        {
-          action: 'remind_later',
-          title: '⏰ Remind in 5 min',
-          icon: '/icon.png'
-        }
-      ],
-      data: {
-        action: 'pending',
-        username,
-        fullName,
-        url: '/dashboard.html#pending',
-        urgent: true,
-        timestamp: Date.now()
-      },
-      vibrate: [1000, 300, 1000, 300, 1000, 300, 1000] // Long urgent vibration
-    };
-    
-    // Show immediate notification
-    event.waitUntil(
-      self.registration.showNotification('🚨 URGENT: New User Registration', notificationOptions)
-        .then(() => {
-          console.log('✅ Urgent notification sent for new user registration');
-          
-          // If urgent, set up reminder system
-          if(urgent) {
-            setupUrgentReminder(username, fullName);
-          }
-        })
-    );
   }
 });
 
-// Enhanced error handling for Tank Tools
+// Error handling
 self.addEventListener('error', event => {
   console.error('❌ Tank Tools SW: Error occurred:', event.error);
-  
-  // Send error to main thread for logging
-  clients.matchAll().then(clientList => {
-    clientList.forEach(client => {
-      client.postMessage({
-        type: 'SW_ERROR',
-        error: event.error.message,
-        timestamp: Date.now()
-      });
-    });
-  });
 });
 
 self.addEventListener('unhandledrejection', event => {
   console.error('❌ Tank Tools SW: Unhandled promise rejection:', event.reason);
-  
-  // Send error to main thread for logging
-  clients.matchAll().then(clientList => {
-    clientList.forEach(client => {
-      client.postMessage({
-        type: 'SW_PROMISE_REJECTION',
-        reason: event.reason,
-        timestamp: Date.now()
-      });
-    });
-  });
 });
 
-// Periodic background sync for Tank Tools admin notifications
-self.addEventListener('periodicsync', event => {
-  if (event.tag === 'tanktools-admin-check') {
-    event.waitUntil(checkForAdminUpdates());
-  }
-});
-
-// Check for admin updates (placeholder)
-async function checkForAdminUpdates() {
-  console.log('🔍 Tank Tools SW: Checking for admin updates...');
-  
-  try {
-    // This would check Firebase for pending users, new activities, etc.
-    // Implementation depends on your backend API
-    
-    // Example: Check for pending users
-    const response = await fetch('/api/admin/pending-count');
-    if (response.ok) {
-      const data = await response.json();
-      
-      if (data.pendingCount > 0) {
-        await self.registration.showNotification('🔔 Tank Tools Admin Alert', {
-          body: `${data.pendingCount} users awaiting approval`,
-          icon: '/icon.png',
-          badge: '/icon.png',
-          tag: 'periodic-admin-check',
-          data: { action: 'pending' }
-        });
-      }
-    }
-  } catch (error) {
-    console.log('🔍 Admin check failed (normal if offline):', error.message);
-  }
-}
-
-console.log('🚀 Tank Tools Service Worker v4.0.0 loaded successfully');
+console.log('🚀 Tank Tools Service Worker v3.0.0 loaded successfully');
 console.log('🔒 Developed by Fahad - 17877');
-console.log('🔔 Enhanced with Push Notifications for Admin');
 console.log('🏢 Kuwait National Petroleum Company');

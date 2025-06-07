@@ -354,99 +354,6 @@
 
     const WHATSAPP_ADMIN = "96555222550";
 
-    // Admin Notification System - Enhanced with Service Worker
-    async function notifyAdmin(username,fullName){
-      try{
-        console.log('🔔 Sending admin notification for:', username);
-        
-        // 1. Register Service Worker if not registered
-        if('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.register('/sw.js');
-          console.log('✅ Service Worker registered for notifications');
-          
-          // Wait for service worker to be ready
-          await navigator.serviceWorker.ready;
-          
-          // 2. Send message to Service Worker for Push Notification
-          if(registration.active) {
-            registration.active.postMessage({
-              type: 'NEW_USER_REGISTERED',
-              username,
-              fullName,
-              timestamp: new Date().toISOString(),
-              urgent: true
-            });
-            console.log('✅ Message sent to Service Worker');
-          }
-        }
-        
-        // 3. Try to find dashboard windows (existing code)
-        const dashboardWindows=[];
-        if(window.opener&&window.opener.location.href.includes('dashboard.html')){
-          dashboardWindows.push(window.opener);
-        }
-        
-        // Send message to dashboard windows
-        dashboardWindows.forEach(dashWin=>{
-          dashWin.postMessage({
-            type:'NEW_USER_REGISTERED',
-            username,
-            fullName,
-            timestamp:new Date().toISOString()
-          },'*');
-        });
-        
-        // 4. Also try localStorage for cross-tab communication
-        const adminNotificationData={
-          type:'NEW_USER_REGISTERED',
-          username,
-          fullName,
-          timestamp:new Date().toISOString(),
-          id:Date.now()
-        };
-        localStorage.setItem('admin_notification',JSON.stringify(adminNotificationData));
-        
-        // 5. Direct Browser Notification (if permissions granted)
-        if('Notification'in window && Notification.permission==='granted'){
-          const notification = new Notification('🚨 URGENT: New User Registration',{
-            body:`${fullName||username} is waiting for approval - Action Required!`,
-            icon:'/icon.png',
-            tag:'new-user-registration',
-            requireInteraction: true,
-            persistent: true,
-            renotify: true,
-            vibrate: [500, 200, 500, 200, 500],
-            data: {
-              username,
-              fullName,
-              action: 'pending',
-              url: '/dashboard.html#pending'
-            }
-          });
-          
-          notification.onclick = () => {
-            window.open('/dashboard.html#pending', '_blank');
-            notification.close();
-          };
-          
-          console.log('✅ Direct browser notification sent');
-        }
-        
-        // 6. Request notification permission if not granted
-        if('Notification'in window && Notification.permission==='default'){
-          const permission = await Notification.requestPermission();
-          if(permission === 'granted') {
-            // Retry notification after permission granted
-            notifyAdmin(username, fullName);
-          }
-        }
-        
-        console.log('✅ All admin notification methods attempted');
-      }catch(error){
-        console.log('ℹ️ Admin notification failed (normal if admin not online):',error.message);
-      }
-    }
-
     // Enhanced login function with Firebase
     async function handleLogin(event) {
       event.preventDefault();
@@ -519,27 +426,21 @@
         
         // Check if user is active (approved by admin)
         if (!userData.isActive) {
-          showMessage('⏳ Account pending admin approval. Please wait for activation.', 'warning');
+          showMessage('⏳ Your account is pending admin approval. Please wait for activation.', 'warning');
           
-          // Show contact admin button immediately for pending users
+          // Show contact admin button for pending users
           setTimeout(() => {
             const messageContainer = document.getElementById('messageContainer');
             messageContainer.innerHTML += `
               <div class="message info show" style="margin-top: 10px;">
-                <div style="margin-bottom: 15px; font-weight: bold;">🔒 Your account is not activated yet</div>
-                <div style="margin-bottom: 15px;">Contact admin for faster activation:</div>
-                <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${userData.fullName || username}')" style="width: 100%; margin-top: 0; font-size: 16px; padding: 12px;">
-                  📱 Contact Admin via WhatsApp
+                <div style="margin-bottom: 10px;">📞 Need help? Contact admin:</div>
+                <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${userData.fullName || username}')" style="width: 100%; margin-top: 0;">
+                  📱 Contact Admin for Activation
                 </button>
-                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
-                  Admin will activate your account within 24 hours
-                </div>
               </div>
             `;
-          }, 500);
+          }, 1000);
           
-          // Stop login process - user cannot enter
-          showLoading('login', false);
           return;
         }
         
@@ -654,29 +555,22 @@
         // Add registration activity
         await addActivity('user_registered', username);
         
-        // Send notification to admin
-        notifyAdmin(username,fullName);
-        
         console.log('✅ User registered successfully in Firebase');
         
-        showMessage('✅ Registration successful! Account pending admin approval.', 'success');
+        showMessage('✅ Registration successful! Your account is pending admin approval. You will be able to login once approved.', 'success');
         
-        // Show contact admin button immediately after successful registration
+        // Show contact admin button after successful registration
         setTimeout(() => {
           const messageContainer = document.getElementById('messageContainer');
           messageContainer.innerHTML += `
             <div class="message info show" style="margin-top: 10px;">
-              <div style="margin-bottom: 15px; font-weight: bold;">⏳ Waiting for Admin Approval</div>
-              <div style="margin-bottom: 15px;">Your account will be activated within 24 hours.<br>For faster activation, contact admin directly:</div>
-              <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${fullName}')" style="width: 100%; margin-top: 0; font-size: 16px; padding: 12px;">
-                📱 Contact Admin via WhatsApp
+              <div style="margin-bottom: 10px;">📞 Need faster approval? Contact admin directly:</div>
+              <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${fullName}')" style="width: 100%; margin-top: 0;">
+                📱 Contact Admin for Activation
               </button>
-              <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
-                You will receive confirmation once activated
-              </div>
             </div>
           `;
-        }, 800);
+        }, 1000);
         
         // Clear form manually
         document.getElementById('fullName').value = '';
@@ -762,17 +656,17 @@
       const currentDate = new Date().toLocaleDateString();
       const message = `Hello Fahad,
 
-I need account activation for Tank Tools system.
+I am requesting account activation for Tank Tools system.
 
 User Details:
-👤 Name: ${fullName}
-🆔 Username: ${username}@knpc.com
-📅 Date: ${currentDate}
-⏳ Status: Pending Activation
+- Name: ${fullName}
+- Username: ${username}@knpc.com
+- Registration Date: ${currentDate}
+- Status: Pending Approval
 
-Please activate my account to access PBCR & WASHERY calculators.
+Please activate my account so I can access the PBCR & WASHERY system.
 
-Thank you!`;
+Thank you.`;
 
       const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
       
@@ -942,26 +836,15 @@ Thank you!`;
     window.addEventListener('load', () => {
       loadSavedCredentials();
       
-      // Register Service Worker early for notifications
-      if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-          .then(registration => {
-            console.log('✅ Login page: Service Worker registered for notifications');
-          })
-          .catch(error => {
-            console.log('❌ Service Worker registration failed:', error);
-          });
-      }
-      
       // Wait for Firebase to initialize before checking session
       setTimeout(() => {
         checkExistingSession();
       }, 1000);
     });
 
-    console.log('%c🔥 TANK TOOLS - FIREBASE REGISTRATION WITH ADMIN NOTIFICATIONS', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 TANK TOOLS - FIREBASE REGISTRATION SYSTEM', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cUsers require admin approval + Push Notifications', 'color:blue;font-size:14px');
+    console.log('%cUsers require admin approval after registration', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>
