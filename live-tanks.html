@@ -569,10 +569,9 @@
             <tr>
               <th>Tank</th>
               <th>Product</th>
-              <th>Finish Date</th>
-              <th>Finish Time</th>
+              <th>Date</th>
+              <th>Time</th>
               <th>Added By</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -587,14 +586,17 @@
         
         const permissions = rolePermissions[currentUser.role] || {};
         
+        // Format date to DD-MM
+        const dateObj = new Date(tank.finishDate);
+        const formattedDate = String(dateObj.getDate()).padStart(2, '0') + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
+        
         html += `
           <tr class="${rowClass}">
             <td class="tank-number">${tank.tankNumber}</td>
             <td><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></td>
-            <td>${tank.finishDate}</td>
+            <td>${formattedDate}</td>
             <td>${tank.finishTime}</td>
-            <td>${tank.userName}</td>
-            <td><span class="status-badge badge-${tank.status}">●</span></td>
+            <td>${tank.addedBy}</td>
             <td>
               <div class="action-buttons">
                 ${permissions.canEdit ? `
