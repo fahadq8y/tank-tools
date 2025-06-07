@@ -1157,8 +1157,14 @@
         stopAllSounds();
       });
       
-      // Load notification settings on page load
-      setTimeout(loadNotificationSettings, 500);
+      // Setup event handlers and load settings
+      setupSettingsHandlers();
+      
+      // Enable audio interaction
+      enableAudioOnInteraction();
+      
+      // Load notification settings immediately
+      loadNotificationSettings();
     });
 
     // Make functions globally available
