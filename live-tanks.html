@@ -172,6 +172,14 @@
       <!-- Message Container -->
       <div id="messageContainer"></div>
 
+      <!-- Debug Panel (only for admin) -->
+      <div id="debugPanel" style="display:none;background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.5);border-radius:10px;padding:15px;margin-bottom:20px;text-align:center">
+        <h4 style="color:#ffc107;margin-bottom:10px">🔧 Debug Panel</h4>
+        <button onclick="testFirebase()" style="background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Test Firebase</button>
+        <button onclick="addTestTank()" style="background:#2196F3;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Add Test Tank</button>
+        <button onclick="clearAllTanks()" style="background:#f44336;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Clear All</button>
+      </div>
+
       <!-- PBCR Department -->
       <div class="section">
         <div class="section-title">
@@ -329,7 +337,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, getDocs, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
@@ -355,7 +363,8 @@
     window.query = query;
     window.orderBy = orderBy;
     window.onSnapshot = onSnapshot;
-    window.where = where;
+    window.getDocs = getDocs;
+    window.limit = limit;
 
     console.log('🔥 Firebase initialized for Live Tanks!');
   </script>
@@ -490,6 +499,7 @@
       
       if (currentUser.username === 'fam030' || currentUser.role === 'admin') {
         document.getElementById('adminLink').style.display = 'inline-block';
+        document.getElementById('debugPanel').style.display = 'block';
       }
     }
 
@@ -510,23 +520,84 @@
 
     async function loadLiveTanks() {
       try {
+        console.log('🔥 Starting to load Live Tanks...');
+        
+        // Test Firebase connection first
+        await testFirebaseConnection();
+        
         // Set up real-time listener
         const q = query(collection(db, 'liveTanks'), orderBy('finishDateTime', 'asc'));
         
+        console.log('📡 Setting up real-time listener...');
+        
         unsubscribe = onSnapshot(q, (snapshot) => {
+          console.log('📥 Received snapshot, size:', snapshot.size);
+          
           const tanks = [];
           snapshot.forEach((doc) => {
-            tanks.push({ id: doc.id, ...doc.data() });
+            const tankData = { id: doc.id, ...doc.data() };
+            console.log('🏷️ Tank loaded:', tankData.tankNumber, tankData.department);
+            tanks.push(tankData);
           });
           
+          console.log('✅ Total tanks loaded:', tanks.length);
           displayTanksByDepartment(tanks);
           showRefreshIndicator();
+        }, (error) => {
+          console.error('❌ Real-time listener error:', error);
+          showMessage('❌ Error loading tanks: ' + error.message, 'error');
+          showEmptyState();
         });
         
       } catch (error) {
-        console.error('Error loading live tanks:', error);
-        showMessage('❌ Error loading tanks: ' + error.message, 'error');
+        console.error('❌ Error setting up Live Tanks:', error);
+        showMessage('❌ Error connecting to database: ' + error.message, 'error');
+        showEmptyState();
       }
+    }
+
+    // Test Firebase connection
+    async function testFirebaseConnection() {
+      try {
+        console.log('🧪 Testing Firebase connection...');
+        
+        // Try to read from a simple collection
+        const testRef = collection(db, 'liveTanks');
+        const testQuery = query(testRef, limit(1));
+        await getDocs(testQuery);
+        
+        console.log('✅ Firebase connection successful');
+        return true;
+      } catch (error) {
+        console.error('❌ Firebase connection failed:', error);
+        throw new Error('Cannot connect to Firebase: ' + error.message);
+      }
+    }
+
+    // Show empty state for all departments
+    function showEmptyState() {
+      const departments = ['PBCR', 'WASHERY', 'PLCR'];
+      
+      departments.forEach(dept => {
+        const containerId = dept.toLowerCase() + 'Container';
+        const countId = dept.toLowerCase() + 'Count';
+        
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🏭</div>
+              <div style="font-size:1.1rem;margin-bottom:10px;">No active tanks</div>
+              <div style="opacity:0.7;">Add a tank to start monitoring</div>
+            </div>
+          `;
+        }
+        
+        const countElement = document.getElementById(countId);
+        if (countElement) {
+          countElement.textContent = '(0 tanks)';
+        }
+      });
     }
 
     function displayTanksByDepartment(tanks) {
@@ -949,8 +1020,80 @@
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
-    // Make functions globally available
-    window.openAddModal = openAddModal;
+    // Debug functions
+    window.testFirebase = async () => {
+      try {
+        showMessage('🧪 Testing Firebase connection...', 'info');
+        
+        // Test read
+        const testQuery = query(collection(db, 'liveTanks'), limit(5));
+        const snapshot = await getDocs(testQuery);
+        
+        console.log('📊 Firebase test results:');
+        console.log('- Collection exists:', true);
+        console.log('- Documents found:', snapshot.size);
+        
+        snapshot.forEach((doc) => {
+          console.log('- Document:', doc.id, doc.data());
+        });
+        
+        showMessage(`✅ Firebase working! Found ${snapshot.size} documents`, 'success');
+        
+      } catch (error) {
+        console.error('❌ Firebase test failed:', error);
+        showMessage('❌ Firebase test failed: ' + error.message, 'error');
+      }
+    };
+
+    window.addTestTank = async () => {
+      try {
+        const now = new Date();
+        const finishTime = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 hours from now
+        
+        const testTank = {
+          department: 'PBCR',
+          tankNumber: '999',
+          product: 'LSFO',
+          addedBy: currentUser.username,
+          userName: currentUser.fullName || currentUser.username,
+          finishTime: finishTime.toTimeString().slice(0,5),
+          finishDate: finishTime.toISOString().split('T')[0],
+          finishDateTime: finishTime,
+          addedAt: serverTimestamp(),
+          status: 'active',
+          notes: 'Test tank for debugging'
+        };
+        
+        await addDoc(collection(db, 'liveTanks'), testTank);
+        showMessage('✅ Test tank added successfully!', 'success');
+        
+      } catch (error) {
+        console.error('❌ Error adding test tank:', error);
+        showMessage('❌ Error adding test tank: ' + error.message, 'error');
+      }
+    };
+
+    window.clearAllTanks = async () => {
+      if (!confirm('Are you sure you want to delete ALL tanks?\n\nThis cannot be undone!')) {
+        return;
+      }
+      
+      try {
+        const snapshot = await getDocs(collection(db, 'liveTanks'));
+        const deletePromises = [];
+        
+        snapshot.forEach((doc) => {
+          deletePromises.push(deleteDoc(doc.ref));
+        });
+        
+        await Promise.all(deletePromises);
+        showMessage(`✅ Deleted ${deletePromises.length} tanks`, 'success');
+        
+      } catch (error) {
+        console.error('❌ Error clearing tanks:', error);
+        showMessage('❌ Error clearing tanks: ' + error.message, 'error');
+      }
+    };
     window.openAddModalWithData = openAddModalWithData;
     window.closeAddModal = closeAddModal;
     window.updateProductOptions = updateProductOptions;
