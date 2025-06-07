@@ -116,6 +116,9 @@
 
     <div class="notification-banner" id="notificationBanner">
       <span id="notificationText">🔔 Notifications enabled for new user registrations</span>
+      <button onclick="showPendingUsers()" style="background:rgba(255,193,7,0.3);border:1px solid rgba(255,193,7,0.8);color:#ffc107;padding:8px 15px;border-radius:5px;margin-left:15px;cursor:pointer;font-weight:bold;">
+        Review Now
+      </button>
     </div>
 
     <div id="messageContainer"></div>
@@ -294,33 +297,222 @@
     let allUsers = [];
     let allActivities = [];
 
-    // Push Notifications Setup
+    // Push Notifications Setup - Enhanced Alarm Style
     async function setupNotifications(){
       if(!('Notification'in window)||!('serviceWorker'in navigator))return;
-      const permission=await Notification.requestPermission();
-      if(permission==='granted'){
-        document.getElementById('notificationBanner').classList.add('show');
-        localStorage.setItem('admin_notifications','enabled');
+      
+      try {
+        // Register service worker first
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        console.log('✅ Service Worker registered for push notifications');
+        
+        // Request notification permission with enhanced options
+        const permission = await Notification.requestPermission();
+        
+        if(permission==='granted'){
+          document.getElementById('notificationBanner').classList.add('show');
+          localStorage.setItem('admin_notifications','enabled');
+          
+          // Test alarm-style notification
+          showAlarmNotification('🔔 Tank Tools Admin Alerts', 'Alarm-style notifications enabled for new registrations');
+          
+          console.log('✅ Persistent notifications enabled');
+        } else {
+          console.log('❌ Notification permission denied');
+        }
+      } catch(error) {
+        console.error('❌ Error setting up notifications:', error);
+      }
+    }
+
+    // Enhanced Alarm-Style Notification
+    function showAlarmNotification(title, body, data = {}) {
+      if(Notification.permission !== 'granted') return;
+      
+      // Close any existing notifications first
+      navigator.serviceWorker.ready.then(registration => {
+        registration.getNotifications().then(notifications => {
+          notifications.forEach(notification => notification.close());
+        });
+      });
+      
+      const notification = new Notification(title, {
+        body,
+        icon: '/icon.png',
+        badge: '/icon.png',
+        tag: 'admin-alarm-notification',
+        requireInteraction: true,  // Must interact to dismiss
+        persistent: true,          // Stays until dismissed
+        renotify: true,           // Can renotify with same tag
+        silent: false,            // Play sound
+        timestamp: Date.now(),
+        vibrate: [500, 200, 500, 200, 500, 200, 500], // Long vibration pattern
+        actions: [
+          {
+            action: 'review_now',
+            title: '🔍 Review Now',
+            icon: '/icon.png'
+          },
+          {
+            action: 'snooze',
+            title: '⏰ Remind Later',
+            icon: '/icon.png'
+          },
+          {
+            action: 'dismiss',
+            title: '❌ Dismiss',
+            icon: '/icon.png'
+          }
+        ],
+        data: {
+          ...data,
+          timestamp: Date.now(),
+          alarmStyle: true,
+          priority: 'high'
+        }
+      });
+      
+      // Handle notification click
+      notification.onclick = () => {
+        window.focus();
+        if(data.action === 'pending') showPendingUsers();
+        notification.close();
+        stopAlarmSound(); // Stop any alarm sounds
+      };
+      
+      // Start alarm sound loop
+      startAlarmSound();
+      
+      // Auto-renotify every 10 seconds if not dismissed (alarm style)
+      const renotifyInterval = setInterval(() => {
+        if(document.hidden && Notification.permission === 'granted') {
+          // Create new notification if page is hidden
+          const alarmNotification = new Notification(title + ' (Reminder)', {
+            body: body + ' - Please check immediately!',
+            icon: '/icon.png',
+            tag: 'admin-alarm-repeat',
+            requireInteraction: true,
+            renotify: true,
+            vibrate: [1000, 300, 1000, 300, 1000],
+            data: data
+          });
+          
+          alarmNotification.onclick = () => {
+            window.focus();
+            if(data.action === 'pending') showPendingUsers();
+            alarmNotification.close();
+            clearInterval(renotifyInterval);
+            stopAlarmSound();
+          };
+        } else {
+          // Stop renotifying if page is visible
+          clearInterval(renotifyInterval);
+          stopAlarmSound();
+        }
+      }, 10000); // Repeat every 10 seconds
+      
+      // Clear interval when notification is closed
+      notification.onclose = () => {
+        clearInterval(renotifyInterval);
+        stopAlarmSound();
+      };
+      
+      // Store interval reference to clear later
+      window.currentAlarmInterval = renotifyInterval;
+    }
+
+    // Alarm Sound System
+    let alarmAudio = null;
+    let alarmInterval = null;
+
+    function startAlarmSound() {
+      stopAlarmSound(); // Stop any existing alarm
+      
+      try {
+        // Create audio element for alarm sound
+        alarmAudio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEeCarS6+iZRQoMVa3s6aJPFAxPo+OhpmIgGGw');
+        alarmAudio.loop = true;
+        alarmAudio.volume = 0.7;
+        
+        // Try to play (might be blocked by browser policy)
+        const playPromise = alarmAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            console.log('Audio autoplay blocked - user interaction required');
+          });
+        }
+        
+        // Backup: Use Web Audio API for more persistent sound
+        createWebAudioAlarm();
+        
+      } catch(error) {
+        console.log('Audio creation failed, using backup method');
+        createWebAudioAlarm();
+      }
+    }
+
+    function stopAlarmSound() {
+      if(alarmAudio) {
+        alarmAudio.pause();
+        alarmAudio = null;
+      }
+      if(alarmInterval) {
+        clearInterval(alarmInterval);
+        alarmInterval = null;
+      }
+      if(window.currentAlarmInterval) {
+        clearInterval(window.currentAlarmInterval);
+        window.currentAlarmInterval = null;
+      }
+    }
+
+    function createWebAudioAlarm() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBeep() {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = 800; // High pitch like alarm
+          oscillator.type = 'square';
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        // Play beep every 1 second
+        alarmInterval = setInterval(playBeep, 1000);
+        playBeep(); // Play immediately
+        
+      } catch(error) {
+        console.log('Web Audio API not supported');
       }
     }
 
     function showAdminNotification(title,body,data={}){
       if(Notification.permission!=='granted')return;
-      const notification=new Notification(title,{
-        body,icon:'/icon.png',badge:'/icon.png',tag:'admin-notification',
-        requireInteraction:true,data
-      });
-      notification.onclick=()=>{
-        window.focus();
-        if(data.action==='pending')showPendingUsers();
-        notification.close();
-      };
+      
+      // Use alarm-style notification for admin alerts
+      showAlarmNotification(title, body, data);
     }
 
     window.addEventListener('message',event=>{
       if(event.data&&event.data.type==='NEW_USER_REGISTERED'){
         const{username,fullName}=event.data;
-        showAdminNotification('🔔 New User Registration',`${fullName||username} needs approval`,{action:'pending'});
+        
+        // Show persistent alarm-style notification
+        showAlarmNotification(
+          '🚨 URGENT: New User Registration', 
+          `${fullName||username} is waiting for approval - Action Required!`,
+          {action:'pending', username, fullName, urgent: true}
+        );
         
         // Reload dashboard data to show new user immediately
         setTimeout(() => {
@@ -870,11 +1062,27 @@
       document.getElementById('statusFilter').addEventListener('change', filterUsers);
       document.getElementById('roleFilter').addEventListener('change', filterUsers);
       
-      // Setup notifications first
+      // Setup notifications first (with service worker)
       setupNotifications();
+      
+      // Auto-refresh every 30 seconds to catch new users
+      setInterval(loadDashboardData, 30000);
       
       // Load data after Firebase initialization
       setTimeout(loadDashboardData, 1000);
+      
+      // Handle page visibility changes for alarm notifications
+      document.addEventListener('visibilitychange', () => {
+        if(!document.hidden) {
+          // Stop alarm sounds when page becomes visible
+          stopAlarmSound();
+        }
+      });
+      
+      // Handle window focus for alarm notifications
+      window.addEventListener('focus', () => {
+        stopAlarmSound();
+      });
     });
 
     // Make functions globally available
