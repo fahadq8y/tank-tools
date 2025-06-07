@@ -470,21 +470,27 @@
         
         // Check if user is active (approved by admin)
         if (!userData.isActive) {
-          showMessage('⏳ Your account is pending admin approval. Please wait for activation.', 'warning');
+          showMessage('⏳ Account pending admin approval. Please wait for activation.', 'warning');
           
-          // Show contact admin button for pending users
+          // Show contact admin button immediately for pending users
           setTimeout(() => {
             const messageContainer = document.getElementById('messageContainer');
             messageContainer.innerHTML += `
               <div class="message info show" style="margin-top: 10px;">
-                <div style="margin-bottom: 10px;">📞 Need help? Contact admin:</div>
-                <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${userData.fullName || username}')" style="width: 100%; margin-top: 0;">
-                  📱 Contact Admin for Activation
+                <div style="margin-bottom: 15px; font-weight: bold;">🔒 Your account is not activated yet</div>
+                <div style="margin-bottom: 15px;">Contact admin for faster activation:</div>
+                <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${userData.fullName || username}')" style="width: 100%; margin-top: 0; font-size: 16px; padding: 12px;">
+                  📱 Contact Admin via WhatsApp
                 </button>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                  Admin will activate your account within 24 hours
+                </div>
               </div>
             `;
-          }, 1000);
+          }, 500);
           
+          // Stop login process - user cannot enter
+          showLoading('login', false);
           return;
         }
         
@@ -604,20 +610,24 @@
         
         console.log('✅ User registered successfully in Firebase');
         
-        showMessage('✅ Registration successful! Your account is pending admin approval. You will be able to login once approved.', 'success');
+        showMessage('✅ Registration successful! Account pending admin approval.', 'success');
         
-        // Show contact admin button after successful registration
+        // Show contact admin button immediately after successful registration
         setTimeout(() => {
           const messageContainer = document.getElementById('messageContainer');
           messageContainer.innerHTML += `
             <div class="message info show" style="margin-top: 10px;">
-              <div style="margin-bottom: 10px;">📞 Need faster approval? Contact admin directly:</div>
-              <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${fullName}')" style="width: 100%; margin-top: 0;">
-                📱 Contact Admin for Activation
+              <div style="margin-bottom: 15px; font-weight: bold;">⏳ Waiting for Admin Approval</div>
+              <div style="margin-bottom: 15px;">Your account will be activated within 24 hours.<br>For faster activation, contact admin directly:</div>
+              <button class="btn btn-secondary" onclick="contactAdminForActivation('${username}', '${fullName}')" style="width: 100%; margin-top: 0; font-size: 16px; padding: 12px;">
+                📱 Contact Admin via WhatsApp
               </button>
+              <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                You will receive confirmation once activated
+              </div>
             </div>
           `;
-        }, 1000);
+        }, 800);
         
         // Clear form manually
         document.getElementById('fullName').value = '';
@@ -703,17 +713,17 @@
       const currentDate = new Date().toLocaleDateString();
       const message = `Hello Fahad,
 
-I am requesting account activation for Tank Tools system.
+I need account activation for Tank Tools system.
 
 User Details:
-- Name: ${fullName}
-- Username: ${username}@knpc.com
-- Registration Date: ${currentDate}
-- Status: Pending Approval
+👤 Name: ${fullName}
+🆔 Username: ${username}@knpc.com
+📅 Date: ${currentDate}
+⏳ Status: Pending Activation
 
-Please activate my account so I can access the PBCR & WASHERY system.
+Please activate my account to access PBCR & WASHERY calculators.
 
-Thank you.`;
+Thank you!`;
 
       const whatsappURL = `https://wa.me/${WHATSAPP_ADMIN}?text=${encodeURIComponent(message)}`;
       

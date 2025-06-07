@@ -321,7 +321,11 @@
       if(event.data&&event.data.type==='NEW_USER_REGISTERED'){
         const{username,fullName}=event.data;
         showAdminNotification('🔔 New User Registration',`${fullName||username} needs approval`,{action:'pending'});
-        loadDashboardData();
+        
+        // Reload dashboard data to show new user immediately
+        setTimeout(() => {
+          loadDashboardData();
+        }, 1000);
       }
     });
 
@@ -366,7 +370,7 @@
       showMessage('🔄 Loading dashboard data from Firebase...', 'info');
       
       try {
-        // Load users
+        // Load users with real-time listener
         const usersSnapshot = await getDocs(collection(db, 'users'));
         allUsers = [];
         
@@ -375,7 +379,10 @@
           allUsers.push(userData);
         });
 
-        // Load activities
+        console.log('📊 Loaded users from Firebase:', allUsers.length);
+        console.log('📊 User details:', allUsers);
+
+        // Load activities with real-time listener  
         const activitiesSnapshot = await getDocs(
           query(collection(db, 'activities'), orderBy('timestamp', 'desc'), limit(50))
         );
@@ -386,6 +393,8 @@
           allActivities.push(activityData);
         });
 
+        console.log('📊 Loaded activities from Firebase:', allActivities.length);
+
         // Update statistics
         updateStatistics();
         
@@ -395,13 +404,20 @@
         // Display activities
         displayActivities(allActivities);
         
+        // Check for pending users and show notification banner
+        const pendingCount = allUsers.filter(u => !u.isActive).length;
+        if (pendingCount > 0) {
+          document.getElementById('notificationText').textContent = `🔔 ${pendingCount} users waiting for approval - Click "Pending" to review`;
+          document.getElementById('notificationBanner').classList.add('show');
+        }
+        
         showMessage('✅ Dashboard data loaded successfully!', 'success');
         
         // Add activity log
         await addActivity('admin_dashboard_loaded', currentUser.username);
         
       } catch (error) {
-        console.error('Error loading dashboard:', error);
+        console.error('❌ Error loading dashboard:', error);
         showMessage('❌ Error loading data: ' + error.message, 'error');
       }
     }
