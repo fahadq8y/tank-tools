@@ -85,6 +85,16 @@
     .pending-name{font-size:1.1rem;font-weight:bold;color:#f57c00}
     .pending-details{margin-bottom:15px;line-height:1.6}
     .pending-actions{display:flex;gap:10px}
+    .toggle-switch{position:relative;display:inline-block;width:50px;height:25px}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;transition:.4s;border-radius:25px}
+    .toggle-slider:before{position:absolute;content:"";height:19px;width:19px;left:3px;bottom:3px;background:white;transition:.4s;border-radius:50%}
+    input:checked+.toggle-slider{background:#4CAF50}
+    input:checked+.toggle-slider:before{transform:translateX(25px)}
+    .volume-slider{-webkit-appearance:none;appearance:none;height:6px;border-radius:5px;background:#ddd;outline:none;opacity:0.7;transition:opacity .2s}
+    .volume-slider:hover{opacity:1}
+    .volume-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#4CAF50;cursor:pointer}
+    .volume-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#4CAF50;cursor:pointer}
     @media(max-width:768px){.header{flex-direction:column;gap:15px}.controls{flex-direction:column}.stats-grid{grid-template-columns:repeat(2,1fr)}.users-table{font-size:12px}.users-table th,.users-table td{padding:8px 6px}.action-buttons{flex-direction:column}.nav-links{flex-direction:column;width:100%}}
   </style>
 </head>
@@ -112,6 +122,66 @@
       <h2>🎛️ Master User Management System</h2>
       <p>Real-time Firebase database with advanced user controls</p>
       <p id="currentTime" style="margin-top:10px;opacity:0.8"></p>
+    </div>
+
+    <!-- Notification Settings Panel -->
+    <div class="section">
+      <div class="section-title">🔊 Notification Settings</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;align-items:end;">
+        
+        <div class="form-group">
+          <label class="form-label">🎵 Alert Sound:</label>
+          <select class="form-input" id="notificationSound">
+            <option value="alarm1">🚨 Alarm 1 (Emergency)</option>
+            <option value="alarm2">⏰ Alarm 2 (Classic)</option>
+            <option value="beep">📢 Beep (Continuous)</option>
+            <option value="bell">🔔 Bell (Ring)</option>
+            <option value="siren">🚓 Siren (Police)</option>
+            <option value="phone">📱 Phone Ring</option>
+            <option value="custom">🎼 Custom Sound</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🔊 Volume: <span id="volumeDisplay">70%</span></label>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70" 
+                 style="width:100%;height:6px;border-radius:5px;background:#ddd;outline:none;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📳 Vibration:</label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <label class="toggle-switch">
+              <input type="checkbox" id="vibrationToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span id="vibrationStatus">ON</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-secondary" onclick="testSound()" style="margin-top:0;">
+            🎵 Test Sound
+          </button>
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-primary" onclick="saveNotificationSettings()" style="margin-top:0;">
+            💾 Save Settings
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Custom Sound Upload -->
+      <div id="customSoundSection" style="display:none;margin-top:20px;padding:15px;background:rgba(255,255,255,0.05);border-radius:10px;">
+        <label class="form-label">📁 Upload Custom Sound (MP3, WAV):</label>
+        <input type="file" id="customSoundFile" accept="audio/*" class="form-input" style="padding:8px;">
+        <small style="color:#ccc;font-size:12px;display:block;margin-top:5px;">
+          ⚠️ Keep file size under 2MB for best performance
+        </small>
+      </div>
+
     </div>
 
     <div class="notification-banner" id="notificationBanner">
@@ -297,26 +367,29 @@
     let allUsers = [];
     let allActivities = [];
 
-    // Push Notifications Setup - Enhanced Alarm Style
+    // Push Notifications Setup - Enhanced with Custom Settings
     async function setupNotifications(){
       if(!('Notification'in window)||!('serviceWorker'in navigator))return;
       
       try {
+        // Load saved notification settings
+        loadNotificationSettings();
+        
         // Register service worker first
         const registration = await navigator.serviceWorker.register('/sw.js');
         console.log('✅ Service Worker registered for push notifications');
         
-        // Request notification permission with enhanced options
+        // Request notification permission
         const permission = await Notification.requestPermission();
         
         if(permission==='granted'){
           document.getElementById('notificationBanner').classList.add('show');
           localStorage.setItem('admin_notifications','enabled');
           
-          // Test alarm-style notification
-          showAlarmNotification('🔔 Tank Tools Admin Alerts', 'Alarm-style notifications enabled for new registrations');
+          // Test notification with saved settings
+          showAlarmNotification('🔔 Tank Tools Admin Alerts', 'Custom notification system enabled with your settings');
           
-          console.log('✅ Persistent notifications enabled');
+          console.log('✅ Custom notifications enabled');
         } else {
           console.log('❌ Notification permission denied');
         }
@@ -1075,14 +1148,17 @@
       document.addEventListener('visibilitychange', () => {
         if(!document.hidden) {
           // Stop alarm sounds when page becomes visible
-          stopAlarmSound();
+          stopAllSounds();
         }
       });
       
       // Handle window focus for alarm notifications
       window.addEventListener('focus', () => {
-        stopAlarmSound();
+        stopAllSounds();
       });
+      
+      // Load notification settings on page load
+      setTimeout(loadNotificationSettings, 500);
     });
 
     // Make functions globally available
