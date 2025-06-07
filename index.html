@@ -8,8 +8,7 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#003366">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;font-family:Arial,sans-serif;padding:20px;text-align:center;min-height:100vh}
+    *{margin:0;padding:0;box-sizing:border-box}body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;font-family:Arial,sans-serif;min-height:100vh;color:white}
     .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
     .nav-logo{font-size:24px;font-weight:bold;color:white}
     .nav-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -21,10 +20,10 @@
     .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
     .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
     .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
-    input,select{background:rgba(255,255,255,0.9);border-radius:12px;border:none;color:#003366;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:16px;margin:10px;padding:10px;width:250px}
+    input,select{background:rgba(255,255,255,0.9);border-radius:12px;border:none;color:#003366;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:16px;margin:10px;padding:10px;width:250px;text-align:center}
     .row{display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0;max-width:400px;margin-left:auto;margin-right:auto}
     .row input,.row select{margin:0;flex:1;width:50%}
-    .result{margin-top:10px;font-weight:bold;color:#00ffff}
+    .result{margin-top:10px;font-weight:bold;color:#00ffff;text-align:center}
     #tankTable{margin:auto;background:rgba(255,255,255,0.85);color:#003366;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;min-width:300px}
     #tankTable th{padding:10px;border-bottom:1px solid #003366}
     .reminder-btn,.add-btn{padding:12px 40px;font-size:16px;border-radius:12px;background:white;color:#003366;border:none;cursor:pointer;margin:5px}
@@ -113,6 +112,7 @@
         <a class="nav-link active" href="index.html">PBCR</a>
         <a class="nav-link" href="plcr.html">PLCR</a>
         <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+        <a class="nav-link" href="live-tanks.html" id="liveTanksLink" style="display:none">🔴 Live Tanks</a>
         <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
       </div>
       <div class="nav-user" id="navUser">
@@ -122,54 +122,56 @@
       </div>
     </div>
 
-    <h2>PBCR & WASHERY (Version 3.1 - Cloud Storage)</h2>
+    <h2 style="text-align:center">PBCR & WASHERY (Version 3.1 - Cloud Storage)</h2>
     
-    <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
-    <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
-    <div class="result" id="availablePumpable"></div>
-    <div class="result" id="currentUllage"></div>
-    
-    <div class="row">
-      <input id="target" oninput="calculate()" placeholder="Target Value" type="number"/>
-      <select id="mode" onchange="calculate()">
-        <option value="pumpable">Pumpable</option>
-        <option value="ullage">Ullage</option>
-        <option value="level">Level</option>
-      </select>
-    </div>
-    <div class="result" id="valueDiff"></div>
-    <div class="result" id="levelEstimate"></div>
-    
-    <div class="row">
-      <input id="flowrate" oninput="calculate()" placeholder="Flowrate" type="number"/>
-      <select id="flowUnit" onchange="calculate()">
-        <option value="bbl">bbl/hr</option>
-        <option value="m3">m³/hr</option>
-        <option value="mtr">meter/hr</option>
-      </select>
-    </div>
-    
-    <div class="result" id="output"></div>
-    
-    <div style="margin-top:20px;text-align:center">
-      <div style="display:inline-flex;align-items:center;gap:8px">
-        <a href="#" id="calendarLink" target="_blank">
-          <button class="reminder-btn">Add Reminder</button>
-        </a>
-        <button onclick="openCalendarInfo()" style="padding:6px 10px;font-size:12px;border-radius:6px;background:rgba(255,165,0,0.9);color:#fff;font-weight:bold;border:1px solid #ff8c00;cursor:pointer" title="Compatible with Google Calendar">❗</button>
+    <div style="text-align:center;padding:20px">
+      <input id="tankInput" oninput="loadTank()" placeholder="Enter Tank Number" type="number"/><br/>
+      <input id="level" oninput="calculate()" placeholder="Current Level (m)" type="number"/><br/>
+      <div class="result" id="availablePumpable"></div>
+      <div class="result" id="currentUllage"></div>
+      
+      <div class="row">
+        <input id="target" oninput="calculate()" placeholder="Target Value" type="number"/>
+        <select id="mode" onchange="calculate()">
+          <option value="pumpable">Pumpable</option>
+          <option value="ullage">Ullage</option>
+          <option value="level">Level</option>
+        </select>
       </div>
-    </div>
-    <div style="margin-top:10px;text-align:center">
-      <button onclick="addToTable()" class="add-btn">Add to Table</button>
-    </div>
+      <div class="result" id="valueDiff"></div>
+      <div class="result" id="levelEstimate"></div>
+      
+      <div class="row">
+        <input id="flowrate" oninput="calculate()" placeholder="Flowrate" type="number"/>
+        <select id="flowUnit" onchange="calculate()">
+          <option value="bbl">bbl/hr</option>
+          <option value="m3">m³/hr</option>
+          <option value="mtr">meter/hr</option>
+        </select>
+      </div>
+      
+      <div class="result" id="output"></div>
+      
+      <div style="margin-top:20px">
+        <div style="display:inline-flex;align-items:center;gap:8px">
+          <a href="#" id="calendarLink" target="_blank">
+            <button class="reminder-btn">Add Reminder</button>
+          </a>
+          <button onclick="openCalendarInfo()" style="padding:6px 10px;font-size:12px;border-radius:6px;background:rgba(255,165,0,0.9);color:#fff;font-weight:bold;border:1px solid #ff8c00;cursor:pointer" title="Compatible with Google Calendar">❗</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button onclick="addToTable()" class="add-btn">Add to Table</button>
+      </div>
 
-    <h3 style="margin-top:40px">Your tanks finishing in current shift:</h3>
-    <table id="tankTable">
-      <thead>
-        <tr><th>Tank Number</th><th>Finish Date</th><th>Finish Time</th><th>Delete</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+      <h3 style="margin-top:40px">Your tanks finishing in current shift:</h3>
+      <table id="tankTable">
+        <thead>
+          <tr><th>Tank Number</th><th>Finish Date</th><th>Finish Time</th><th>Delete</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
     
     <button id="darkModeButton" class="action-button" title="Dark Mode">🌙</button>
     
@@ -270,10 +272,12 @@
           return false
         }
       }
+      
       function showWarning(level){
         if(modalOpen)return;
         const modal=document.getElementById('securityModal'),icon=document.getElementById('securityIcon'),title=document.getElementById('securityTitle'),text=document.getElementById('securityText'),counter=document.getElementById('attemptCounter'),countSpan=document.getElementById('attemptCount');
         modalOpen=true;countSpan.textContent=attempts;
+        
         if(level==='first'){
           icon.textContent='👀';title.textContent='Security Notice';
           text.innerHTML='<p>We noticed you tried to access developer tools on PBCR system.</p><p><strong>If this was accidental:</strong> No problem! Click "I Understand" to continue.</p>';
@@ -290,12 +294,14 @@
         }
         modal.classList.add('show')
       }
+      
       function implementRestrictions(){
         document.body.style.filter='blur(3px)';
         const overlay=document.createElement('div');
         overlay.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10000;text-align:center;padding:20px"><div style="font-size:4rem;margin-bottom:20px">🛡️</div><h2 style="color:#FFD700;margin-bottom:15px">PBCR System Protected</h2><p style="margin-bottom:30px;max-width:500px;line-height:1.5">Enhanced security monitoring active for KNPC tank operations.</p><button onclick="window.location.reload()" style="padding:12px 24px;background:#FFD700;color:#003366;border:none;border-radius:8px;cursor:pointer;font-size:16px;font-weight:bold">🔄 Reset System</button></div>';
         document.body.appendChild(overlay)
       }
+      
       window.acknowledgeWarning=()=>{document.getElementById('securityModal').classList.remove('show');modalOpen=false;showMessage(attempts>=3?'⚠️ Enhanced monitoring active':'✅ Continue normally','success')};
       window.resetPage=()=>window.location.reload();
       window.learnMore=()=>{showMessage('🔒 This system protects critical KNPC tank data and operations. Contact Fahad - 17877 for support.','info');document.getElementById('securityModal').classList.remove('show');modalOpen=false};
@@ -400,7 +406,7 @@
       }
       
       loadUserInfo();
-      loadDataFromFirebase(); // Changed from localStorage
+      loadDataFromFirebase();
       setupDarkMode();
       
       console.log('✅ PBCR app initialized successfully');
@@ -416,6 +422,7 @@
       const userNameElement = document.getElementById('userName');
       const userAvatarElement = document.getElementById('userAvatar');
       const adminLinkElement = document.getElementById('adminLink');
+      const liveTanksLinkElement = document.getElementById('liveTanksLink');
       
       if(userNameElement) {
         userNameElement.textContent = currentUser.username;
@@ -430,6 +437,13 @@
       if(adminLinkElement && (currentUser.username==='fam030'||currentUser.role==='admin')) {
         adminLinkElement.style.display='inline-block';
         console.log('✅ Admin link displayed');
+      }
+      
+      // Show Live Tanks link for allowed roles
+      const allowedRoles = ["admin", "panel_operator", "supervisor", "section_head", "operator", "planning"];
+      if(liveTanksLinkElement && allowedRoles.includes(currentUser.role)) {
+        liveTanksLinkElement.style.display='inline-block';
+        console.log('✅ Live Tanks link displayed');
       }
     }
     
@@ -511,7 +525,7 @@
           output.style.color=isSameShift(now,finish)?"red":"lightgreen"
         }
       }
-      saveDataToFirebase() // Changed from localStorage
+      saveDataToFirebase()
     };
     
     window.addToTable=()=>{
@@ -763,7 +777,6 @@
     // Auto-save to Firebase
     document.addEventListener('input',e=>{
       if(e.target.matches('#tankInput,#level,#target,#flowrate')) {
-        // Debounce saves to avoid too many Firebase calls
         clearTimeout(window.saveTimeout);
         window.saveTimeout = setTimeout(saveDataToFirebase, 2000);
       }

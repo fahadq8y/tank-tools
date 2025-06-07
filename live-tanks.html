@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Tanks - KNPC Operations</title>
+  <link href="icon.png" rel="icon" type="image/png"/>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#003366">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;font-family:Arial,sans-serif;padding:20px;min-height:100vh}
+    .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
+    .nav-logo{font-size:24px;font-weight:bold;color:white}
+    .nav-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .nav-link{color:white;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all 0.3s ease;background:rgba(255,255,255,0.1);font-weight:500;border:1px solid rgba(255,255,255,0.2)}
+    .nav-link:hover{background:rgba(255,255,255,0.2);transform:translateY(-1px)}
+    .nav-link.active{background:rgba(255,255,255,0.3);font-weight:bold;border:1px solid rgba(255,255,255,0.4)}
+    .nav-admin{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;font-weight:bold;border-radius:8px;padding:8px 16px;text-decoration:none;transition:all 0.3s ease;border:1px solid #FFA500;font-size:inherit}
+    .nav-admin:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,215,0,0.3)}
+    .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
+    .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
+    .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
+    .page-header{text-align:center;margin-bottom:30px}
+    .page-title{font-size:2.5rem;margin-bottom:10px;background:linear-gradient(45deg,#ff4444,#ff6666);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .page-subtitle{font-size:1.2rem;opacity:0.8}
+    .container{max-width:1400px;margin:0 auto}
+    .department-section{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid rgba(255,255,255,0.2)}
+    .department-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid rgba(255,255,255,0.2)}
+    .department-title{font-size:1.4rem;font-weight:bold;display:flex;align-items:center;gap:10px}
+    .department-badge{padding:5px 15px;border-radius:20px;font-size:0.9rem;font-weight:bold}
+    .badge-pbcr{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}
+    .badge-washery{background:linear-gradient(45deg,#2196F3,#1976D2);color:white}
+    .badge-plcr{background:linear-gradient(45deg,#ff9800,#f57c00);color:white}
+    .add-tank-btn{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all 0.3s ease;display:flex;align-items:center;gap:8px}
+    .add-tank-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,215,0,0.3)}
+    .add-tank-btn:disabled{background:#666;color:#999;cursor:not-allowed;transform:none}
+    .tanks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px}
+    .tank-card{background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;color:#003366;box-shadow:0 5px 15px rgba(0,0,0,0.2);transition:all 0.3s ease;position:relative}
+    .tank-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3)}
+    .tank-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+    .tank-number{font-size:1.5rem;font-weight:bold;color:#003366}
+    .tank-actions{display:flex;gap:8px}
+    .action-btn{width:35px;height:35px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s ease}
+    .btn-edit{background:#4CAF50;color:white}
+    .btn-delete{background:#f44336;color:white}
+    .btn-view{background:#2196F3;color:white}
+    .action-btn:hover{transform:scale(1.1)}
+    .tank-product{font-size:1.1rem;font-weight:600;color:#2196F3;margin-bottom:10px}
+    .tank-info{margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .tank-info-label{font-weight:600;color:#666;min-width:80px}
+    .tank-info-value{color:#003366}
+    .tank-status{position:absolute;top:15px;right:15px;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold}
+    .status-active{background:#4CAF50;color:white}
+    .status-completed{background:#ff9800;color:white}
+    .status-cancelled{background:#f44336;color:white}
+    .empty-state{text-align:center;padding:40px;color:#666}
+    .empty-icon{font-size:3rem;margin-bottom:15px;opacity:0.5}
+    .empty-text{font-size:1.1rem;margin-bottom:10px}
+    .empty-subtext{font-size:0.9rem;opacity:0.7}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;backdrop-filter:blur(5px)}
+    .modal.show{display:flex;justify-content:center;align-items:center}
+    .modal-content{background:rgba(255,255,255,0.95);padding:30px;border-radius:15px;max-width:500px;width:90%;color:#003366;max-height:90vh;overflow-y:auto}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #ddd}
+    .modal-title{font-size:1.3rem;font-weight:bold;color:#003366}
+    .close-btn{background:none;border:none;font-size:28px;cursor:pointer;color:#666;font-weight:bold}
+    .close-btn:hover{color:#f44336}
+    .form-group{margin-bottom:20px}
+    .form-label{display:block;margin-bottom:8px;font-weight:600;color:#003366}
+    .form-input,.form-select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;transition:border-color 0.3s ease}
+    .form-input:focus,.form-select:focus{outline:none;border-color:#4CAF50}
+    .form-textarea{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;min-height:80px;resize:vertical}
+    .btn{padding:12px 24px;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s ease;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}
+    .btn-secondary{background:linear-gradient(45deg,#6c757d,#5a6268);color:white}
+    .btn-danger{background:linear-gradient(45deg,#f44336,#d32f2f);color:white}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+    .modal-buttons{display:flex;gap:15px;justify-content:flex-end;margin-top:25px}
+    .message{padding:15px 20px;border-radius:10px;margin-bottom:20px;font-weight:500;border-left:5px solid}
+    .message.success{background:rgba(76,175,80,0.2);border-color:#4CAF50;color:#4CAF50}
+    .message.error{background:rgba(244,67,54,0.2);border-color:#f44336;color:#f44336}
+    .message.info{background:rgba(33,150,243,0.2);border-color:#2196F3;color:#2196F3}
+    .message.warning{background:rgba(255,193,7,0.2);border-color:#ffc107;color:#ffc107}
+    .loading{text-align:center;padding:40px;font-size:18px}
+    .loading-spinner{display:inline-block;width:40px;height:40px;border:4px solid rgba(255,255,255,0.3);border-radius:50%;border-top:4px solid #FFD700;animation:spin 1s linear infinite;margin-bottom:10px}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    .access-denied{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)),url('background.jpg');background-size:cover;background-position:center;display:flex;justify-content:center;align-items:center;z-index:9999}
+    .access-denied-content{text-align:center;background:rgba(255,255,255,0.1);padding:40px;border-radius:20px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}
+    .access-denied-icon{font-size:5rem;color:#f44336;margin-bottom:20px}
+    .access-denied-title{font-size:2rem;color:#f44336;margin-bottom:15px}
+    .access-denied-text{font-size:1.2rem;margin-bottom:20px;opacity:0.8}
+    .login-btn{padding:12px 25px;background:linear-gradient(45deg,#4CAF50,#45a049);color:white;border:none;border-radius:10px;cursor:pointer;font-size:16px;transition:all 0.3s ease;margin:5px}
+    .refresh-indicator{position:fixed;top:80px;right:20px;background:rgba(76,175,80,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:1000;animation:slideIn 0.3s ease}
+    @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+    @media (max-width:768px){
+      .nav-bar{flex-direction:column;gap:15px;padding:15px}
+      .nav-links{order:1;justify-content:center;width:100%}
+      .nav-user{order:2;width:100%;justify-content:space-between}
+      .page-title{font-size:2rem}
+      .tanks-grid{grid-template-columns:1fr}
+      .department-header{flex-direction:column;gap:15px;align-items:stretch}
+      .tank-header{flex-direction:column;gap:10px;align-items:stretch}
+      .tank-actions{justify-content:center}
+      .modal-buttons{flex-direction:column}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <!-- Access Denied Screen -->
+  <div id="accessDenied" class="access-denied" style="display:none">
+    <div class="access-denied-content">
+      <div class="access-denied-icon">🔒</div>
+      <div class="access-denied-title">Access Denied</div>
+      <div class="access-denied-text">You don't have permission to access Live Tanks.<br>Please contact your administrator.</div>
+      <button class="login-btn" onclick="goToLogin()">Go to Login</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent">
+    <!-- Navigation -->
+    <div class="nav-bar">
+      <div class="nav-logo">Tank Tools</div>
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">PBCR</a>
+        <a class="nav-link" href="plcr.html">PLCR</a>
+        <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+        <a class="nav-link active" href="live-tanks.html">🔴 Live Tanks</a>
+        <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
+      </div>
+      <div class="nav-user" id="navUser">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div id="userName">User</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title">🔴 Live Tanks</div>
+      <div class="page-subtitle">Real-time Tank Operations Monitoring</div>
+    </div>
+
+    <div class="container">
+      <!-- Message Container -->
+      <div id="messageContainer"></div>
+
+      <!-- PBCR Department -->
+      <div class="department-section">
+        <div class="department-header">
+          <div class="department-title">
+            <span class="department-badge badge-pbcr">PBCR Department</span>
+            <span id="pbcrCount">(0 tanks)</span>
+          </div>
+          <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none">
+            ➕ Add PBCR Tank
+          </button>
+        </div>
+        <div class="tanks-grid" id="pbcrTanks">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>Loading PBCR tanks...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WASHERY Department -->
+      <div class="department-section">
+        <div class="department-header">
+          <div class="department-title">
+            <span class="department-badge badge-washery">WASHERY Department</span>
+            <span id="washeryCount">(0 tanks)</span>
+          </div>
+          <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none">
+            ➕ Add WASHERY Tank
+          </button>
+        </div>
+        <div class="tanks-grid" id="washeryTanks">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>Loading WASHERY tanks...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLCR Department -->
+      <div class="department-section">
+        <div class="department-header">
+          <div class="department-title">
+            <span class="department-badge badge-plcr">PLCR Department</span>
+            <span id="plcrCount">(0 tanks)</span>
+          </div>
+          <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none">
+            ➕ Add PLCR Tank
+          </button>
+        </div>
+        <div class="tanks-grid" id="plcrTanks">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>Loading PLCR tanks...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Tank Modal -->
+  <div id="addTankModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="addModalTitle">➕ Add New Tank</h3>
+        <button class="close-btn" onclick="closeAddModal()">&times;</button>
+      </div>
+      <form id="addTankForm">
+        <div class="form-group">
+          <label class="form-label">🏭 Department:</label>
+          <select class="form-select" id="addDepartment" onchange="updateProductOptions()" disabled>
+            <option value="">Select Department</option>
+            <option value="PBCR">PBCR</option>
+            <option value="WASHERY">WASHERY</option>
+            <option value="PLCR">PLCR</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">🏷️ Tank Number:</label>
+          <input type="number" class="form-input" id="addTankNumber" placeholder="e.g. 225" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">🛢️ Product Type:</label>
+          <select class="form-select" id="addProduct" required>
+            <option value="">Select Product</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">📅 Finish Date:</label>
+          <input type="date" class="form-input" id="addFinishDate" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">⏰ Finish Time:</label>
+          <input type="time" class="form-input" id="addFinishTime" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">📝 Notes (Optional):</label>
+          <textarea class="form-textarea" id="addNotes" placeholder="Additional information..."></textarea>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" onclick="closeAddModal()">❌ Cancel</button>
+          <button type="submit" class="btn btn-primary">💾 Save Tank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Tank Modal -->
+  <div id="editTankModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">✏️ Edit Tank</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editTankForm">
+        <div class="form-group">
+          <label class="form-label">🏭 Department:</label>
+          <input type="text" class="form-input" id="editDepartment" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">🏷️ Tank Number:</label>
+          <input type="number" class="form-input" id="editTankNumber" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">🛢️ Product Type:</label>
+          <select class="form-select" id="editProduct" required>
+            <option value="">Select Product</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">📅 Finish Date:</label>
+          <input type="date" class="form-input" id="editFinishDate" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">⏰ Finish Time:</label>
+          <input type="time" class="form-input" id="editFinishTime" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">📝 Notes:</label>
+          <textarea class="form-textarea" id="editNotes" placeholder="Additional information..."></textarea>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">❌ Cancel</button>
+          <button type="submit" class="btn btn-primary">💾 Update Tank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
+      authDomain: "tank-tools-knpc-c2d95.firebaseapp.com",
+      projectId: "tank-tools-knpc-c2d95",
+      storageBucket: "tank-tools-knpc-c2d95.firebasestorage.app",
+      messagingSenderId: "510062594324",
+      appId: "1:510062594324:web:b892fd02007a5ca2f0da01"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.setDoc = setDoc;
+    window.updateDoc = updateDoc;
+    window.deleteDoc = deleteDoc;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.serverTimestamp = serverTimestamp;
+    window.query = query;
+    window.orderBy = orderBy;
+    window.onSnapshot = onSnapshot;
+    window.where = where;
+
+    console.log('🔥 Firebase initialized for Live Tanks!');
+  </script>
+
+  <script>
+    // Global variables
+    let currentUser = null;
+    let currentEditingTank = null;
+    let unsubscribe = null;
+
+    // Product types by department
+    const productsByDepartment = {
+      "PBCR": [
+        "Heavy Naphtha",
+        "Light Naphtha", 
+        "Kerosene",
+        "Gas Oil",
+        "Heavy Oil",
+        "Residue",
+        "Mixed Product"
+      ],
+      "WASHERY": [
+        "Washed Naphtha",
+        "Clean Kerosene", 
+        "Treated Gas Oil",
+        "Purified Oil",
+        "Processed Product",
+        "Clean Mixed Product"
+      ],
+      "PLCR": [
+        "Heavy Oil",
+        "Light Product",
+        "Mixed Product", 
+        "Refined Oil",
+        "Final Product",
+        "Blended Oil"
+      ]
+    };
+
+    // Role permissions
+    const rolePermissions = {
+      "admin": { canView: true, canAdd: true, canEdit: true, canDelete: true },
+      "panel_operator": { canView: true, canAdd: true, canEdit: true, canDelete: true },
+      "supervisor": { canView: true, canAdd: false, canEdit: false, canDelete: false },
+      "section_head": { canView: true, canAdd: false, canEdit: false, canDelete: false },
+      "operator": { canView: true, canAdd: false, canEdit: false, canDelete: false },
+      "planning": { canView: true, canAdd: false, canEdit: false, canDelete: false }
+    };
+
+    // Initialize page
+    window.addEventListener('load', () => {
+      checkLoginStatus();
+    });
+
+    function checkLoginStatus() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
+      
+      if (session !== 'active' || !userData) {
+        showAccessDenied();
+        return;
+      }
+      
+      try {
+        currentUser = JSON.parse(userData);
+        if (!canUserAccessLiveTanks()) {
+          showAccessDenied();
+          return;
+        }
+        
+        initializeApp();
+        logActivity('live_tanks_accessed', currentUser.username);
+      } catch (error) {
+        showAccessDenied();
+      }
+    }
+
+    function canUserAccessLiveTanks() {
+      const allowedRoles = ["admin", "panel_operator", "supervisor", "section_head", "operator", "planning"];
+      return allowedRoles.includes(currentUser.role);
+    }
+
+    function showAccessDenied() {
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('accessDenied').style.display = 'flex';
+    }
+
+    function goToLogin() {
+      sessionStorage.setItem('tanktools_redirect', 'live-tanks.html');
+      window.location.href = 'login.html';
+    }
+
+    function initializeApp() {
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('accessDenied').style.display = 'none';
+      
+      loadUserInfo();
+      setupPermissions();
+      loadLiveTanks();
+      
+      // Set default date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('addFinishDate').value = today;
+    }
+
+    function loadUserInfo() {
+      if (!currentUser) return;
+      
+      document.getElementById('userName').textContent = currentUser.username;
+      document.getElementById('userAvatar').textContent = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
+      
+      if (currentUser.username === 'fam030' || currentUser.role === 'admin') {
+        document.getElementById('adminLink').style.display = 'inline-block';
+      }
+    }
+
+    function setupPermissions() {
+      const permissions = rolePermissions[currentUser.role] || { canView: true, canAdd: false, canEdit: false, canDelete: false };
+      
+      // Show/hide add buttons
+      const addButtons = ['addPBCRBtn', 'addWasheryBtn', 'addPLCRBtn'];
+      addButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (permissions.canAdd) {
+          btn.style.display = 'flex';
+        } else {
+          btn.style.display = 'none';
+        }
+      });
+    }
+
+    async function loadLiveTanks() {
+      try {
+        // Set up real-time listener
+        const q = query(collection(db, 'liveTanks'), orderBy('finishDateTime', 'asc'));
+        
+        unsubscribe = onSnapshot(q, (snapshot) => {
+          const tanks = [];
+          snapshot.forEach((doc) => {
+            tanks.push({ id: doc.id, ...doc.data() });
+          });
+          
+          displayTanksByDepartment(tanks);
+          showRefreshIndicator();
+        });
+        
+      } catch (error) {
+        console.error('Error loading live tanks:', error);
+        showMessage('❌ Error loading tanks: ' + error.message, 'error');
+      }
+    }
+
+    function displayTanksByDepartment(tanks) {
+      const departments = ['PBCR', 'WASHERY', 'PLCR'];
+      
+      departments.forEach(dept => {
+        const deptTanks = tanks.filter(tank => tank.department === dept && tank.status === 'active');
+        const containerId = dept.toLowerCase() + 'Tanks';
+        const countId = dept.toLowerCase() + 'Count';
+        
+        displayTanksInContainer(containerId, deptTanks);
+        document.getElementById(countId).textContent = `(${deptTanks.length} tanks)`;
+      });
+    }
+
+    function displayTanksInContainer(containerId, tanks) {
+      const container = document.getElementById(containerId);
+      
+      if (tanks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏭</div>
+            <div class="empty-text">No active tanks</div>
+            <div class="empty-subtext">Add a tank to start monitoring</div>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = tanks.map(tank => createTankCard(tank)).join('');
+    }
+
+    function createTankCard(tank) {
+      const permissions = rolePermissions[currentUser.role] || {};
+      const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
+      const isOverdue = finishDateTime < new Date();
+      
+      return `
+        <div class="tank-card ${isOverdue ? 'overdue' : ''}">
+          <div class="tank-status status-${tank.status}">${tank.status.toUpperCase()}</div>
+          
+          <div class="tank-header">
+            <div class="tank-number">Tank ${tank.tankNumber}</div>
+            <div class="tank-actions">
+              ${permissions.canEdit ? `
+                <button class="action-btn btn-edit" onclick="editTank('${tank.id}')" title="Edit Tank">✏️</button>
+                <button class="action-btn btn-delete" onclick="deleteTank('${tank.id}')" title="Delete Tank">🗑️</button>
+              ` : `
+                <button class="action-btn btn-view" title="View Only">👁️</button>
+              `}
+            </div>
+          </div>
+          
+          <div class="tank-product">${tank.product}</div>
+          
+          <div class="tank-info">
+            <span class="tank-info-label">👤 User:</span>
+            <span class="tank-info-value">${tank.userName}</span>
+          </div>
+          
+          <div class="tank-info">
+            <span class="tank-info-label">📅 Date:</span>
+            <span class="tank-info-value">${tank.finishDate}</span>
+          </div>
+          
+          <div class="tank-info">
+            <span class="tank-info-label">⏰ Time:</span>
+            <span class="tank-info-value">${tank.finishTime}</span>
+          </div>
+          
+          ${tank.notes ? `
+            <div class="tank-info">
+              <span class="tank-info-label">📝 Notes:</span>
+              <span class="tank-info-value">${tank.notes}</span>
+            </div>
+          ` : ''}
+          
+          <div class="tank-info">
+            <span class="tank-info-label">🕒 Added:</span>
+            <span class="tank-info-value">${formatTimestamp(tank.addedAt)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function openAddModal(department) {
+      document.getElementById('addModalTitle').textContent = `➕ Add ${department} Tank`;
+      document.getElementById('addDepartment').value = department;
+      updateProductOptions();
+      document.getElementById('addTankModal').classList.add('show');
+    }
+
+    function closeAddModal() {
+      document.getElementById('addTankModal').classList.remove('show');
+      document.getElementById('addTankForm').reset();
+    }
+
+    function updateProductOptions() {
+      const department = document.getElementById('addDepartment').value;
+      const productSelect = document.getElementById('addProduct');
+      
+      productSelect.innerHTML = '<option value="">Select Product</option>';
+      
+      if (department && productsByDepartment[department]) {
+        productsByDepartment[department].forEach(product => {
+          const option = document.createElement('option');
+          option.value = product;
+          option.textContent = product;
+          productSelect.appendChild(option);
+        });
+      }
+    }
+
+    async function editTank(tankId) {
+      try {
+        const tankDoc = await getDoc(doc(db, 'liveTanks', tankId));
+        if (!tankDoc.exists()) {
+          showMessage('❌ Tank not found!', 'error');
+          return;
+        }
+        
+        const tank = tankDoc.data();
+        currentEditingTank = { id: tankId, ...tank };
+        
+        // Fill edit form
+        document.getElementById('editDepartment').value = tank.department;
+        document.getElementById('editTankNumber').value = tank.tankNumber;
+        document.getElementById('editFinishDate').value = tank.finishDate;
+        document.getElementById('editFinishTime').value = tank.finishTime;
+        document.getElementById('editNotes').value = tank.notes || '';
+        
+        // Update product options for edit
+        const editProductSelect = document.getElementById('editProduct');
+        editProductSelect.innerHTML = '<option value="">Select Product</option>';
+        
+        if (productsByDepartment[tank.department]) {
+          productsByDepartment[tank.department].forEach(product => {
+            const option = document.createElement('option');
+            option.value = product;
+            option.textContent = product;
+            option.selected = product === tank.product;
+            editProductSelect.appendChild(option);
+          });
+        }
+        
+        document.getElementById('editTankModal').classList.add('show');
+        
+      } catch (error) {
+        console.error('Error loading tank for edit:', error);
+        showMessage('❌ Error loading tank: ' + error.message, 'error');
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editTankModal').classList.remove('show');
+      document.getElementById('editTankForm').reset();
+      currentEditingTank = null;
+    }
+
+    async function deleteTank(tankId) {
+      if (!confirm('Are you sure you want to delete this tank?\n\nThis action cannot be undone!')) {
+        return;
+      }
+      
+      try {
+        await deleteDoc(doc(db, 'liveTanks', tankId));
+        
+        await addActivity('live_tank_deleted', currentUser.username);
+        showMessage('✅ Tank deleted successfully!', 'success');
+        
+      } catch (error) {
+        console.error('Error deleting tank:', error);
+        showMessage('❌ Error deleting tank: ' + error.message, 'error');
+      }
+    }
+
+    // Form submissions
+    document.getElementById('addTankForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const department = document.getElementById('addDepartment').value;
+      const tankNumber = document.getElementById('addTankNumber').value;
+      const product = document.getElementById('addProduct').value;
+      const finishDate = document.getElementById('addFinishDate').value;
+      const finishTime = document.getElementById('addFinishTime').value;
+      const notes = document.getElementById('addNotes').value;
+      
+      try {
+        const finishDateTime = new Date(finishDate + ' ' + finishTime);
+        
+        const tankData = {
+          department: department,
+          tankNumber: tankNumber,
+          product: product,
+          addedBy: currentUser.username,
+          userName: currentUser.fullName || currentUser.username,
+          finishTime: finishTime,
+          finishDate: finishDate,
+          finishDateTime: finishDateTime,
+          addedAt: serverTimestamp(),
+          status: 'active',
+          notes: notes
+        };
+        
+        await addDoc(collection(db, 'liveTanks'), tankData);
+        
+        await addActivity('live_tank_added', currentUser.username);
+        showMessage('✅ Tank added successfully!', 'success');
+        closeAddModal();
+        
+      } catch (error) {
+        console.error('Error adding tank:', error);
+        showMessage('❌ Error adding tank: ' + error.message, 'error');
+      }
+    });
+
+    document.getElementById('editTankForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!currentEditingTank) return;
+      
+      const tankNumber = document.getElementById('editTankNumber').value;
+      const product = document.getElementById('editProduct').value;
+      const finishDate = document.getElementById('editFinishDate').value;
+      const finishTime = document.getElementById('editFinishTime').value;
+      const notes = document.getElementById('editNotes').value;
+      
+      try {
+        const finishDateTime = new Date(finishDate + ' ' + finishTime);
+        
+        const updateData = {
+          tankNumber: tankNumber,
+          product: product,
+          finishTime: finishTime,
+          finishDate: finishDate,
+          finishDateTime: finishDateTime,
+          notes: notes,
+          lastModified: serverTimestamp(),
+          modifiedBy: currentUser.username
+        };
+        
+        await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
+        
+        await addActivity('live_tank_updated', currentUser.username);
+        showMessage('✅ Tank updated successfully!', 'success');
+        closeEditModal();
+        
+      } catch (error) {
+        console.error('Error updating tank:', error);
+        showMessage('❌ Error updating tank: ' + error.message, 'error');
+      }
+    });
+
+    // Utility functions
+    function formatTimestamp(timestamp) {
+      if (!timestamp) return 'Unknown';
+      
+      try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp.seconds * 1000);
+        return date.toLocaleString();
+      } catch (error) {
+        return 'Unknown';
+      }
+    }
+
+    function showRefreshIndicator() {
+      const indicator = document.createElement('div');
+      indicator.className = 'refresh-indicator';
+      indicator.textContent = '🔄 Updated';
+      document.body.appendChild(indicator);
+      
+      setTimeout(() => {
+        indicator.remove();
+      }, 2000);
+    }
+
+    async function addActivity(action, username) {
+      try {
+        await addDoc(collection(db, 'activities'), {
+          action: action,
+          username: username,
+          timestamp: serverTimestamp(),
+          ip: 'live-tanks-page',
+          userAgent: navigator.userAgent.substring(0, 100)
+        });
+      } catch (error) {
+        console.error('Error adding activity:', error);
+      }
+    }
+
+    function showMessage(message, type) {
+      const container = document.getElementById('messageContainer');
+      container.innerHTML = `<div class="message ${type}">${message}</div>`;
+      setTimeout(() => container.innerHTML = '', 5000);
+    }
+
+    function logout() {
+      if (unsubscribe) unsubscribe();
+      logActivity('user_logout', currentUser.username);
+      sessionStorage.removeItem('tanktools_session');
+      localStorage.removeItem('tanktools_current_user');
+      window.location.href = 'login.html';
+    }
+
+    function logActivity(action, username) {
+      const activities = JSON.parse(localStorage.getItem('tanktools_activities') || '[]');
+      activities.unshift({
+        id: Date.now(),
+        action: action,
+        username: username,
+        timestamp: new Date().toISOString(),
+        ip: 'local',
+        userAgent: navigator.userAgent.substring(0, 100)
+      });
+      activities.splice(100);
+      localStorage.setItem('tanktools_activities', JSON.stringify(activities));
+    }
+
+    // Make functions globally available
+    window.openAddModal = openAddModal;
+    window.closeAddModal = closeAddModal;
+    window.updateProductOptions = updateProductOptions;
+    window.editTank = editTank;
+    window.closeEditModal = closeEditModal;
+    window.deleteTank = deleteTank;
+    window.logout = logout;
+    window.goToLogin = goToLogin;
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (unsubscribe) unsubscribe();
+    });
+
+    console.log('%c🔴 LIVE TANKS - REAL-TIME MONITORING', 'color:red;font-size:16px;font-weight:bold');
+    console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:14px');
+    console.log('%cFirebase Real-time Updates Active', 'color:blue;font-size:14px');
+  </script>
+</body>
+</html>

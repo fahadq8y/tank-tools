@@ -100,6 +100,7 @@
         <a class="nav-link" href="index.html">PBCR</a>
         <a class="nav-link active" href="plcr.html">PLCR</a>
         <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
+        <a class="nav-link" href="live-tanks.html" id="liveTanksLink" style="display:none">🔴 Live Tanks</a>
         <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
       </div>
       <div class="nav-user" id="navUser">
@@ -263,9 +264,29 @@
     
     function loadUserInfo(){
       if(!currentUser)return;
-      document.getElementById('userName').textContent=currentUser.username;
-      document.getElementById('userAvatar').textContent=(currentUser.fullName||currentUser.username).charAt(0).toUpperCase();
-      if(currentUser.username==='fam030'||currentUser.role==='admin')document.getElementById('adminLink').style.display='inline-block'
+      
+      const userNameElement = document.getElementById('userName');
+      const userAvatarElement = document.getElementById('userAvatar');
+      const adminLinkElement = document.getElementById('adminLink');
+      const liveTanksLinkElement = document.getElementById('liveTanksLink');
+      
+      if(userNameElement) {
+        userNameElement.textContent = currentUser.username;
+      }
+      
+      if(userAvatarElement) {
+        userAvatarElement.textContent = (currentUser.fullName||currentUser.username).charAt(0).toUpperCase();
+      }
+      
+      if(adminLinkElement && (currentUser.username==='fam030'||currentUser.role==='admin')) {
+        adminLinkElement.style.display='inline-block';
+      }
+      
+      // Show Live Tanks link for allowed roles
+      const allowedRoles = ["admin", "panel_operator", "supervisor", "section_head", "operator", "planning"];
+      if(liveTanksLinkElement && allowedRoles.includes(currentUser.role)) {
+        liveTanksLinkElement.style.display='inline-block';
+      }
     }
     
     window.logout=()=>{logActivity('user_logout',currentUser.username);sessionStorage.removeItem('tanktools_session');localStorage.removeItem('tanktools_current_user');window.location.href='login.html'};

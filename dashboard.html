@@ -47,6 +47,11 @@
     .badge-pending{background:#ff9800;color:white}
     .badge-admin{background:#FFD700;color:#003366}
     .badge-user{background:#2196F3;color:white}
+    .badge-panel-operator{background:#9C27B0;color:white}
+    .badge-supervisor{background:#FF5722;color:white}
+    .badge-section-head{background:#795548;color:white}
+    .badge-operator{background:#607D8B;color:white}
+    .badge-planning{background:#E91E63;color:white}
     .action-buttons{display:flex;gap:8px;flex-wrap:wrap}
     .action-btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;transition:all 0.3s ease}
     .action-btn:hover{transform:scale(1.05)}
@@ -67,8 +72,8 @@
     .close-btn:hover{color:#f44336}
     .form-group{margin-bottom:20px}
     .form-label{display:block;margin-bottom:8px;font-weight:600;color:#003366}
-    .form-input{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;transition:border-color 0.3s ease}
-    .form-input:focus{outline:none;border-color:#4CAF50}
+    .form-input,.form-select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;transition:border-color 0.3s ease}
+    .form-input:focus,.form-select:focus{outline:none;border-color:#4CAF50}
     .activities-container{max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.95);border-radius:10px;padding:15px}
     .activity-item{padding:12px;border-bottom:1px solid rgba(0,51,102,0.1);display:flex;justify-content:space-between;align-items:center;color:#003366}
     .activity-item:last-child{border-bottom:none}
@@ -83,7 +88,20 @@
     .pending-name{font-size:1.1rem;font-weight:bold;color:#f57c00}
     .pending-details{margin-bottom:15px;line-height:1.6}
     .pending-actions{display:flex;gap:10px}
-    @media(max-width:768px){.header{flex-direction:column;gap:15px}.controls{flex-direction:column}.stats-grid{grid-template-columns:repeat(2,1fr)}.users-table{font-size:12px}.users-table th,.users-table td{padding:8px 6px}.action-buttons{flex-direction:column}.nav-links{flex-direction:column;width:100%}}
+    .switch{position:relative;display:inline-block;width:60px;height:34px}
+    .switch input{opacity:0;width:0;height:0}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}
+    .slider:before{position:absolute;content:"";height:26px;width:26px;left:4px;bottom:4px;background-color:white;transition:.4s;border-radius:50%}
+    input:checked + .slider{background-color:#4CAF50}
+    input:focus + .slider{box-shadow:0 0 1px #4CAF50}
+    input:checked + .slider:before{transform:translateX(26px)}
+    .role-settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+    .role-setting{background:rgba(255,255,255,0.1);padding:20px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,0.2)}
+    .role-info{flex:1}
+    .role-name{font-weight:bold;font-size:1.1rem;margin-bottom:5px}
+    .role-desc{font-size:0.9rem;opacity:0.8}
+    .role-control{margin-left:15px}
+    @media(max-width:768px){.header{flex-direction:column;gap:15px}.controls{flex-direction:column}.stats-grid{grid-template-columns:repeat(2,1fr)}.users-table{font-size:12px}.users-table th,.users-table td{padding:8px 6px}.action-buttons{flex-direction:column}.nav-links{flex-direction:column;width:100%}.role-settings-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -94,6 +112,7 @@
         <a href="index.html" class="nav-btn">📊 PBCR</a>
         <a href="plcr.html" class="nav-btn">⚗️ PLCR</a>
         <a href="NMOGASBL.html" class="nav-btn">🔧 NMOGAS</a>
+        <a href="live-tanks.html" class="nav-btn">🔴 Live Tanks</a>
       </div>
       <div class="user-avatar" id="userAvatar">F</div>
       <div>
@@ -129,8 +148,8 @@
         <div class="stat-label">Pending Approval</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="todayLogins">-</div>
-        <div class="stat-label">Today's Logins</div>
+        <div class="stat-number" id="usersWithLiveTanks">-</div>
+        <div class="stat-label">Live Tanks Access</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" id="totalActivities">-</div>
@@ -138,9 +157,96 @@
       </div>
     </div>
 
+    <!-- Live Tanks Access Control -->
+    <div class="section">
+      <div class="section-title">🔴 Live Tanks Access Control</div>
+      
+      <div class="role-settings-grid">
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">👑 Admin</div>
+            <div class="role-desc">Full system access</div>
+          </div>
+          <div class="role-control">
+            <span style="color: #4CAF50; font-weight: bold;">✅ Always Active</span>
+          </div>
+        </div>
+        
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">⚙️ Panel Operator</div>
+            <div class="role-desc">Can add/edit tanks</div>
+          </div>
+          <div class="role-control">
+            <label class="switch">
+              <input type="checkbox" checked id="role_panel_operator" onchange="updateRoleAccess()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">👥 Supervisor</div>
+            <div class="role-desc">View only access</div>
+          </div>
+          <div class="role-control">
+            <label class="switch">
+              <input type="checkbox" checked id="role_supervisor" onchange="updateRoleAccess()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">🏢 Section Head</div>
+            <div class="role-desc">View only access</div>
+          </div>
+          <div class="role-control">
+            <label class="switch">
+              <input type="checkbox" id="role_section_head" onchange="updateRoleAccess()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">🔧 Operator</div>
+            <div class="role-desc">View only access</div>
+          </div>
+          <div class="role-control">
+            <label class="switch">
+              <input type="checkbox" checked id="role_operator" onchange="updateRoleAccess()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="role-setting">
+          <div class="role-info">
+            <div class="role-name">📋 Planning</div>
+            <div class="role-desc">View only access</div>
+          </div>
+          <div class="role-control">
+            <label class="switch">
+              <input type="checkbox" id="role_planning" onchange="updateRoleAccess()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="btn btn-primary" onclick="saveGlobalSettings()">💾 Save Global Settings</button>
+        <button class="btn btn-secondary" onclick="resetToDefault()">🔄 Reset to Default</button>
+      </div>
+    </div>
+
     <!-- User Management Section -->
     <div class="section">
-      <div class="section-title">👥 User Management</div>
+      <div class="section-title">👥 Advanced User Management</div>
       
       <div class="controls">
         <input type="text" class="search-box" id="userSearch" placeholder="🔍 Search users by name, username, or email...">
@@ -152,8 +258,12 @@
         </select>
         <select class="filter-select" id="roleFilter">
           <option value="all">All Roles</option>
-          <option value="admin">Admins</option>
-          <option value="user">Users</option>
+          <option value="admin">Admin</option>
+          <option value="panel_operator">Panel Operator</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="section_head">Section Head</option>
+          <option value="operator">Operator</option>
+          <option value="planning">Planning</option>
         </select>
         <button class="btn btn-primary" onclick="loadDashboardData()">🔄 Refresh</button>
         <button class="btn btn-warning" onclick="showPendingUsers()">⏳ Pending</button>
@@ -201,17 +311,28 @@
         </div>
         <div class="form-group">
           <label class="form-label">Role:</label>
-          <select class="form-input" id="editRole">
-            <option value="user">User</option>
+          <select class="form-select" id="editRole">
+            <option value="operator">Operator</option>
+            <option value="panel_operator">Panel Operator</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="section_head">Section Head</option>
+            <option value="planning">Planning</option>
             <option value="admin">Admin</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Status:</label>
-          <select class="form-input" id="editStatus">
+          <select class="form-select" id="editStatus">
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Live Tanks Access:</label>
+          <label class="switch">
+            <input type="checkbox" id="editLiveTanksAccess">
+            <span class="slider"></span>
+          </label>
         </div>
         <div class="form-group">
           <label class="form-label">New Password (Optional):</label>
@@ -287,6 +408,7 @@
     let currentEditingUser = null;
     let allUsers = [];
     let allActivities = [];
+    let globalLiveTanksSettings = null;
 
     // Check admin access
     function checkAdminAccess() {
@@ -349,6 +471,9 @@
           allActivities.push(activityData);
         });
 
+        // Load Live Tanks settings
+        await loadLiveTanksSettings();
+
         // Update statistics
         updateStatistics();
         
@@ -369,24 +494,131 @@
       }
     }
 
+    // Load Live Tanks settings
+    async function loadLiveTanksSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'systemSettings', 'liveTanksAccess'));
+        if (settingsDoc.exists()) {
+          globalLiveTanksSettings = settingsDoc.data();
+          updateSettingsUI();
+        } else {
+          // Create default settings
+          globalLiveTanksSettings = {
+            roleAccess: {
+              "admin": true,
+              "panel_operator": true,
+              "supervisor": true,
+              "section_head": false,
+              "operator": true,
+              "planning": false
+            },
+            lastModified: new Date(),
+            modifiedBy: currentUser.username
+          };
+          await setDoc(doc(db, 'systemSettings', 'liveTanksAccess'), globalLiveTanksSettings);
+          updateSettingsUI();
+        }
+      } catch (error) {
+        console.error('Error loading Live Tanks settings:', error);
+      }
+    }
+
+    // Update settings UI
+    function updateSettingsUI() {
+      if (!globalLiveTanksSettings) return;
+      
+      const roleAccess = globalLiveTanksSettings.roleAccess || {};
+      
+      document.getElementById('role_panel_operator').checked = roleAccess.panel_operator || false;
+      document.getElementById('role_supervisor').checked = roleAccess.supervisor || false;
+      document.getElementById('role_section_head').checked = roleAccess.section_head || false;
+      document.getElementById('role_operator').checked = roleAccess.operator || false;
+      document.getElementById('role_planning').checked = roleAccess.planning || false;
+    }
+
+    // Update role access
+    async function updateRoleAccess() {
+      // Auto-save when toggles change
+      await saveGlobalSettings();
+    }
+
+    // Save global settings
+    async function saveGlobalSettings() {
+      try {
+        const settings = {
+          roleAccess: {
+            "admin": true, // always true
+            "panel_operator": document.getElementById('role_panel_operator').checked,
+            "supervisor": document.getElementById('role_supervisor').checked,
+            "section_head": document.getElementById('role_section_head').checked,
+            "operator": document.getElementById('role_operator').checked,
+            "planning": document.getElementById('role_planning').checked
+          },
+          lastModified: serverTimestamp(),
+          modifiedBy: currentUser.username
+        };
+
+        await setDoc(doc(db, 'systemSettings', 'liveTanksAccess'), settings);
+        globalLiveTanksSettings = settings;
+        
+        showMessage('✅ Live Tanks access settings saved successfully!', 'success');
+        
+        await addActivity('live_tanks_settings_updated', currentUser.username);
+        
+        // Update statistics
+        updateStatistics();
+        
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        showMessage('❌ Error saving settings: ' + error.message, 'error');
+      }
+    }
+
+    // Reset to default
+    async function resetToDefault() {
+      if (!confirm('Reset Live Tanks access to default settings?\n\nDefault: Panel Operator, Supervisor, and Operator will have access.')) {
+        return;
+      }
+      
+      document.getElementById('role_panel_operator').checked = true;
+      document.getElementById('role_supervisor').checked = true;
+      document.getElementById('role_section_head').checked = false;
+      document.getElementById('role_operator').checked = true;
+      document.getElementById('role_planning').checked = false;
+      
+      await saveGlobalSettings();
+    }
+
     // Update statistics
     function updateStatistics() {
       const totalUsers = allUsers.length;
       const activeUsers = allUsers.filter(u => u.isActive).length;
       const pendingUsers = allUsers.filter(u => !u.isActive).length;
       
+      // Calculate users with Live Tanks access
+      let usersWithAccess = 0;
+      if (globalLiveTanksSettings && globalLiveTanksSettings.roleAccess) {
+        const roleAccess = globalLiveTanksSettings.roleAccess;
+        allUsers.forEach(user => {
+          const userRole = user.role || 'operator';
+          if (roleAccess[userRole] || user.accessOverride?.liveTanksAccess) {
+            usersWithAccess++;
+          }
+        });
+      }
+      
       // Calculate today's logins
       const today = new Date().toDateString();
       const todayLogins = allActivities.filter(activity => {
         const activityDate = activity.timestamp?.toDate?.()?.toDateString() || 
                              new Date(activity.timestamp?.seconds * 1000).toDateString();
-        return activityDate === today && activity.action === 'تسجيل دخول';
+        return activityDate === today && activity.action === 'user_login';
       }).length;
 
       document.getElementById('totalUsers').textContent = totalUsers;
       document.getElementById('activeUsers').textContent = activeUsers;
       document.getElementById('pendingUsers').textContent = pendingUsers;
-      document.getElementById('todayLogins').textContent = todayLogins;
+      document.getElementById('usersWithLiveTanks').textContent = usersWithAccess;
       document.getElementById('totalActivities').textContent = allActivities.length;
     }
 
@@ -408,8 +640,8 @@
               <th>Username</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Live Tanks</th>
               <th>Status</th>
-              <th>Created</th>
               <th>Last Login</th>
               <th>Actions</th>
             </tr>
@@ -419,12 +651,14 @@
       
       users.forEach(user => {
         const avatar = (user.fullName || user.username).charAt(0).toUpperCase();
-        const role = user.role === 'admin' || user.username === 'fam030' ? 'admin' : 'user';
-        const roleClass = role === 'admin' ? 'badge-admin' : 'badge-user';
+        const role = user.role || 'operator';
+        const roleClass = getRoleBadgeClass(role);
         const statusClass = user.isActive ? 'badge-active' : 'badge-inactive';
         const statusText = user.isActive ? 'Active' : 'Pending';
         
-        const createdDate = user.createdAt?.toDate?.() || new Date(user.createdAt?.seconds * 1000) || new Date();
+        // Check Live Tanks access
+        const hasLiveTanksAccess = checkUserLiveTanksAccess(user);
+        
         const lastLoginDate = user.lastLogin?.toDate?.() || (user.lastLogin ? new Date(user.lastLogin?.seconds * 1000) : null);
         
         html += `
@@ -437,9 +671,9 @@
             <td><strong>${user.fullName || user.username}</strong></td>
             <td>${user.username}</td>
             <td>${user.email}</td>
-            <td><span class="status-badge ${roleClass}">${role}</span></td>
+            <td><span class="status-badge ${roleClass}">${formatRoleName(role)}</span></td>
+            <td><span class="status-badge ${hasLiveTanksAccess ? 'badge-active' : 'badge-inactive'}">${hasLiveTanksAccess ? 'Yes' : 'No'}</span></td>
             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-            <td>${createdDate.toLocaleDateString()}</td>
             <td>${lastLoginDate ? lastLoginDate.toLocaleString() : 'Never'}</td>
             <td>
               <div class="action-buttons">
@@ -458,6 +692,47 @@
       
       html += '</tbody></table>';
       container.innerHTML = html;
+    }
+
+    // Check if user has Live Tanks access
+    function checkUserLiveTanksAccess(user) {
+      if (!globalLiveTanksSettings) return false;
+      
+      // Check individual override first
+      if (user.accessOverride && user.accessOverride.liveTanksAccess !== undefined) {
+        return user.accessOverride.liveTanksAccess;
+      }
+      
+      // Check global role settings
+      const roleAccess = globalLiveTanksSettings.roleAccess || {};
+      const userRole = user.role || 'operator';
+      return roleAccess[userRole] || false;
+    }
+
+    // Get role badge class
+    function getRoleBadgeClass(role) {
+      const classMap = {
+        'admin': 'badge-admin',
+        'panel_operator': 'badge-panel-operator',
+        'supervisor': 'badge-supervisor',
+        'section_head': 'badge-section-head',
+        'operator': 'badge-operator',
+        'planning': 'badge-planning'
+      };
+      return classMap[role] || 'badge-user';
+    }
+
+    // Format role name
+    function formatRoleName(role) {
+      const nameMap = {
+        'admin': 'Admin',
+        'panel_operator': 'Panel Operator',
+        'supervisor': 'Supervisor',
+        'section_head': 'Section Head',
+        'operator': 'Operator',
+        'planning': 'Planning'
+      };
+      return nameMap[role] || 'User';
     }
 
     // Display activities
@@ -504,8 +779,9 @@
       document.getElementById('editFullName').value = user.fullName || '';
       document.getElementById('editUsername').value = user.username;
       document.getElementById('editEmail').value = user.email;
-      document.getElementById('editRole').value = user.role || 'user';
+      document.getElementById('editRole').value = user.role || 'operator';
       document.getElementById('editStatus').value = user.isActive ? 'true' : 'false';
+      document.getElementById('editLiveTanksAccess').checked = checkUserLiveTanksAccess(user);
       document.getElementById('editPassword').value = '';
       
       document.getElementById('userModal').classList.add('show');
@@ -526,17 +802,21 @@
       const fullName = document.getElementById('editFullName').value;
       const role = document.getElementById('editRole').value;
       const isActive = document.getElementById('editStatus').value === 'true';
+      const liveTanksAccess = document.getElementById('editLiveTanksAccess').checked;
       const newPassword = document.getElementById('editPassword').value;
       
       try {
         const updateData = {
           fullName: fullName,
           role: role,
-          isActive: isActive
+          isActive: isActive,
+          'accessOverride.liveTanksAccess': liveTanksAccess,
+          lastModified: serverTimestamp(),
+          modifiedBy: currentUser.username
         };
         
         if (newPassword) {
-          updateData.password = newPassword; // Store plain text for now
+          updateData.password = newPassword;
         }
         
         await updateDoc(doc(db, 'users', currentEditingUser.username), updateData);
@@ -562,7 +842,9 @@
       
       try {
         await updateDoc(doc(db, 'users', username), {
-          isActive: newStatus
+          isActive: newStatus,
+          lastModified: serverTimestamp(),
+          modifiedBy: currentUser.username
         });
         
         await addActivity(newStatus ? 'user_activated_by_admin' : 'user_deactivated_by_admin', currentUser.username);
@@ -622,11 +904,11 @@
               <div class="pending-details">
                 <div><strong>Username:</strong> ${user.username}</div>
                 <div><strong>Email:</strong> ${user.email}</div>
+                <div><strong>Role:</strong> ${formatRoleName(user.role || 'operator')}</div>
                 <div><strong>Registered:</strong> ${createdDate.toLocaleString()}</div>
               </div>
               <div class="pending-actions">
                 <button class="btn btn-primary" onclick="approveUser('${user.username}')">✅ Approve</button>
-                <button class="btn btn-secondary" onclick="sendActivationEmail('${user.username}')">📧 Send Email</button>
                 <button class="btn btn-danger" onclick="deleteUser('${user.username}')">❌ Reject</button>
               </div>
             </div>
@@ -645,52 +927,13 @@
       document.getElementById('pendingModal').classList.remove('show');
     }
 
-    // Send activation email
-    async function sendActivationEmail(username) {
-      const user = allUsers.find(u => u.username === username);
-      if (!user) return;
-      
-      try {
-        // Generate new token if doesn't exist
-        const verificationToken = user.emailVerificationToken || generateToken();
-        
-        if (!user.emailVerificationToken) {
-          await updateDoc(doc(db, 'users', username), {
-            emailVerificationToken: verificationToken
-          });
-        }
-        
-        // Add to email queue
-        await addDoc(collection(db, 'emailQueue'), {
-          type: 'activation',
-          to: user.email,
-          username: username,
-          fullName: user.fullName,
-          token: verificationToken,
-          timestamp: serverTimestamp(),
-          status: 'pending'
-        });
-        
-        showMessage(`📧 Activation email queued for ${username}!`, 'success');
-        
-        await addActivity('activation_email_sent_by_admin', currentUser.username);
-        
-      } catch (error) {
-        console.error('Error sending activation email:', error);
-        showMessage('❌ Error sending email: ' + error.message, 'error');
-      }
-    }
-
-    // Generate token
-    function generateToken() {
-      return Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
-
     // Approve user
     async function approveUser(username) {
       try {
         await updateDoc(doc(db, 'users', username), {
-          isActive: true
+          isActive: true,
+          lastModified: serverTimestamp(),
+          modifiedBy: currentUser.username
         });
         
         await addActivity('user_approved_by_admin', currentUser.username);
@@ -720,7 +963,11 @@
       
       try {
         const promises = pendingUsers.map(user => 
-          updateDoc(doc(db, 'users', user.username), { isActive: true })
+          updateDoc(doc(db, 'users', user.username), { 
+            isActive: true,
+            lastModified: serverTimestamp(),
+            modifiedBy: currentUser.username
+          })
         );
         
         await Promise.all(promises);
@@ -753,10 +1000,8 @@
                              (statusFilter === 'inactive' && !user.isActive) ||
                              (statusFilter === 'pending' && !user.isActive);
         
-        const userRole = user.role === 'admin' || user.username === 'fam030' ? 'admin' : 'user';
-        const matchesRole = roleFilter === 'all' ||
-                           (roleFilter === 'admin' && userRole === 'admin') ||
-                           (roleFilter === 'user' && userRole === 'user');
+        const userRole = user.role || 'operator';
+        const matchesRole = roleFilter === 'all' || userRole === roleFilter;
         
         return matchesSearch && matchesStatus && matchesRole;
       });
@@ -831,12 +1076,14 @@
     window.closePendingModal = closePendingModal;
     window.approveUser = approveUser;
     window.approveAllPending = approveAllPending;
-    window.sendActivationEmail = sendActivationEmail;
+    window.updateRoleAccess = updateRoleAccess;
+    window.saveGlobalSettings = saveGlobalSettings;
+    window.resetToDefault = resetToDefault;
     window.logout = logout;
 
-    console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.0', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.1', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cReal-time Firebase Integration', 'color:blue;font-size:14px');
+    console.log('%cLive Tanks Access Control System', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>
