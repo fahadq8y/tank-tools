@@ -35,16 +35,15 @@
     .add-tank-btn{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all 0.3s ease;display:flex;align-items:center;gap:8px;margin-bottom:20px}
     .add-tank-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,215,0,0.3)}
     .add-tank-btn:disabled{background:#666;color:#999;cursor:not-allowed;transform:none}
-    .tanks-table{width:100%;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;table-layout:fixed}
-    .tanks-table th,.tanks-table td{padding:8px 6px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:12px}
-    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:10%}
-    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:20%}
-    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:12%}
-    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:12%}
-    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:15%}
-    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:20%}
-    .tanks-table th:nth-child(7),.tanks-table td:nth-child(7){width:11%}
+    .tanks-table{width:100%;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;table-layout:fixed}
+    .tanks-table th,.tanks-table td{padding:6px 4px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:11px}
+    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:12%}
+    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:25%}
+    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:15%}
+    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:15%}
+    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:20%}
+    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:13%}
     .tank-row-critical{background:#ffe0e0!important;font-weight:bold!important;color:#900!important}
     .tank-row-warning{background:#fff8e1!important;font-weight:bold!important;color:#f57c00!important}
     .tank-row-normal{background:#e8f5e8!important;color:#2e7d2e!important}
@@ -126,9 +125,9 @@
       .action-buttons{flex-direction:column;gap:3px}
       .modal-buttons{flex-direction:column}
       .btn{width:100%}
-      .tanks-table{overflow-x:auto;display:block;white-space:nowrap;font-size:11px}
+      .tanks-table{overflow-x:auto;display:block;white-space:nowrap;font-size:10px}
       .tanks-table thead,.tanks-table tbody,.tanks-table tr{display:table;width:100%;table-layout:fixed}
-      .tanks-table th,.tanks-table td{padding:6px 3px}
+      .tanks-table th,.tanks-table td{padding:4px 2px}
     }
   </style>
 </head>
@@ -171,14 +170,6 @@
     <div class="container">
       <!-- Message Container -->
       <div id="messageContainer"></div>
-
-      <!-- Debug Panel (only for admin) -->
-      <div id="debugPanel" style="display:none;background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.5);border-radius:10px;padding:15px;margin-bottom:20px;text-align:center">
-        <h4 style="color:#ffc107;margin-bottom:10px">🔧 Debug Panel</h4>
-        <button onclick="testFirebase()" style="background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Test Firebase</button>
-        <button onclick="addTestTank()" style="background:#2196F3;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Add Test Tank</button>
-        <button onclick="clearAllTanks()" style="background:#f44336;color:white;border:none;padding:8px 15px;border-radius:5px;margin:5px;cursor:pointer">Clear All</button>
-      </div>
 
       <!-- PBCR Department -->
       <div class="section">
@@ -337,7 +328,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, getDocs, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
@@ -363,8 +354,7 @@
     window.query = query;
     window.orderBy = orderBy;
     window.onSnapshot = onSnapshot;
-    window.getDocs = getDocs;
-    window.limit = limit;
+    window.where = where;
 
     console.log('🔥 Firebase initialized for Live Tanks!');
   </script>
@@ -480,10 +470,6 @@
       
       loadUserInfo();
       setupPermissions();
-      
-      // Check for data from PBCR
-      checkForPBCRData();
-      
       loadLiveTanks();
       
       // Set default date to today
@@ -499,7 +485,6 @@
       
       if (currentUser.username === 'fam030' || currentUser.role === 'admin') {
         document.getElementById('adminLink').style.display = 'inline-block';
-        document.getElementById('debugPanel').style.display = 'block';
       }
     }
 
@@ -520,107 +505,26 @@
 
     async function loadLiveTanks() {
       try {
-        console.log('🔥 Starting to load Live Tanks...');
+        // Set up real-time listener
+        const q = query(collection(db, 'liveTanks'), orderBy('finishDateTime', 'asc'));
         
-        // Test Firebase connection first
-        await testFirebaseConnection();
-        
-        // Use simpler query first (without orderBy)
-        const liveTanksRef = collection(db, 'liveTanks');
-        
-        console.log('📡 Setting up real-time listener...');
-        
-        unsubscribe = onSnapshot(liveTanksRef, (snapshot) => {
-          console.log('📥 Received snapshot, size:', snapshot.size);
-          
+        unsubscribe = onSnapshot(q, (snapshot) => {
           const tanks = [];
           snapshot.forEach((doc) => {
-            const tankData = { id: doc.id, ...doc.data() };
-            console.log('🏷️ Tank loaded:', tankData.tankNumber, tankData.department, tankData);
-            tanks.push(tankData);
-          });
-          
-          console.log('✅ Total tanks loaded:', tanks.length);
-          
-          // Sort manually after receiving data
-          tanks.sort((a, b) => {
-            // Sort by product priority first, then by finish time
-            const priorityA = productPriority[a.product] || 999;
-            const priorityB = productPriority[b.product] || 999;
-            
-            if (priorityA !== priorityB) {
-              return priorityA - priorityB;
-            }
-            
-            // If finishDateTime exists, use it, otherwise use date + time
-            const dateA = a.finishDateTime ? new Date(a.finishDateTime.seconds * 1000) : new Date(a.finishDate + ' ' + a.finishTime);
-            const dateB = b.finishDateTime ? new Date(b.finishDateTime.seconds * 1000) : new Date(b.finishDate + ' ' + b.finishTime);
-            
-            return dateA - dateB;
+            tanks.push({ id: doc.id, ...doc.data() });
           });
           
           displayTanksByDepartment(tanks);
           showRefreshIndicator();
-        }, (error) => {
-          console.error('❌ Real-time listener error:', error);
-          showMessage('❌ Error loading tanks: ' + error.message, 'error');
-          showEmptyState();
         });
         
       } catch (error) {
-        console.error('❌ Error setting up Live Tanks:', error);
-        showMessage('❌ Error connecting to database: ' + error.message, 'error');
-        showEmptyState();
+        console.error('Error loading live tanks:', error);
+        showMessage('❌ Error loading tanks: ' + error.message, 'error');
       }
-    }
-
-    // Test Firebase connection
-    async function testFirebaseConnection() {
-      try {
-        console.log('🧪 Testing Firebase connection...');
-        
-        // Try to read from a simple collection
-        const testRef = collection(db, 'liveTanks');
-        const testQuery = query(testRef, limit(1));
-        await getDocs(testQuery);
-        
-        console.log('✅ Firebase connection successful');
-        return true;
-      } catch (error) {
-        console.error('❌ Firebase connection failed:', error);
-        throw new Error('Cannot connect to Firebase: ' + error.message);
-      }
-    }
-
-    // Show empty state for all departments
-    function showEmptyState() {
-      const departments = ['PBCR', 'WASHERY', 'PLCR'];
-      
-      departments.forEach(dept => {
-        const containerId = dept.toLowerCase() + 'Container';
-        const countId = dept.toLowerCase() + 'Count';
-        
-        const container = document.getElementById(containerId);
-        if (container) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-icon">🏭</div>
-              <div style="font-size:1.1rem;margin-bottom:10px;">No active tanks</div>
-              <div style="opacity:0.7;">Add a tank to start monitoring</div>
-            </div>
-          `;
-        }
-        
-        const countElement = document.getElementById(countId);
-        if (countElement) {
-          countElement.textContent = '(0 tanks)';
-        }
-      });
     }
 
     function displayTanksByDepartment(tanks) {
-      console.log('🏭 Displaying tanks by department, total:', tanks.length);
-      
       const departments = ['PBCR', 'WASHERY', 'PLCR'];
       
       departments.forEach(dept => {
@@ -628,14 +532,8 @@
         const containerId = dept.toLowerCase() + 'Container';
         const countId = dept.toLowerCase() + 'Count';
         
-        console.log(`📊 ${dept} tanks:`, deptTanks.length);
-        
         displayTanksInTable(containerId, deptTanks);
-        
-        const countElement = document.getElementById(countId);
-        if (countElement) {
-          countElement.textContent = `(${deptTanks.length} tanks)`;
-        }
+        document.getElementById(countId).textContent = `(${deptTanks.length} tanks)`;
       });
     }
 
@@ -674,7 +572,6 @@
               <th>Date</th>
               <th>Time</th>
               <th>Added By</th>
-              <th>Notes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -693,9 +590,6 @@
         const dateObj = new Date(tank.finishDate);
         const formattedDate = String(dateObj.getDate()).padStart(2, '0') + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
         
-        // Format notes for display
-        const displayNotes = tank.notes ? (tank.notes.length > 15 ? tank.notes.substring(0, 15) + '...' : tank.notes) : '-';
-        
         html += `
           <tr class="${rowClass}">
             <td class="tank-number">${tank.tankNumber}</td>
@@ -703,7 +597,6 @@
             <td>${formattedDate}</td>
             <td>${tank.finishTime}</td>
             <td>${tank.addedBy}</td>
-            <td title="${tank.notes || 'No notes'}">${displayNotes}</td>
             <td>
               <div class="action-buttons">
                 ${permissions.canEdit ? `
@@ -777,52 +670,24 @@
       return classMap[product] || 'product-default';
     }
 
-    // Check for data from PBCR page
-    function checkForPBCRData() {
-      const pbcrData = sessionStorage.getItem('tanktools_live_tank_data');
-      if (pbcrData) {
-        try {
-          const data = JSON.parse(pbcrData);
-          console.log('📥 Received data from PBCR:', data);
-          
-          // Clear the session data
-          sessionStorage.removeItem('tanktools_live_tank_data');
-          
-          // Auto-fill and open modal
-          if (data.fromPBCR) {
-            // Determine department based on tank number (you can customize this logic)
-            let department = 'PBCR'; // Default
-            
-            // Auto-open the modal with pre-filled data
-            setTimeout(() => {
-              openAddModalWithData(department, data);
-            }, 500);
-            
-            showMessage('✅ Tank data imported from PBCR! Please select department and product.', 'success');
-          }
-        } catch (error) {
-          console.error('Error parsing PBCR data:', error);
-          sessionStorage.removeItem('tanktools_live_tank_data');
-        }
+    function isSameShift(date1, date2) {
+      const getShift = (date) => {
+        const hour = date.getHours();
+        if (hour >= 6 && hour < 14) return 'morning';
+        if (hour >= 14 && hour < 22) return 'evening';
+        return 'night';
+      };
+      
+      const shift1 = getShift(date1);
+      const shift2 = getShift(date2);
+      
+      // For night shift, handle day boundary
+      if (shift1 === 'night' || shift2 === 'night') {
+        const dayDiff = Math.abs(date1.getDate() - date2.getDate());
+        return dayDiff <= 1 && shift1 === shift2;
       }
-    }
-
-    // Open add modal with pre-filled data from PBCR
-    function openAddModalWithData(department, data) {
-      document.getElementById('addModalTitle').textContent = `➕ Add Tank from PBCR Calculation`;
-      document.getElementById('addDepartment').value = department;
-      document.getElementById('addTankNumber').value = data.tankNumber || '';
-      document.getElementById('addFinishDate').value = data.finishDate || '';
-      document.getElementById('addFinishTime').value = data.finishTime || '';
-      document.getElementById('addNotes').value = `Imported from PBCR calculation by ${data.addedBy}`;
       
-      updateProductOptions();
-      document.getElementById('addTankModal').classList.add('show');
-      
-      // Focus on department selector for user to choose
-      setTimeout(() => {
-        document.getElementById('addDepartment').focus();
-      }, 100);
+      return date1.toDateString() === date2.toDateString() && shift1 === shift2;
     }
 
     function openAddModal(department) {
@@ -1046,81 +911,8 @@
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
-    // Debug functions
-    window.testFirebase = async () => {
-      try {
-        showMessage('🧪 Testing Firebase connection...', 'info');
-        
-        // Test read
-        const testQuery = query(collection(db, 'liveTanks'), limit(5));
-        const snapshot = await getDocs(testQuery);
-        
-        console.log('📊 Firebase test results:');
-        console.log('- Collection exists:', true);
-        console.log('- Documents found:', snapshot.size);
-        
-        snapshot.forEach((doc) => {
-          console.log('- Document:', doc.id, doc.data());
-        });
-        
-        showMessage(`✅ Firebase working! Found ${snapshot.size} documents`, 'success');
-        
-      } catch (error) {
-        console.error('❌ Firebase test failed:', error);
-        showMessage('❌ Firebase test failed: ' + error.message, 'error');
-      }
-    };
-
-    window.addTestTank = async () => {
-      try {
-        const now = new Date();
-        const finishTime = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 hours from now
-        
-        const testTank = {
-          department: 'PBCR',
-          tankNumber: '999',
-          product: 'LSFO',
-          addedBy: currentUser.username,
-          userName: currentUser.fullName || currentUser.username,
-          finishTime: finishTime.toTimeString().slice(0,5),
-          finishDate: finishTime.toISOString().split('T')[0],
-          finishDateTime: finishTime,
-          addedAt: serverTimestamp(),
-          status: 'active',
-          notes: 'Test tank for debugging'
-        };
-        
-        await addDoc(collection(db, 'liveTanks'), testTank);
-        showMessage('✅ Test tank added successfully!', 'success');
-        
-      } catch (error) {
-        console.error('❌ Error adding test tank:', error);
-        showMessage('❌ Error adding test tank: ' + error.message, 'error');
-      }
-    };
-
-    window.clearAllTanks = async () => {
-      if (!confirm('Are you sure you want to delete ALL tanks?\n\nThis cannot be undone!')) {
-        return;
-      }
-      
-      try {
-        const snapshot = await getDocs(collection(db, 'liveTanks'));
-        const deletePromises = [];
-        
-        snapshot.forEach((doc) => {
-          deletePromises.push(deleteDoc(doc.ref));
-        });
-        
-        await Promise.all(deletePromises);
-        showMessage(`✅ Deleted ${deletePromises.length} tanks`, 'success');
-        
-      } catch (error) {
-        console.error('❌ Error clearing tanks:', error);
-        showMessage('❌ Error clearing tanks: ' + error.message, 'error');
-      }
-    };
-    window.openAddModalWithData = openAddModalWithData;
+    // Make functions globally available
+    window.openAddModal = openAddModal;
     window.closeAddModal = closeAddModal;
     window.updateProductOptions = updateProductOptions;
     window.editTank = editTank;
