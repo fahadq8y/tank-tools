@@ -354,10 +354,33 @@
 
     const WHATSAPP_ADMIN = "96555222550";
 
-    // Admin Notification System
-    function notifyAdmin(username,fullName){
+    // Admin Notification System - Enhanced with Service Worker
+    async function notifyAdmin(username,fullName){
       try{
-        // Try to find dashboard windows
+        console.log('🔔 Sending admin notification for:', username);
+        
+        // 1. Register Service Worker if not registered
+        if('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('✅ Service Worker registered for notifications');
+          
+          // Wait for service worker to be ready
+          await navigator.serviceWorker.ready;
+          
+          // 2. Send message to Service Worker for Push Notification
+          if(registration.active) {
+            registration.active.postMessage({
+              type: 'NEW_USER_REGISTERED',
+              username,
+              fullName,
+              timestamp: new Date().toISOString(),
+              urgent: true
+            });
+            console.log('✅ Message sent to Service Worker');
+          }
+        }
+        
+        // 3. Try to find dashboard windows (existing code)
         const dashboardWindows=[];
         if(window.opener&&window.opener.location.href.includes('dashboard.html')){
           dashboardWindows.push(window.opener);
@@ -373,7 +396,7 @@
           },'*');
         });
         
-        // Also try localStorage for cross-tab communication
+        // 4. Also try localStorage for cross-tab communication
         const adminNotificationData={
           type:'NEW_USER_REGISTERED',
           username,
@@ -383,16 +406,42 @@
         };
         localStorage.setItem('admin_notification',JSON.stringify(adminNotificationData));
         
-        // Try direct notification if admin has permissions
-        if('Notification'in window&&Notification.permission==='granted'){
-          new Notification('🔔 New User Registration',{
-            body:`${fullName||username} needs approval`,
+        // 5. Direct Browser Notification (if permissions granted)
+        if('Notification'in window && Notification.permission==='granted'){
+          const notification = new Notification('🚨 URGENT: New User Registration',{
+            body:`${fullName||username} is waiting for approval - Action Required!`,
             icon:'/icon.png',
-            tag:'new-user-registration'
+            tag:'new-user-registration',
+            requireInteraction: true,
+            persistent: true,
+            renotify: true,
+            vibrate: [500, 200, 500, 200, 500],
+            data: {
+              username,
+              fullName,
+              action: 'pending',
+              url: '/dashboard.html#pending'
+            }
           });
+          
+          notification.onclick = () => {
+            window.open('/dashboard.html#pending', '_blank');
+            notification.close();
+          };
+          
+          console.log('✅ Direct browser notification sent');
         }
         
-        console.log('✅ Admin notification sent for:',username);
+        // 6. Request notification permission if not granted
+        if('Notification'in window && Notification.permission==='default'){
+          const permission = await Notification.requestPermission();
+          if(permission === 'granted') {
+            // Retry notification after permission granted
+            notifyAdmin(username, fullName);
+          }
+        }
+        
+        console.log('✅ All admin notification methods attempted');
       }catch(error){
         console.log('ℹ️ Admin notification failed (normal if admin not online):',error.message);
       }
@@ -892,6 +941,17 @@ Thank you!`;
     // Initialize when page loads
     window.addEventListener('load', () => {
       loadSavedCredentials();
+      
+      // Register Service Worker early for notifications
+      if('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('✅ Login page: Service Worker registered for notifications');
+          })
+          .catch(error => {
+            console.log('❌ Service Worker registration failed:', error);
+          });
+      }
       
       // Wait for Firebase to initialize before checking session
       setTimeout(() => {

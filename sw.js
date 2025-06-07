@@ -404,9 +404,78 @@ self.addEventListener('push', event => {
   );
 });
 
-// Handle notification clicks - Enhanced for Tank Tools
+// Urgent Reminder System for New User Registrations
+function setupUrgentReminder(username, fullName) {
+  console.log('⏰ Setting up urgent reminder system for:', username);
+  
+  // Reminder after 5 minutes if not handled
+  setTimeout(() => {
+    self.registration.getNotifications().then(notifications => {
+      // Check if original notification still exists (not handled)
+      const stillPending = notifications.some(n => 
+        n.tag === 'urgent-new-user-registration' && 
+        n.data && n.data.username === username
+      );
+      
+      if(stillPending) {
+        // Send reminder notification
+        self.registration.showNotification('🚨 REMINDER: Urgent User Approval', {
+          body: `${fullName || username} is STILL waiting for approval! Please review immediately.`,
+          icon: '/icon.png',
+          badge: '/icon.png',
+          tag: 'urgent-reminder-' + username,
+          requireInteraction: true,
+          renotify: true,
+          vibrate: [1000, 500, 1000, 500, 1000],
+          data: {
+            action: 'pending',
+            username,
+            fullName,
+            url: '/dashboard.html#pending',
+            reminder: true
+          }
+        });
+        
+        console.log('🚨 Urgent reminder sent for:', username);
+      }
+    });
+  }, 5 * 60 * 1000); // 5 minutes
+  
+  // Final warning after 15 minutes
+  setTimeout(() => {
+    self.registration.getNotifications().then(notifications => {
+      const stillPending = notifications.some(n => 
+        n.tag.includes('urgent') && 
+        n.data && n.data.username === username
+      );
+      
+      if(stillPending) {
+        self.registration.showNotification('🔥 FINAL WARNING: User Approval', {
+          body: `${fullName || username} has been waiting 15+ minutes! IMMEDIATE ACTION REQUIRED!`,
+          icon: '/icon.png',
+          badge: '/icon.png', 
+          tag: 'final-warning-' + username,
+          requireInteraction: true,
+          renotify: true,
+          vibrate: [2000, 500, 2000, 500, 2000],
+          data: {
+            action: 'pending',
+            username,
+            fullName,
+            url: '/dashboard.html#pending',
+            finalWarning: true
+          }
+        });
+        
+        console.log('🔥 Final warning sent for:', username);
+      }
+    });
+  }, 15 * 60 * 1000); // 15 minutes
+}
+
+// Handle notification clicks - Enhanced for urgent notifications
 self.addEventListener('notificationclick', event => {
-  console.log('👆 Tank Tools SW: Notification clicked', event.action);
+  console.log('👆 Tank Tools SW: Urgent notification clicked', event.action);
   
   event.notification.close();
   
@@ -414,22 +483,31 @@ self.addEventListener('notificationclick', event => {
   
   // Handle different actions
   switch (event.action) {
-    case 'open_dashboard':
-      urlToOpen = '/dashboard.html';
-      break;
+    case 'review_now':
     case 'view_pending':
       urlToOpen = '/dashboard.html#pending';
       break;
+    case 'open_dashboard':
+      urlToOpen = '/dashboard.html';
+      break;
+    case 'remind_later':
+      // Set reminder for 5 minutes
+      setTimeout(() => {
+        const { username, fullName } = event.notification.data;
+        self.registration.showNotification('⏰ Reminder: User Approval', {
+          body: `Don't forget: ${fullName || username} is waiting for approval`,
+          icon: '/icon.png',
+          tag: 'reminder-' + username,
+          requireInteraction: true,
+          data: event.notification.data
+        });
+      }, 5 * 60 * 1000);
+      return;
     case 'dismiss':
-      return; // Just close notification
+      return;
     default:
       // Default click (no action button)
-      urlToOpen = event.notification.data?.url || '/dashboard.html';
-      
-      // If notification has pending user data, go to pending section
-      if (event.notification.data?.action === 'pending') {
-        urlToOpen = '/dashboard.html#pending';
-      }
+      urlToOpen = event.notification.data?.url || '/dashboard.html#pending';
       break;
   }
   
@@ -441,13 +519,12 @@ self.addEventListener('notificationclick', event => {
       // Check if Tank Tools Dashboard is already open
       for (const client of clientList) {
         if (client.url.includes('/dashboard.html') && 'focus' in client) {
-          // If dashboard is open, focus it and send message to show pending users
-          if (event.notification.data?.action === 'pending' || event.action === 'view_pending') {
-            client.postMessage({
-              type: 'SHOW_PENDING_USERS',
-              timestamp: Date.now()
-            });
-          }
+          // Send message to show pending users immediately
+          client.postMessage({
+            type: 'SHOW_PENDING_USERS',
+            urgent: true,
+            timestamp: Date.now()
+          });
           return client.focus();
         }
       }
@@ -527,38 +604,63 @@ self.addEventListener('message', event => {
     );
   }
   
-  // Handle registration notification (from login page)
+  // Handle registration notification (from login page) - Enhanced Alarm Style
   if (event.data && event.data.type === 'NEW_USER_REGISTERED') {
-    const { username, fullName } = event.data;
+    const { username, fullName, urgent } = event.data;
+    
+    console.log('🚨 Service Worker: Received new user registration notification');
     
     const notificationOptions = {
-      body: `${fullName || username} needs admin approval`,
+      body: urgent ? 
+        `🚨 ${fullName || username} is waiting for approval - ACTION REQUIRED!` :
+        `${fullName || username} needs admin approval`,
       icon: '/icon.png',
       badge: '/icon.png',
-      tag: 'new-user-registration',
+      tag: 'urgent-new-user-registration',
       requireInteraction: true,
+      persistent: true,
+      renotify: true,
+      silent: false,
+      timestamp: Date.now(),
       actions: [
         {
-          action: 'view_pending',
-          title: '⏳ Review Now',
+          action: 'review_now',
+          title: '🔍 Review Immediately',
           icon: '/icon.png'
         },
         {
-          action: 'dismiss',
-          title: '❌ Later'
+          action: 'open_dashboard',
+          title: '🔐 Open Dashboard',
+          icon: '/icon.png'
+        },
+        {
+          action: 'remind_later',
+          title: '⏰ Remind in 5 min',
+          icon: '/icon.png'
         }
       ],
       data: {
         action: 'pending',
         username,
         fullName,
-        url: '/dashboard.html#pending'
+        url: '/dashboard.html#pending',
+        urgent: true,
+        timestamp: Date.now()
       },
-      vibrate: [200, 100, 200, 100, 200]
+      vibrate: [1000, 300, 1000, 300, 1000, 300, 1000] // Long urgent vibration
     };
     
+    // Show immediate notification
     event.waitUntil(
-      self.registration.showNotification('🔔 New User Registration', notificationOptions)
+      self.registration.showNotification('🚨 URGENT: New User Registration', notificationOptions)
+        .then(() => {
+          console.log('✅ Urgent notification sent for new user registration');
+          
+          // If urgent, set up reminder system
+          if(urgent) {
+            setupUrgentReminder(username, fullName);
+          }
+        })
     );
   }
 });
