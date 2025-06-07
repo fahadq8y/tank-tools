@@ -26,39 +26,54 @@
     @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
     .page-subtitle{font-size:1.2rem;opacity:0.8}
     .container{max-width:1400px;margin:0 auto}
-    .department-section{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid rgba(255,255,255,0.2)}
-    .department-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid rgba(255,255,255,0.2)}
-    .department-title{font-size:1.4rem;font-weight:bold;display:flex;align-items:center;gap:10px}
+    .section{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid rgba(255,255,255,0.2)}
+    .section-title{font-size:1.4rem;font-weight:bold;display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid rgba(255,255,255,0.2)}
     .department-badge{padding:5px 15px;border-radius:20px;font-size:0.9rem;font-weight:bold}
     .badge-pbcr{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}
     .badge-washery{background:linear-gradient(45deg,#2196F3,#1976D2);color:white}
     .badge-plcr{background:linear-gradient(45deg,#ff9800,#f57c00);color:white}
-    .add-tank-btn{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all 0.3s ease;display:flex;align-items:center;gap:8px}
+    .add-tank-btn{background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all 0.3s ease;display:flex;align-items:center;gap:8px;margin-bottom:20px}
     .add-tank-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,215,0,0.3)}
     .add-tank-btn:disabled{background:#666;color:#999;cursor:not-allowed;transform:none}
-    .tanks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px}
-    .tank-card{background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;color:#003366;box-shadow:0 5px 15px rgba(0,0,0,0.2);transition:all 0.3s ease;position:relative}
-    .tank-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3)}
-    .tank-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-    .tank-number{font-size:1.5rem;font-weight:bold;color:#003366}
-    .tank-actions{display:flex;gap:8px}
-    .action-btn{width:35px;height:35px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s ease}
-    .btn-edit{background:#4CAF50;color:white}
-    .btn-delete{background:#f44336;color:white}
-    .btn-view{background:#2196F3;color:white}
-    .action-btn:hover{transform:scale(1.1)}
-    .tank-product{font-size:1.1rem;font-weight:600;color:#2196F3;margin-bottom:10px}
-    .tank-info{margin-bottom:8px;display:flex;align-items:center;gap:8px}
-    .tank-info-label{font-weight:600;color:#666;min-width:80px}
-    .tank-info-value{color:#003366}
-    .tank-status{position:absolute;top:15px;right:15px;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold}
-    .status-active{background:#4CAF50;color:white}
-    .status-completed{background:#ff9800;color:white}
-    .status-cancelled{background:#f44336;color:white}
+    .tanks-table{width:100%;background:rgba(255,255,255,0.95);border-radius:12px;overflow:hidden;color:#003366;box-shadow:0 5px 15px rgba(0,0,0,0.2);margin-bottom:20px}
+    .tanks-table th,.tanks-table td{padding:12px 8px;text-align:left;border-bottom:1px solid rgba(0,51,102,0.1);font-size:13px}
+    .tanks-table th{background:#003366;color:white;font-weight:bold;position:sticky;top:0;z-index:10}
+    .tanks-table tr{transition:all 0.3s ease}
+    .tanks-table tr:hover{background:rgba(255,215,0,0.1)}
+    .tank-row-critical{background:linear-gradient(90deg,rgba(244,67,54,0.2),rgba(244,67,54,0.1))!important;border-left:4px solid #f44336!important}
+    .tank-row-warning{background:linear-gradient(90deg,rgba(255,193,7,0.2),rgba(255,193,7,0.1))!important;border-left:4px solid #ffc107!important}
+    .tank-row-normal{background:rgba(76,175,80,0.1)!important;border-left:4px solid #4CAF50!important}
+    .tank-number{font-weight:bold;font-size:1.1rem;color:#003366}
+    .product-badge{padding:4px 8px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;white-space:nowrap}
+    .product-lsfo{background:#e91e63;color:white}
+    .product-ego-10{background:#9c27b0;color:white}
+    .product-ego-500{background:#673ab7;color:white}
+    .product-rhn{background:#3f51b5;color:white}
+    .product-pcna{background:#2196f3;color:white}
+    .product-nmogas{background:#03a9f4;color:white}
+    .product-olmogas{background:#00bcd4;color:white}
+    .product-atk{background:#009688;color:white}
+    .product-ardr{background:#4caf50;color:white}
+    .product-ic5{background:#8bc34a;color:white}
+    .product-isom{background:#cddc39;color:#333}
+    .product-slop{background:#ff9800;color:white}
+    .product-mogas-98{background:#f44336;color:white}
+    .product-mogas-95{background:#e91e63;color:white}
+    .product-mogas-91{background:#9c27b0;color:white}
+    .product-go{background:#3f51b5;color:white}
+    .product-kero{background:#2196f3;color:white}
+    .status-badge{display:inline-block;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase}
+    .badge-active{background:#4CAF50;color:white}
+    .badge-completed{background:#ff9800;color:white}
+    .badge-cancelled{background:#f44336;color:white}
+    .action-buttons{display:flex;gap:5px}
+    .action-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;transition:all 0.3s ease;color:white}
+    .btn-edit{background:#4CAF50}
+    .btn-delete{background:#f44336}
+    .btn-view{background:#2196F3}
+    .action-btn:hover{transform:scale(1.05)}
     .empty-state{text-align:center;padding:40px;color:#666}
     .empty-icon{font-size:3rem;margin-bottom:15px;opacity:0.5}
-    .empty-text{font-size:1.1rem;margin-bottom:10px}
-    .empty-subtext{font-size:0.9rem;opacity:0.7}
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;backdrop-filter:blur(5px)}
     .modal.show{display:flex;justify-content:center;align-items:center}
     .modal-content{background:rgba(255,255,255,0.95);padding:30px;border-radius:15px;max-width:500px;width:90%;color:#003366;max-height:90vh;overflow-y:auto}
@@ -93,17 +108,21 @@
     .login-btn{padding:12px 25px;background:linear-gradient(45deg,#4CAF50,#45a049);color:white;border:none;border-radius:10px;cursor:pointer;font-size:16px;transition:all 0.3s ease;margin:5px}
     .refresh-indicator{position:fixed;top:80px;right:20px;background:rgba(76,175,80,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:1000;animation:slideIn 0.3s ease}
     @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+    .tank-count{font-size:0.9rem;opacity:0.8;margin-left:10px}
+    .urgency-indicator{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:1.2rem;animation:blink 1s infinite}
+    @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0.3}}
     @media (max-width:768px){
       .nav-bar{flex-direction:column;gap:15px;padding:15px}
       .nav-links{order:1;justify-content:center;width:100%}
       .nav-user{order:2;width:100%;justify-content:space-between}
       .page-title{font-size:2rem}
-      .tanks-grid{grid-template-columns:1fr}
-      .department-header{flex-direction:column;gap:15px;align-items:stretch}
-      .tank-header{flex-direction:column;gap:10px;align-items:stretch}
-      .tank-actions{justify-content:center}
+      .tanks-table{font-size:11px}
+      .tanks-table th,.tanks-table td{padding:8px 4px}
+      .action-buttons{flex-direction:column;gap:3px}
       .modal-buttons{flex-direction:column}
       .btn{width:100%}
+      .tanks-table{overflow-x:auto;display:block;white-space:nowrap}
+      .tanks-table thead,.tanks-table tbody,.tanks-table tr{display:table;width:100%}
     }
   </style>
 </head>
@@ -148,17 +167,15 @@
       <div id="messageContainer"></div>
 
       <!-- PBCR Department -->
-      <div class="department-section">
-        <div class="department-header">
-          <div class="department-title">
-            <span class="department-badge badge-pbcr">PBCR Department</span>
-            <span id="pbcrCount">(0 tanks)</span>
-          </div>
-          <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none">
+      <div class="section">
+        <div class="section-title">
+          <span class="department-badge badge-pbcr">PBCR Department</span>
+          <span class="tank-count" id="pbcrCount">(0 tanks)</span>
+          <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none;margin-left:auto">
             ➕ Add PBCR Tank
           </button>
         </div>
-        <div class="tanks-grid" id="pbcrTanks">
+        <div id="pbcrContainer">
           <div class="loading">
             <div class="loading-spinner"></div>
             <div>Loading PBCR tanks...</div>
@@ -167,17 +184,15 @@
       </div>
 
       <!-- WASHERY Department -->
-      <div class="department-section">
-        <div class="department-header">
-          <div class="department-title">
-            <span class="department-badge badge-washery">WASHERY Department</span>
-            <span id="washeryCount">(0 tanks)</span>
-          </div>
-          <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none">
+      <div class="section">
+        <div class="section-title">
+          <span class="department-badge badge-washery">WASHERY Department</span>
+          <span class="tank-count" id="washeryCount">(0 tanks)</span>
+          <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none;margin-left:auto">
             ➕ Add WASHERY Tank
           </button>
         </div>
-        <div class="tanks-grid" id="washeryTanks">
+        <div id="washeryContainer">
           <div class="loading">
             <div class="loading-spinner"></div>
             <div>Loading WASHERY tanks...</div>
@@ -186,17 +201,15 @@
       </div>
 
       <!-- PLCR Department -->
-      <div class="department-section">
-        <div class="department-header">
-          <div class="department-title">
-            <span class="department-badge badge-plcr">PLCR Department</span>
-            <span id="plcrCount">(0 tanks)</span>
-          </div>
-          <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none">
+      <div class="section">
+        <div class="section-title">
+          <span class="department-badge badge-plcr">PLCR Department</span>
+          <span class="tank-count" id="plcrCount">(0 tanks)</span>
+          <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none;margin-left:auto">
             ➕ Add PLCR Tank
           </button>
         </div>
-        <div class="tanks-grid" id="plcrTanks">
+        <div id="plcrContainer">
           <div class="loading">
             <div class="loading-spinner"></div>
             <div>Loading PLCR tanks...</div>
@@ -347,24 +360,30 @@
     let currentEditingTank = null;
     let unsubscribe = null;
 
-    // Product types by department
+    // Updated Product types by department
     const productsByDepartment = {
       "PBCR": [
-        "Heavy Naphtha",
-        "Light Naphtha", 
-        "Kerosene",
-        "Gas Oil",
-        "Heavy Oil",
-        "Residue",
-        "Mixed Product"
+        "LSFO",
+        "EGO 10PPM", 
+        "EGO 500PPM",
+        "RHN",
+        "PCNA",
+        "NMOGAS",
+        "OLMOGAS",
+        "ATK",
+        "ARDR",
+        "IC5",
+        "ISOM",
+        "SLOP"
       ],
       "WASHERY": [
-        "Washed Naphtha",
-        "Clean Kerosene", 
-        "Treated Gas Oil",
-        "Purified Oil",
-        "Processed Product",
-        "Clean Mixed Product"
+        "MOGAS 98",
+        "MOGAS 95",
+        "MOGAS 91",
+        "GO",
+        "KERO",
+        "ATK",
+        "Slop"
       ],
       "PLCR": [
         "Heavy Oil",
@@ -374,6 +393,17 @@
         "Final Product",
         "Blended Oil"
       ]
+    };
+
+    // Product priority for sorting
+    const productPriority = {
+      // PBCR
+      "LSFO": 1, "EGO 10PPM": 2, "EGO 500PPM": 3, "RHN": 4, "PCNA": 5, 
+      "NMOGAS": 6, "OLMOGAS": 7, "ATK": 8, "ARDR": 9, "IC5": 10, "ISOM": 11, "SLOP": 12,
+      // WASHERY  
+      "MOGAS 98": 13, "MOGAS 95": 14, "MOGAS 91": 15, "GO": 16, "KERO": 17, "Slop": 18,
+      // PLCR
+      "Heavy Oil": 19, "Light Product": 20, "Mixed Product": 21, "Refined Oil": 22, "Final Product": 23, "Blended Oil": 24
     };
 
     // Role permissions
@@ -494,82 +524,164 @@
       
       departments.forEach(dept => {
         const deptTanks = tanks.filter(tank => tank.department === dept && tank.status === 'active');
-        const containerId = dept.toLowerCase() + 'Tanks';
+        const containerId = dept.toLowerCase() + 'Container';
         const countId = dept.toLowerCase() + 'Count';
         
-        displayTanksInContainer(containerId, deptTanks);
+        displayTanksInTable(containerId, deptTanks);
         document.getElementById(countId).textContent = `(${deptTanks.length} tanks)`;
       });
     }
 
-    function displayTanksInContainer(containerId, tanks) {
+    function displayTanksInTable(containerId, tanks) {
       const container = document.getElementById(containerId);
       
       if (tanks.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">🏭</div>
-            <div class="empty-text">No active tanks</div>
-            <div class="empty-subtext">Add a tank to start monitoring</div>
+            <div style="font-size:1.1rem;margin-bottom:10px;">No active tanks</div>
+            <div style="opacity:0.7;">Add a tank to start monitoring</div>
           </div>
         `;
         return;
       }
+
+      // Sort tanks by product priority, then by finish time
+      tanks.sort((a, b) => {
+        const priorityA = productPriority[a.product] || 999;
+        const priorityB = productPriority[b.product] || 999;
+        
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+        
+        return new Date(a.finishDateTime) - new Date(b.finishDateTime);
+      });
+
+      let html = `
+        <table class="tanks-table">
+          <thead>
+            <tr>
+              <th>Tank</th>
+              <th>Product</th>
+              <th>Finish Date</th>
+              <th>Finish Time</th>
+              <th>Added By</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
       
-      container.innerHTML = tanks.map(tank => createTankCard(tank)).join('');
+      tanks.forEach(tank => {
+        const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
+        const urgencyLevel = getUrgencyLevel(finishDateTime);
+        const rowClass = getRowClass(urgencyLevel);
+        const urgencyIcon = getUrgencyIcon(urgencyLevel);
+        
+        const permissions = rolePermissions[currentUser.role] || {};
+        
+        html += `
+          <tr class="${rowClass}" style="position:relative">
+            <td class="tank-number">Tank ${tank.tankNumber}</td>
+            <td><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></td>
+            <td>${tank.finishDate}</td>
+            <td>${tank.finishTime}</td>
+            <td>${tank.userName}</td>
+            <td><span class="status-badge badge-${tank.status}">${tank.status.toUpperCase()}</span></td>
+            <td>
+              <div class="action-buttons">
+                ${permissions.canEdit ? `
+                  <button class="action-btn btn-edit" onclick="editTank('${tank.id}')" title="Edit Tank">✏️</button>
+                  <button class="action-btn btn-delete" onclick="deleteTank('${tank.id}')" title="Delete Tank">🗑️</button>
+                ` : `
+                  <button class="action-btn btn-view" title="View Only">👁️</button>
+                `}
+              </div>
+            </td>
+            ${urgencyIcon ? `<div class="urgency-indicator">${urgencyIcon}</div>` : ''}
+          </tr>
+        `;
+      });
+      
+      html += '</tbody></table>';
+      container.innerHTML = html;
     }
 
-    function createTankCard(tank) {
-      const permissions = rolePermissions[currentUser.role] || {};
-      const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
-      const isOverdue = finishDateTime < new Date();
+    function getUrgencyLevel(finishDateTime) {
+      const now = new Date();
+      const timeDiff = finishDateTime.getTime() - now.getTime();
+      const minutesDiff = timeDiff / (1000 * 60);
       
-      return `
-        <div class="tank-card ${isOverdue ? 'overdue' : ''}">
-          <div class="tank-status status-${tank.status}">${tank.status.toUpperCase()}</div>
-          
-          <div class="tank-header">
-            <div class="tank-number">Tank ${tank.tankNumber}</div>
-            <div class="tank-actions">
-              ${permissions.canEdit ? `
-                <button class="action-btn btn-edit" onclick="editTank('${tank.id}')" title="Edit Tank">✏️</button>
-                <button class="action-btn btn-delete" onclick="deleteTank('${tank.id}')" title="Delete Tank">🗑️</button>
-              ` : `
-                <button class="action-btn btn-view" title="View Only">👁️</button>
-              `}
-            </div>
-          </div>
-          
-          <div class="tank-product">${tank.product}</div>
-          
-          <div class="tank-info">
-            <span class="tank-info-label">👤 User:</span>
-            <span class="tank-info-value">${tank.userName}</span>
-          </div>
-          
-          <div class="tank-info">
-            <span class="tank-info-label">📅 Date:</span>
-            <span class="tank-info-value">${tank.finishDate}</span>
-          </div>
-          
-          <div class="tank-info">
-            <span class="tank-info-label">⏰ Time:</span>
-            <span class="tank-info-value">${tank.finishTime}</span>
-          </div>
-          
-          ${tank.notes ? `
-            <div class="tank-info">
-              <span class="tank-info-label">📝 Notes:</span>
-              <span class="tank-info-value">${tank.notes}</span>
-            </div>
-          ` : ''}
-          
-          <div class="tank-info">
-            <span class="tank-info-label">🕒 Added:</span>
-            <span class="tank-info-value">${formatTimestamp(tank.addedAt)}</span>
-          </div>
-        </div>
-      `;
+      // Check if in same shift
+      if (isSameShift(now, finishDateTime) && minutesDiff <= 60) {
+        return 'critical'; // Red - finishing soon in same shift
+      } else if (minutesDiff <= 120) {
+        return 'warning'; // Yellow - finishing within 2 hours
+      } else {
+        return 'normal'; // Green - plenty of time
+      }
+    }
+
+    function getRowClass(urgencyLevel) {
+      switch(urgencyLevel) {
+        case 'critical': return 'tank-row-critical';
+        case 'warning': return 'tank-row-warning';
+        default: return 'tank-row-normal';
+      }
+    }
+
+    function getUrgencyIcon(urgencyLevel) {
+      switch(urgencyLevel) {
+        case 'critical': return '🚨';
+        case 'warning': return '⚠️';
+        default: return '';
+      }
+    }
+
+    function getProductClass(product) {
+      const classMap = {
+        'LSFO': 'product-lsfo',
+        'EGO 10PPM': 'product-ego-10',
+        'EGO 500PPM': 'product-ego-500',
+        'RHN': 'product-rhn',
+        'PCNA': 'product-pcna',
+        'NMOGAS': 'product-nmogas',
+        'OLMOGAS': 'product-olmogas',
+        'ATK': 'product-atk',
+        'ARDR': 'product-ardr',
+        'IC5': 'product-ic5',
+        'ISOM': 'product-isom',
+        'SLOP': 'product-slop',
+        'MOGAS 98': 'product-mogas-98',
+        'MOGAS 95': 'product-mogas-95',
+        'MOGAS 91': 'product-mogas-91',
+        'GO': 'product-go',
+        'KERO': 'product-kero',
+        'Slop': 'product-slop'
+      };
+      return classMap[product] || 'product-default';
+    }
+
+    function isSameShift(date1, date2) {
+      const getShift = (date) => {
+        const hour = date.getHours();
+        if (hour >= 6 && hour < 14) return 'morning';
+        if (hour >= 14 && hour < 22) return 'evening';
+        return 'night';
+      };
+      
+      const shift1 = getShift(date1);
+      const shift2 = getShift(date2);
+      
+      // For night shift, handle day boundary
+      if (shift1 === 'night' || shift2 === 'night') {
+        const dayDiff = Math.abs(date1.getDate() - date2.getDate());
+        return dayDiff <= 1 && shift1 === shift2;
+      }
+      
+      return date1.toDateString() === date2.toDateString() && shift1 === shift2;
     }
 
     function openAddModal(department) {
@@ -740,18 +852,6 @@
       }
     });
 
-    // Utility functions
-    function formatTimestamp(timestamp) {
-      if (!timestamp) return 'Unknown';
-      
-      try {
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp.seconds * 1000);
-        return date.toLocaleString();
-      } catch (error) {
-        return 'Unknown';
-      }
-    }
-
     function showRefreshIndicator() {
       const indicator = document.createElement('div');
       indicator.className = 'refresh-indicator';
@@ -820,9 +920,9 @@
       if (unsubscribe) unsubscribe();
     });
 
-    console.log('%c🔴 LIVE TANKS - REAL-TIME MONITORING', 'color:red;font-size:16px;font-weight:bold');
+    console.log('%c🔴 LIVE TANKS - UPDATED TABLE DESIGN', 'color:red;font-size:16px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:14px');
-    console.log('%cFirebase Real-time Updates Active', 'color:blue;font-size:14px');
+    console.log('%cProduct-based sorting with urgency indicators', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>
