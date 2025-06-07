@@ -354,6 +354,50 @@
 
     const WHATSAPP_ADMIN = "96555222550";
 
+    // Admin Notification System
+    function notifyAdmin(username,fullName){
+      try{
+        // Try to find dashboard windows
+        const dashboardWindows=[];
+        if(window.opener&&window.opener.location.href.includes('dashboard.html')){
+          dashboardWindows.push(window.opener);
+        }
+        
+        // Send message to dashboard windows
+        dashboardWindows.forEach(dashWin=>{
+          dashWin.postMessage({
+            type:'NEW_USER_REGISTERED',
+            username,
+            fullName,
+            timestamp:new Date().toISOString()
+          },'*');
+        });
+        
+        // Also try localStorage for cross-tab communication
+        const adminNotificationData={
+          type:'NEW_USER_REGISTERED',
+          username,
+          fullName,
+          timestamp:new Date().toISOString(),
+          id:Date.now()
+        };
+        localStorage.setItem('admin_notification',JSON.stringify(adminNotificationData));
+        
+        // Try direct notification if admin has permissions
+        if('Notification'in window&&Notification.permission==='granted'){
+          new Notification('🔔 New User Registration',{
+            body:`${fullName||username} needs approval`,
+            icon:'/icon.png',
+            tag:'new-user-registration'
+          });
+        }
+        
+        console.log('✅ Admin notification sent for:',username);
+      }catch(error){
+        console.log('ℹ️ Admin notification failed (normal if admin not online):',error.message);
+      }
+    }
+
     // Enhanced login function with Firebase
     async function handleLogin(event) {
       event.preventDefault();
@@ -554,6 +598,9 @@
         
         // Add registration activity
         await addActivity('user_registered', username);
+        
+        // Send notification to admin
+        notifyAdmin(username,fullName);
         
         console.log('✅ User registered successfully in Firebase');
         
@@ -842,9 +889,9 @@ Thank you.`;
       }, 1000);
     });
 
-    console.log('%c🔥 TANK TOOLS - FIREBASE REGISTRATION SYSTEM', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 TANK TOOLS - FIREBASE REGISTRATION WITH ADMIN NOTIFICATIONS', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cUsers require admin approval after registration', 'color:blue;font-size:14px');
+    console.log('%cUsers require admin approval + Push Notifications', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>

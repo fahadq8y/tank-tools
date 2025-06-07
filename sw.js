@@ -1,9 +1,9 @@
-// 🔒 Tank Tools Service Worker - Enhanced PWA
+// 🔒 Tank Tools Service Worker - Enhanced PWA + Push Notifications
 // Developer: Fahad - 17877
-// Version: 3.0.0
+// Version: 4.0.0
 
-const CACHE_NAME = 'tanktools-v3.0.0';
-const CACHE_VERSION = '3.0.0';
+const CACHE_NAME = 'tanktools-v4.0.0';
+const CACHE_VERSION = '4.0.0';
 
 // Files to cache for offline functionality
 const CORE_ASSETS = [
@@ -344,37 +344,59 @@ async function clearOfflineData() {
   // Implementation depends on your storage method
 }
 
-// Handle push notifications
+// Handle push notifications - Enhanced for Tank Tools Admin
 self.addEventListener('push', event => {
   console.log('🔔 Tank Tools SW: Push notification received');
   
-  let notificationData = {};
+  let notificationData = {
+    title: 'Tank Tools Notification',
+    body: 'You have a new notification',
+    icon: '/icon.png',
+    badge: '/icon.png'
+  };
   
   if (event.data) {
-    notificationData = event.data.json();
+    try {
+      notificationData = {...notificationData, ...event.data.json()};
+    } catch (error) {
+      console.log('Using default notification data');
+    }
   }
   
+  // Enhanced options for Tank Tools
   const options = {
-    title: notificationData.title || 'Tank Tools Notification',
-    body: notificationData.body || 'You have a new notification',
+    title: notificationData.title,
+    body: notificationData.body,
     icon: '/icon.png',
     badge: '/icon.png',
-    tag: 'tanktools-notification',
+    tag: 'tanktools-admin-notification',
     requireInteraction: true,
+    silent: false,
+    renotify: true,
+    timestamp: Date.now(),
     actions: [
       {
-        action: 'open',
-        title: 'Open App',
+        action: 'open_dashboard',
+        title: '🔐 Open Dashboard',
+        icon: '/icon.png'
+      },
+      {
+        action: 'view_pending',
+        title: '⏳ View Pending',
         icon: '/icon.png'
       },
       {
         action: 'dismiss',
-        title: 'Dismiss'
+        title: '❌ Dismiss'
       }
     ],
     data: {
-      url: notificationData.url || '/dashboard.html'
-    }
+      url: notificationData.url || '/dashboard.html',
+      action: notificationData.action || 'dashboard',
+      username: notificationData.username,
+      timestamp: Date.now()
+    },
+    vibrate: [200, 100, 200] // For mobile devices
   };
   
   event.waitUntil(
@@ -382,37 +404,96 @@ self.addEventListener('push', event => {
   );
 });
 
-// Handle notification clicks
+// Handle notification clicks - Enhanced for Tank Tools
 self.addEventListener('notificationclick', event => {
-  console.log('👆 Tank Tools SW: Notification clicked');
+  console.log('👆 Tank Tools SW: Notification clicked', event.action);
   
   event.notification.close();
   
-  if (event.action === 'open') {
-    const urlToOpen = event.notification.data?.url || '/dashboard.html';
-    
-    event.waitUntil(
-      clients.matchAll({
-        type: 'window',
-        includeUncontrolled: true
-      }).then(clientList => {
-        // If app is already open, focus it
-        for (const client of clientList) {
-          if (client.url.includes(urlToOpen) && 'focus' in client) {
+  let urlToOpen = '/dashboard.html';
+  
+  // Handle different actions
+  switch (event.action) {
+    case 'open_dashboard':
+      urlToOpen = '/dashboard.html';
+      break;
+    case 'view_pending':
+      urlToOpen = '/dashboard.html#pending';
+      break;
+    case 'dismiss':
+      return; // Just close notification
+    default:
+      // Default click (no action button)
+      urlToOpen = event.notification.data?.url || '/dashboard.html';
+      
+      // If notification has pending user data, go to pending section
+      if (event.notification.data?.action === 'pending') {
+        urlToOpen = '/dashboard.html#pending';
+      }
+      break;
+  }
+  
+  event.waitUntil(
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    }).then(clientList => {
+      // Check if Tank Tools Dashboard is already open
+      for (const client of clientList) {
+        if (client.url.includes('/dashboard.html') && 'focus' in client) {
+          // If dashboard is open, focus it and send message to show pending users
+          if (event.notification.data?.action === 'pending' || event.action === 'view_pending') {
+            client.postMessage({
+              type: 'SHOW_PENDING_USERS',
+              timestamp: Date.now()
+            });
+          }
+          return client.focus();
+        }
+      }
+      
+      // If Tank Tools is open but not dashboard, navigate to dashboard
+      for (const client of clientList) {
+        if (client.url.includes('tanktools') || client.url.includes('login.html') || client.url.includes('index.html')) {
+          if ('navigate' in client) {
+            return client.navigate(urlToOpen).then(() => client.focus());
+          } else {
+            client.postMessage({
+              type: 'NAVIGATE_TO',
+              url: urlToOpen
+            });
             return client.focus();
           }
         }
-        
-        // Otherwise open new window
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
-    );
-  }
+      }
+      
+      // Otherwise open new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
 });
 
-// Handle messages from main thread
+// Handle notification close
+self.addEventListener('notificationclose', event => {
+  console.log('🔕 Tank Tools SW: Notification closed', event.notification.tag);
+  
+  // Track notification dismissal for analytics
+  event.waitUntil(
+    clients.matchAll().then(clientList => {
+      clientList.forEach(client => {
+        client.postMessage({
+          type: 'NOTIFICATION_CLOSED',
+          tag: event.notification.tag,
+          timestamp: Date.now()
+        });
+      });
+    })
+  );
+});
+
+// Handle messages from main thread - Enhanced
 self.addEventListener('message', event => {
   console.log('💬 Tank Tools SW: Message received:', event.data);
   
@@ -423,20 +504,132 @@ self.addEventListener('message', event => {
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({
       version: CACHE_VERSION,
-      cacheName: CACHE_NAME
+      cacheName: CACHE_NAME,
+      features: ['push-notifications', 'offline-support', 'admin-alerts']
     });
+  }
+  
+  // Handle admin notification requests
+  if (event.data && event.data.type === 'SEND_ADMIN_NOTIFICATION') {
+    const { title, body, data } = event.data;
+    
+    const notificationOptions = {
+      body,
+      icon: '/icon.png',
+      badge: '/icon.png',
+      tag: 'tanktools-admin-alert',
+      requireInteraction: true,
+      data: data || {}
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(title, notificationOptions)
+    );
+  }
+  
+  // Handle registration notification (from login page)
+  if (event.data && event.data.type === 'NEW_USER_REGISTERED') {
+    const { username, fullName } = event.data;
+    
+    const notificationOptions = {
+      body: `${fullName || username} needs admin approval`,
+      icon: '/icon.png',
+      badge: '/icon.png',
+      tag: 'new-user-registration',
+      requireInteraction: true,
+      actions: [
+        {
+          action: 'view_pending',
+          title: '⏳ Review Now',
+          icon: '/icon.png'
+        },
+        {
+          action: 'dismiss',
+          title: '❌ Later'
+        }
+      ],
+      data: {
+        action: 'pending',
+        username,
+        fullName,
+        url: '/dashboard.html#pending'
+      },
+      vibrate: [200, 100, 200, 100, 200]
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification('🔔 New User Registration', notificationOptions)
+    );
   }
 });
 
-// Error handling
+// Enhanced error handling for Tank Tools
 self.addEventListener('error', event => {
   console.error('❌ Tank Tools SW: Error occurred:', event.error);
+  
+  // Send error to main thread for logging
+  clients.matchAll().then(clientList => {
+    clientList.forEach(client => {
+      client.postMessage({
+        type: 'SW_ERROR',
+        error: event.error.message,
+        timestamp: Date.now()
+      });
+    });
+  });
 });
 
 self.addEventListener('unhandledrejection', event => {
   console.error('❌ Tank Tools SW: Unhandled promise rejection:', event.reason);
+  
+  // Send error to main thread for logging
+  clients.matchAll().then(clientList => {
+    clientList.forEach(client => {
+      client.postMessage({
+        type: 'SW_PROMISE_REJECTION',
+        reason: event.reason,
+        timestamp: Date.now()
+      });
+    });
+  });
 });
 
-console.log('🚀 Tank Tools Service Worker v3.0.0 loaded successfully');
+// Periodic background sync for Tank Tools admin notifications
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'tanktools-admin-check') {
+    event.waitUntil(checkForAdminUpdates());
+  }
+});
+
+// Check for admin updates (placeholder)
+async function checkForAdminUpdates() {
+  console.log('🔍 Tank Tools SW: Checking for admin updates...');
+  
+  try {
+    // This would check Firebase for pending users, new activities, etc.
+    // Implementation depends on your backend API
+    
+    // Example: Check for pending users
+    const response = await fetch('/api/admin/pending-count');
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.pendingCount > 0) {
+        await self.registration.showNotification('🔔 Tank Tools Admin Alert', {
+          body: `${data.pendingCount} users awaiting approval`,
+          icon: '/icon.png',
+          badge: '/icon.png',
+          tag: 'periodic-admin-check',
+          data: { action: 'pending' }
+        });
+      }
+    }
+  } catch (error) {
+    console.log('🔍 Admin check failed (normal if offline):', error.message);
+  }
+}
+
+console.log('🚀 Tank Tools Service Worker v4.0.0 loaded successfully');
 console.log('🔒 Developed by Fahad - 17877');
+console.log('🔔 Enhanced with Push Notifications for Admin');
 console.log('🏢 Kuwait National Petroleum Company');

@@ -21,6 +21,8 @@
     .container{max-width:1400px;margin:20px auto;padding:0 20px}
     .admin-banner{text-align:center;margin-bottom:30px;background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;backdrop-filter:blur(10px)}
     .admin-badge{display:inline-block;background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;padding:8px 20px;border-radius:25px;font-weight:bold;margin-bottom:15px;font-size:1.1rem}
+    .notification-banner{background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.5);color:#ffc107;padding:15px;border-radius:10px;margin-bottom:20px;display:none;text-align:center}
+    .notification-banner.show{display:block}
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px}
     .stat-card{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.2);transition:transform 0.3s ease}
     .stat-card:hover{transform:translateY(-5px)}
@@ -110,6 +112,10 @@
       <h2>🎛️ Master User Management System</h2>
       <p>Real-time Firebase database with advanced user controls</p>
       <p id="currentTime" style="margin-top:10px;opacity:0.8"></p>
+    </div>
+
+    <div class="notification-banner" id="notificationBanner">
+      <span id="notificationText">🔔 Notifications enabled for new user registrations</span>
     </div>
 
     <div id="messageContainer"></div>
@@ -287,6 +293,37 @@
     let currentEditingUser = null;
     let allUsers = [];
     let allActivities = [];
+
+    // Push Notifications Setup
+    async function setupNotifications(){
+      if(!('Notification'in window)||!('serviceWorker'in navigator))return;
+      const permission=await Notification.requestPermission();
+      if(permission==='granted'){
+        document.getElementById('notificationBanner').classList.add('show');
+        localStorage.setItem('admin_notifications','enabled');
+      }
+    }
+
+    function showAdminNotification(title,body,data={}){
+      if(Notification.permission!=='granted')return;
+      const notification=new Notification(title,{
+        body,icon:'/icon.png',badge:'/icon.png',tag:'admin-notification',
+        requireInteraction:true,data
+      });
+      notification.onclick=()=>{
+        window.focus();
+        if(data.action==='pending')showPendingUsers();
+        notification.close();
+      };
+    }
+
+    window.addEventListener('message',event=>{
+      if(event.data&&event.data.type==='NEW_USER_REGISTERED'){
+        const{username,fullName}=event.data;
+        showAdminNotification('🔔 New User Registration',`${fullName||username} needs approval`,{action:'pending'});
+        loadDashboardData();
+      }
+    });
 
     // Check admin access
     function checkAdminAccess() {
@@ -817,6 +854,9 @@
       document.getElementById('statusFilter').addEventListener('change', filterUsers);
       document.getElementById('roleFilter').addEventListener('change', filterUsers);
       
+      // Setup notifications first
+      setupNotifications();
+      
       // Load data after Firebase initialization
       setTimeout(loadDashboardData, 1000);
     });
@@ -834,9 +874,9 @@
     window.sendActivationEmail = sendActivationEmail;
     window.logout = logout;
 
-    console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.0', 'color:orange;font-size:20px;font-weight:bold');
+    console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.0 - WITH NOTIFICATIONS', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
-    console.log('%cReal-time Firebase Integration', 'color:blue;font-size:14px');
+    console.log('%cReal-time Firebase Integration + Push Notifications', 'color:blue;font-size:14px');
   </script>
 </body>
 </html>
