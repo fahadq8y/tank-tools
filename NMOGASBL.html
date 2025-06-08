@@ -21,6 +21,9 @@
     .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
     .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
     .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
+    .font-controls{display:flex;gap:5px;margin-right:10px}
+    .font-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;transition:all 0.3s ease;min-width:30px}
+    .font-btn:hover{background:rgba(255,255,255,0.3);transform:translateY(-1px)}
     h2{font-size:1.2rem;margin:10px 0}
     input,select{background:rgba(255,255,255,0.9);border-radius:8px;border:none;color:#003366;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:12px;margin:2px;padding:4px;max-width:100px}
     label{font-weight:bold;margin:5px;font-size:14px}
@@ -135,6 +138,10 @@
         <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
       </div>
       <div class="nav-user" id="navUser">
+        <div class="font-controls">
+          <button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
+          <button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+        </div>
         <div class="user-avatar" id="userAvatar">U</div>
         <div id="userName">User</div>
         <button class="logout-btn" onclick="logout()">Logout</button>
@@ -456,6 +463,62 @@
     document.getElementById("totalRate").addEventListener("input",autoSave);
     if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
     
+    // Font size control functions
+    let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size_nmogas') || '12');
+    
+    function increaseFontSize() {
+      if (currentFontSize < 20) {
+        currentFontSize += 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size_nmogas', currentFontSize);
+        showFontMessage(`📈 Font size increased to ${currentFontSize}px`);
+      }
+    }
+    
+    function decreaseFontSize() {
+      if (currentFontSize > 8) {
+        currentFontSize -= 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size_nmogas', currentFontSize);
+        showFontMessage(`📉 Font size decreased to ${currentFontSize}px`);
+      }
+    }
+    
+    function applyFontSize() {
+      const style = document.createElement('style');
+      style.id = 'dynamic-font-style';
+      
+      const existingStyle = document.getElementById('dynamic-font-style');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      style.textContent = `
+        input, select { font-size: ${currentFontSize}px !important; }
+        label { font-size: ${currentFontSize + 2}px !important; }
+        table { font-size: ${currentFontSize}px !important; }
+        th { font-size: ${currentFontSize}px !important; }
+        h2 { font-size: ${currentFontSize + 8}px !important; }
+        th, td { padding: ${Math.max(4, currentFontSize/2)}px ${Math.max(2, currentFontSize/3)}px !important; }
+      `;
+      
+      document.head.appendChild(style);
+    }
+    
+    function showFontMessage(message) {
+      const msgDiv = document.createElement('div');
+      msgDiv.style.cssText = 'position:fixed;top:80px;right:20px;background:rgba(76,175,80,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:1000;animation:slideIn 0.3s ease';
+      msgDiv.textContent = message;
+      document.body.appendChild(msgDiv);
+      setTimeout(() => msgDiv.remove(), 3000);
+    }
+    
+    // Apply saved font size on page load
+    applyFontSize();
+    
+    window.increaseFontSize = increaseFontSize;
+    window.decreaseFontSize = decreaseFontSize;
+
     console.log('%c🔒 NMOGAS BLENDER - UPDATED VERSION','color:red;font-size:16px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877','color:green;font-size:14px');
   </script>
