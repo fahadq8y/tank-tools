@@ -42,15 +42,12 @@
     .tanks-table{margin:auto;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;width:98%;min-width:300px;table-layout:fixed}
     .tanks-table th,.tanks-table td{padding:8px 6px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
     .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:12px}
-    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:8%}
-    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:18%}
-    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:10%}
-    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:12%}
-    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:10%}
-    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:8%}
-    .tanks-table th:nth-child(7),.tanks-table td:nth-child(7){width:12%}
-    .tanks-table th:nth-child(8),.tanks-table td:nth-child(8){width:12%}
-    .tanks-table th:nth-child(9),.tanks-table td:nth-child(9){width:10%}
+    .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:15%}
+    .tanks-table th:nth-child(2),.tanks-table td:nth-child(2){width:20%}
+    .tanks-table th:nth-child(3),.tanks-table td:nth-child(3){width:18%}
+    .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:18%}
+    .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:20%}
+    .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:9%}
     .tank-row-critical{background:#ffe0e0!important;font-weight:bold!important;color:#900!important}
     .tank-row-warning{background:#fff8e1!important;font-weight:bold!important;color:#f57c00!important}
     .tank-row-normal{background:#e8f5e8!important;color:#2e7d2e!important}
@@ -102,6 +99,15 @@
     .btn-secondary{background:linear-gradient(45deg,#6c757d,#5a6268);color:white}
     .btn-danger{background:linear-gradient(45deg,#f44336,#d32f2f);color:white}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+    .tank-details-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;backdrop-filter:blur(5px)}
+    .tank-details-modal.show{display:flex;justify-content:center;align-items:center}
+    .tank-details-content{background:rgba(255,255,255,0.95);padding:25px;border-radius:15px;max-width:450px;width:90%;color:#003366;max-height:90vh;overflow-y:auto}
+    .tank-details-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #ddd}
+    .tank-details-title{font-size:1.4rem;font-weight:bold;color:#003366}
+    .tank-detail-row{display:flex;justify-content:space-between;margin-bottom:12px;padding:8px 0;border-bottom:1px solid #eee}
+    .tank-detail-label{font-weight:600;color:#666;flex:1}
+    .tank-detail-value{flex:1;text-align:right;color:#003366}
+    .tank-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;padding-top:15px;border-top:2px solid #eee}
     .modal-buttons{display:flex;gap:15px;justify-content:flex-end;margin-top:25px}
     .message{padding:15px 20px;border-radius:10px;margin-bottom:20px;font-weight:500;border-left:5px solid}
     .message.success{background:rgba(76,175,80,0.2);border-color:#4CAF50;color:#4CAF50}
@@ -225,6 +231,19 @@
           <div class="loading-spinner"></div>
           <div>Loading PLCR tanks...</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tank Details Modal -->
+  <div id="tankDetailsModal" class="tank-details-modal">
+    <div class="tank-details-content">
+      <div class="tank-details-header">
+        <h3 class="tank-details-title" id="tankDetailsTitle">🏭 Tank Details</h3>
+        <button class="close-btn" onclick="closeTankDetails()">&times;</button>
+      </div>
+      <div id="tankDetailsBody">
+        <!-- Tank details will be populated here -->
       </div>
     </div>
   </div>
@@ -598,11 +617,8 @@
                 <th>Product</th>
                 <th>Target</th>
                 <th>Rate</th>
-                <th>Date</th>
-                <th>Time</th>
                 <th>Remaining</th>
-                <th>Added By</th>
-                <th>Actions</th>
+                <th>❗</th>
               </tr>
             </thead>
             <tbody>
@@ -649,19 +665,9 @@
             <td><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></td>
             <td>${targetText}</td>
             <td>${rateText}</td>
-            <td>${formattedDate}</td>
-            <td>${tank.finishTime}</td>
             <td>${remainingText}</td>
-            <td>${tank.addedBy}</td>
             <td>
-              <div class="action-buttons">
-                ${permissions.canEdit ? `
-                  <button class="action-btn btn-edit" onclick="editTank('${tank.id}')" title="Edit">✏️</button>
-                  <button class="action-btn btn-delete" onclick="deleteTank('${tank.id}')" title="Delete">🗑️</button>
-                ` : `
-                  <button class="action-btn btn-view" title="View">👁️</button>
-                `}
-              </div>
+              <button class="action-btn" onclick="showTankDetails('${tank.id}')" title="View Details" style="background:#2196F3;color:white;padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:14px">❗</button>
             </td>
           </tr>
         `;
@@ -669,6 +675,100 @@
       
       html += '</tbody></table></div>';
       container.innerHTML = html;
+    }
+
+    // Tank Details Functions
+    window.showTankDetails = function(tankId) {
+      const tank = window.currentTanks?.find(t => t.id === tankId);
+      if (!tank) return;
+      
+      const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
+      const dateObj = new Date(tank.finishDate);
+      const formattedDate = String(dateObj.getDate()).padStart(2, '0') + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
+      
+      // Calculate remaining time
+      const now = new Date();
+      const timeDiff = finishDateTime.getTime() - now.getTime();
+      const hoursRemaining = Math.floor(timeDiff / (1000 * 60 * 60));
+      const minutesRemaining = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      let remainingText = '';
+      if (timeDiff <= 0) {
+        remainingText = 'Finished';
+      } else if (hoursRemaining < 1) {
+        remainingText = `${minutesRemaining} minutes`;
+      } else if (hoursRemaining < 24) {
+        remainingText = `${hoursRemaining}h ${minutesRemaining}m`;
+      } else {
+        const daysRemaining = Math.floor(hoursRemaining / 24);
+        const remainingHours = hoursRemaining % 24;
+        remainingText = `${daysRemaining}d ${remainingHours}h`;
+      }
+      
+      const permissions = rolePermissions[currentUser.role] || {};
+      
+      document.getElementById('tankDetailsTitle').textContent = `Tank ${tank.tankNumber} Details`;
+      
+      const detailsHTML = `
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">🏭 Department:</span>
+          <span class="tank-detail-value">${tank.department}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">🏷️ Tank Number:</span>
+          <span class="tank-detail-value">${tank.tankNumber}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">🛢️ Product:</span>
+          <span class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">🎯 Target:</span>
+          <span class="tank-detail-value">${tank.targetValue ? `${tank.targetValue} ${tank.targetType || ''}` : '-'}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">⚡ Flow Rate:</span>
+          <span class="tank-detail-value">${tank.rate ? `${tank.rate} ${tank.rateUnit || 'bbl'}/hr` : '-'}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">📅 Finish Date:</span>
+          <span class="tank-detail-value">${formattedDate}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">⏰ Finish Time:</span>
+          <span class="tank-detail-value">${tank.finishTime}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">⏳ Remaining Time:</span>
+          <span class="tank-detail-value">${remainingText}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">👤 Added By:</span>
+          <span class="tank-detail-value">${tank.addedBy}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">📝 Notes:</span>
+          <span class="tank-detail-value">${tank.notes || 'No notes'}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">📊 Source:</span>
+          <span class="tank-detail-value">${tank.source || 'Manual'}</span>
+        </div>
+        
+        ${permissions.canEdit ? `
+          <div class="tank-actions">
+            <button class="btn btn-primary" onclick="editTank('${tank.id}')">✏️ Edit Tank</button>
+            <button class="btn btn-danger" onclick="deleteTank('${tank.id}')">🗑️ Delete Tank</button>
+          </div>
+        ` : ''}
+      `;
+      
+      document.getElementById('tankDetailsBody').innerHTML = detailsHTML;
+      document.getElementById('tankDetailsModal').classList.add('show');
+    }
+
+    window.closeTankDetails = function() {
+      document.getElementById('tankDetailsModal').classList.remove('show');
     }
 
     function getUrgencyLevel(finishDateTime) {
