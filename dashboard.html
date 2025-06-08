@@ -18,6 +18,9 @@
     .nav-btn:hover{background:rgba(255,255,255,0.2);transform:translateY(-2px)}
     .logout-btn{background:rgba(255,0,0,0.2);border-color:rgba(255,0,0,0.5)}
     .logout-btn:hover{background:rgba(255,0,0,0.4)}
+    .font-controls{display:flex;gap:5px;margin-right:10px}
+    .font-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;transition:all 0.3s ease;min-width:30px}
+    .font-btn:hover{background:rgba(255,255,255,0.3);transform:translateY(-1px)}
     .container{max-width:1400px;margin:20px auto;padding:0 20px}
     .admin-banner{text-align:center;margin-bottom:30px;background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;backdrop-filter:blur(10px)}
     .admin-badge{display:inline-block;background:linear-gradient(45deg,#FFD700,#FFA500);color:#003366;padding:8px 20px;border-radius:25px;font-weight:bold;margin-bottom:15px;font-size:1.1rem}
@@ -108,6 +111,10 @@
   <div class="header">
     <div class="logo">🔥 Firebase Admin Dashboard</div>
     <div class="user-info">
+      <div class="font-controls">
+        <button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
+        <button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+      </div>
       <div class="nav-links">
         <a href="index.html" class="nav-btn">📊 PBCR</a>
         <a href="plcr.html" class="nav-btn">⚗️ PLCR</a>
@@ -1080,6 +1087,65 @@
     window.saveGlobalSettings = saveGlobalSettings;
     window.resetToDefault = resetToDefault;
     window.logout = logout;
+
+    // Font size control functions
+    let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size_dashboard') || '14');
+    
+    function increaseFontSize() {
+      if (currentFontSize < 22) {
+        currentFontSize += 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size_dashboard', currentFontSize);
+        showFontMessage(`📈 Font size increased to ${currentFontSize}px`);
+      }
+    }
+    
+    function decreaseFontSize() {
+      if (currentFontSize > 10) {
+        currentFontSize -= 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size_dashboard', currentFontSize);
+        showFontMessage(`📉 Font size decreased to ${currentFontSize}px`);
+      }
+    }
+    
+    function applyFontSize() {
+      const style = document.createElement('style');
+      style.id = 'dynamic-font-style';
+      
+      const existingStyle = document.getElementById('dynamic-font-style');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      style.textContent = `
+        .users-table { font-size: ${currentFontSize}px !important; }
+        .users-table th, .users-table td { font-size: ${currentFontSize}px !important; padding: ${Math.max(8, currentFontSize/2)}px ${Math.max(6, currentFontSize/3)}px !important; }
+        .form-input, .form-select, .search-box, .filter-select { font-size: ${currentFontSize}px !important; }
+        .btn { font-size: ${currentFontSize}px !important; }
+        .stat-number { font-size: ${currentFontSize + 8}px !important; }
+        .stat-label { font-size: ${currentFontSize - 2}px !important; }
+        .section-title { font-size: ${currentFontSize + 6}px !important; }
+        .activity-item { font-size: ${currentFontSize}px !important; }
+        .pending-card { font-size: ${currentFontSize}px !important; }
+      `;
+      
+      document.head.appendChild(style);
+    }
+    
+    function showFontMessage(message) {
+      const msgDiv = document.createElement('div');
+      msgDiv.style.cssText = 'position:fixed;top:80px;right:20px;background:rgba(76,175,80,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:1000;animation:slideIn 0.3s ease';
+      msgDiv.textContent = message;
+      document.body.appendChild(msgDiv);
+      setTimeout(() => msgDiv.remove(), 3000);
+    }
+    
+    // Apply saved font size on page load
+    applyFontSize();
+    
+    window.increaseFontSize = increaseFontSize;
+    window.decreaseFontSize = decreaseFontSize;
 
     console.log('%c🔥 FIREBASE ADMIN DASHBOARD v4.1', 'color:orange;font-size:20px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:16px');
