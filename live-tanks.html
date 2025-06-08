@@ -687,25 +687,29 @@
         
         // Format target and rate with abbreviations
         let targetText = '-';
-        if (tank.targetValue) {
+        if (tank.targetValue && tank.targetValue !== null && tank.targetValue !== undefined) {
           let targetUnit = '';
           if (tank.targetType === 'level') {
             targetUnit = 'M';
           } else if (tank.targetType === 'pumpable' || tank.targetType === 'ullage') {
             targetUnit = 'B';
+          } else {
+            targetUnit = tank.targetType || '';
           }
           targetText = `${tank.targetValue} ${targetUnit}`;
         }
         
         let rateText = '-';
-        if (tank.rate) {
+        if (tank.rate && tank.rate !== null && tank.rate !== undefined) {
           let rateUnit = '';
-          if (tank.rateUnit === 'bbl') {
+          if (tank.rateUnit === 'bbl' || tank.rateUnit === 'bbl/hr') {
             rateUnit = 'B/h';
-          } else if (tank.rateUnit === 'm3') {
+          } else if (tank.rateUnit === 'm3' || tank.rateUnit === 'm³/hr') {
             rateUnit = 'm³';
-          } else if (tank.rateUnit === 'mtr') {
+          } else if (tank.rateUnit === 'mtr' || tank.rateUnit === 'meter/hr') {
             rateUnit = 'M';
+          } else {
+            rateUnit = tank.rateUnit || '';
           }
           rateText = `${tank.rate} ${rateUnit}`;
         }
