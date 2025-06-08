@@ -17,6 +17,9 @@
 .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px}
 .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
 .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px}
+.font-controls{display:flex;gap:5px;margin-right:10px}
+.font-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;transition:all 0.3s ease;min-width:30px}
+.font-btn:hover{background:rgba(255,255,255,0.3);transform:translateY(-1px)}
 input,select{background:rgba(255,255,255,0.9);border-radius:12px;border:none;color:#003366;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:16px;margin:10px;padding:10px;width:250px;text-align:center}
 .row{display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0;max-width:400px;margin-left:auto;margin-right:auto}
 .row input,.row select{margin:0;flex:1;width:50%}
@@ -68,6 +71,10 @@ input,select{background:rgba(255,255,255,0.9);border-radius:12px;border:none;col
 <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
 </div>
 <div class="nav-user">
+<div class="font-controls">
+<button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
+<button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+</div>
 <div class="user-avatar" id="userAvatar">U</div>
 <div id="userName">User</div>
 <button class="logout-btn" onclick="logout()">Logout</button>
@@ -184,6 +191,62 @@ async function saveData(){if(!currentUser)return;try{await setDoc(doc(db,'userTa
 async function loadData(){if(!currentUser)return;try{const doc=await getDoc(window.doc(db,'userTables',currentUser.username));if(doc.exists()){const data=doc.data();if(data.pbcrData){const d=data.pbcrData;document.getElementById('tankInput').value=d.tankInput||'';document.getElementById('level').value=d.level||'';document.getElementById('target').value=d.target||'';document.getElementById('mode').value=d.mode||'pumpable';document.getElementById('flowrate').value=d.flowrate||'';document.getElementById('flowUnit').value=d.flowUnit||'bbl';if(d.tankInput)loadTank()}if(data.pbcrTables){data.pbcrTables.forEach(item=>{const row=document.querySelector('#tankTable tbody').insertRow();row.insertCell().textContent=item.tankNum;row.insertCell().textContent=item.date;row.insertCell().textContent=item.time;const cell4=row.insertCell(),delBtn=document.createElement('button');delBtn.innerHTML='🗑️';delBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:16px';delBtn.onclick=()=>{row.remove();saveData()};cell4.appendChild(delBtn)})}}}catch{}}
 function setupDark(){let dark=localStorage.getItem('darkMode')==='true';const btn=document.getElementById('darkModeButton');function update(){if(dark){document.body.style.background='linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)),url("background.jpg")';btn.innerHTML='☀️'}else{document.body.style.background='linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url("background.jpg")';btn.innerHTML='🌙'}}btn.addEventListener('click',()=>{dark=!dark;localStorage.setItem('darkMode',dark);update()});update()}
 document.addEventListener('input',e=>{if(e.target.matches('#tankInput,#level,#target,#flowrate'))clearTimeout(window.saveTimeout),window.saveTimeout=setTimeout(saveData,2000)});
+// Font size control functions
+let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size') || '16');
+
+function increaseFontSize() {
+  if (currentFontSize < 24) {
+    currentFontSize += 2;
+    applyFontSize();
+    localStorage.setItem('tanktools_font_size', currentFontSize);
+    showFontMessage(`📈 Font size increased to ${currentFontSize}px`);
+  }
+}
+
+function decreaseFontSize() {
+  if (currentFontSize > 12) {
+    currentFontSize -= 2;
+    applyFontSize();
+    localStorage.setItem('tanktools_font_size', currentFontSize);
+    showFontMessage(`📉 Font size decreased to ${currentFontSize}px`);
+  }
+}
+
+function applyFontSize() {
+  const style = document.createElement('style');
+  style.id = 'dynamic-font-style';
+  
+  const existingStyle = document.getElementById('dynamic-font-style');
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+  
+  style.textContent = `
+    input, select { font-size: ${currentFontSize}px !important; }
+    .result { font-size: ${currentFontSize}px !important; }
+    #tankTable { font-size: ${currentFontSize - 2}px !important; }
+    #tankTable th { font-size: ${currentFontSize - 1}px !important; }
+    h2 { font-size: ${currentFontSize + 8}px !important; }
+    .reminder-btn, .add-btn, .live-tanks-btn { font-size: ${currentFontSize - 2}px !important; }
+  `;
+  
+  document.head.appendChild(style);
+}
+
+function showFontMessage(message) {
+  const msgDiv = document.createElement('div');
+  msgDiv.style.cssText = 'position:fixed;top:80px;right:20px;background:rgba(76,175,80,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:1000;animation:slideIn 0.3s ease';
+  msgDiv.textContent = message;
+  document.body.appendChild(msgDiv);
+  setTimeout(() => msgDiv.remove(), 3000);
+}
+
+// Apply saved font size on page load
+applyFontSize();
+
+window.increaseFontSize = increaseFontSize;
+window.decreaseFontSize = decreaseFontSize;
+
 console.log('%c🔥 PBCR Live Tanks Integration v3.2','color:green;font-size:16px;font-weight:bold');
 </script>
 </body>
