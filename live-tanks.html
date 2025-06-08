@@ -39,7 +39,7 @@
     .add-tank-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,215,0,0.3)}
     .add-tank-btn:disabled{background:#666;color:#999;cursor:not-allowed;transform:none}
     .table-container{width:100%;max-width:100%;overflow-x:auto;margin:10px auto;background:rgba(0,0,0,0.2);border-radius:10px;padding:5px}
-    .tanks-table{margin:auto;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;width:98%;min-width:300px;table-layout:fixed}
+    .tanks-table{margin:auto;background:rgba(255,255,255,0.9);color:#003366;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin-bottom:20px;width:100%;min-width:300px;table-layout:fixed}
     .tanks-table th,.tanks-table td{padding:8px 6px;border-bottom:1px solid #003366;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
     .tanks-table th{background:#003366;color:white;font-weight:bold;font-size:12px}
     .tanks-table th:nth-child(1),.tanks-table td:nth-child(1){width:15%}
@@ -48,9 +48,9 @@
     .tanks-table th:nth-child(4),.tanks-table td:nth-child(4){width:18%}
     .tanks-table th:nth-child(5),.tanks-table td:nth-child(5){width:20%}
     .tanks-table th:nth-child(6),.tanks-table td:nth-child(6){width:9%}
-    .tank-row-critical{background:#ffe0e0!important;font-weight:bold!important;color:#900!important}
-    .tank-row-warning{background:#fff8e1!important;font-weight:bold!important;color:#f57c00!important}
-    .tank-row-normal{background:#e8f5e8!important;color:#2e7d2e!important}
+    .tank-row-critical{background:#ffebee!important;color:#c62828!important;font-weight:bold!important}
+    .tank-row-warning{background:#ffffff!important;color:#d32f2f!important;font-weight:bold!important}
+    .tank-row-normal{background:#ffffff!important;color:#2e7d32!important}
     .tank-number{font-weight:bold;color:#003366;font-size:15px}
     .product-badge{padding:4px 8px;border-radius:8px;font-size:12px;font-weight:bold;text-transform:uppercase;white-space:nowrap}
     .product-lsfo{background:#e91e63;color:white}
@@ -776,14 +776,18 @@
       const timeDiff = finishDateTime.getTime() - now.getTime();
       const minutesDiff = timeDiff / (1000 * 60);
       
-      // Check if in same shift
-      if (isSameShift(now, finishDateTime) && minutesDiff <= 60) {
-        return 'critical'; // Red - finishing soon in same shift
-      } else if (minutesDiff <= 120) {
-        return 'warning'; // Yellow - finishing within 2 hours
-      } else {
-        return 'normal'; // Green - plenty of time
+      // Critical: Less than 1 hour (red background, dark red text)
+      if (minutesDiff <= 60) {
+        return 'critical';
       }
+      
+      // Warning: Same shift but more than 1 hour (white background, red text)
+      if (isSameShift(now, finishDateTime)) {
+        return 'warning';
+      }
+      
+      // Normal: Next shift (white background, green text)
+      return 'normal';
     }
 
     function getRowClass(urgencyLevel) {
