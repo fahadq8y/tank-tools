@@ -910,13 +910,23 @@
       const shift1 = getShift(date1);
       const shift2 = getShift(date2);
       
-      // For night shift, handle day boundary
-      if (shift1 === 'night' || shift2 === 'night') {
-        const dayDiff = Math.abs(date1.getDate() - date2.getDate());
-        return dayDiff <= 1 && shift1 === shift2;
+      // Must be same shift type first
+      if (shift1 !== shift2) {
+        return false;
       }
       
-      return date1.toDateString() === date2.toDateString() && shift1 === shift2;
+      // For night shift, handle day boundary carefully
+      if (shift1 === 'night') {
+        const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        const hoursDiff = timeDiff / (1000 * 60 * 60);
+        
+        // Night shift spans from 22:00 to 06:00 (8 hours max)
+        // If difference is more than 8 hours, it's definitely not same shift
+        return hoursDiff <= 8;
+      }
+      
+      // For morning and evening shifts, must be same day
+      return date1.toDateString() === date2.toDateString();
     }
 
     function openAddModal(department) {
