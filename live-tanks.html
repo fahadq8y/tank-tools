@@ -317,38 +317,43 @@
           <input type="text" class="form-input" id="editDepartment" readonly>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">🏷️ Tank Number:</label>
-          <input type="number" class="form-input" id="editTankNumber" required>
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🏷️ Tank Number:</label>
+            <input type="number" class="form-input" id="editTankNumber" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🛢️ Product Type:</label>
+            <select class="form-select" id="editProduct" required>
+              <option value="">Select Product</option>
+            </select>
+          </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">🛢️ Product Type:</label>
-          <select class="form-select" id="editProduct" required>
-            <option value="">Select Product</option>
-          </select>
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📊 Target Value:</label>
+            <input type="number" step="any" class="form-input" id="editTargetValue" placeholder="Enter target value" onchange="calculateEditTime()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🎯 Target Type:</label>
+            <select class="form-select" id="editTargetType" onchange="calculateEditTime()" required>
+              <option value="">Select Target Type</option>
+              <option value="pumpable">Pumpable</option>
+              <option value="ullage">Ullage</option>
+              <option value="level">Level</option>
+            </select>
+          </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">🎯 Target Type:</label>
-          <select class="form-select" id="editTargetType" onchange="calculateEditTime()" required>
-            <option value="">Select Target Type</option>
-            <option value="pumpable">Pumpable</option>
-            <option value="ullage">Ullage</option>
-            <option value="level">Level</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">📊 Target Value:</label>
-          <input type="number" step="any" class="form-input" id="editTargetValue" placeholder="Enter target value" onchange="calculateEditTime()" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">⚡ Flow Rate:</label>
-          <div style="display:flex;gap:10px">
-            <input type="number" step="any" class="form-input" id="editRate" placeholder="Rate" onchange="calculateEditTime()" required style="flex:2">
-            <select class="form-select" id="editRateUnit" onchange="calculateEditTime()" required style="flex:1">
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">⚡ Flow Rate:</label>
+            <input type="number" step="any" class="form-input" id="editRate" placeholder="Rate" onchange="calculateEditTime()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Rate Unit:</label>
+            <select class="form-select" id="editRateUnit" onchange="calculateEditTime()" required>
               <option value="bbl/hr">bbl/hr</option>
               <option value="m3/hr">m³/hr</option>
               <option value="mtr/hr">mtr/hr</option>
@@ -356,14 +361,15 @@
           </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">📅 Finish Date:</label>
-          <input type="date" class="form-input" id="editFinishDate" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">⏰ Finish Time:</label>
-          <input type="time" class="form-input" id="editFinishTime" required>
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📅 Finish Date:</label>
+            <input type="date" class="form-input" id="editFinishDate" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">⏰ Finish Time:</label>
+            <input type="time" class="form-input" id="editFinishTime" required>
+          </div>
         </div>
         
         <div class="form-group">
@@ -1057,7 +1063,12 @@
         await deleteDoc(doc(db, 'liveTanks', tankId));
         
         await addActivity('live_tank_deleted', currentUser.username);
-        showMessage('✅ Tank deleted successfully!', 'success');
+        showMessage('✅ تم حذف التانك!', 'success');
+        
+        // Auto close modal after 1 second
+        setTimeout(() => {
+          closeTankDetails();
+        }, 1000);
         
       } catch (error) {
         console.error('Error deleting tank:', error);
@@ -1141,8 +1152,13 @@
         await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
         
         await addActivity('live_tank_updated', currentUser.username);
-        showMessage('✅ Tank updated successfully!', 'success');
-        closeEditModal();
+        showMessage('✅ تم التعديل!', 'success');
+        
+        // Auto close modal after 1 second
+        setTimeout(() => {
+          closeEditModal();
+          closeTankDetails();
+        }, 1000);
         
       } catch (error) {
         console.error('Error updating tank:', error);
