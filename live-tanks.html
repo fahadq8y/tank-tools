@@ -51,7 +51,10 @@
     .tank-row-critical{background:#ffebee!important;color:#c62828!important;font-weight:bold!important}
     .tank-row-warning{background:#ffffff!important;color:#d32f2f!important;font-weight:bold!important}
     .tank-row-normal{background:#ffffff!important;color:#2e7d32!important}
-    .tank-number{font-weight:bold;color:#003366;font-size:15px}
+    .tank-number{font-weight:bold;font-size:15px}
+    .tank-row-critical .tank-number{color:#c62828!important}
+    .tank-row-warning .tank-number{color:#d32f2f!important}
+    .tank-row-normal .tank-number{color:#2e7d32!important}
     .product-badge{padding:4px 8px;border-radius:8px;font-size:12px;font-weight:bold;text-transform:uppercase;white-space:nowrap}
     .product-lsfo{background:#e91e63;color:white}
     .product-ego-10{background:#9c27b0;color:white}
@@ -644,15 +647,15 @@
         
         let remainingText = '';
         if (timeDiff <= 0) {
-          remainingText = '<span style="color:#f44336;font-weight:bold">Finished</span>';
+          remainingText = 'Finished';
         } else if (hoursRemaining < 1) {
-          remainingText = `<span style="color:#ff9800;font-weight:bold">${minutesRemaining}m</span>`;
+          remainingText = `${minutesRemaining}m`;
         } else if (hoursRemaining < 24) {
-          remainingText = `<span style="color:#4CAF50">${hoursRemaining}h ${minutesRemaining}m</span>`;
+          remainingText = `${hoursRemaining}h ${minutesRemaining}m`;
         } else {
           const daysRemaining = Math.floor(hoursRemaining / 24);
           const remainingHours = hoursRemaining % 24;
-          remainingText = `<span style="color:#2196F3">${daysRemaining}d ${remainingHours}h</span>`;
+          remainingText = `${daysRemaining}d ${remainingHours}h`;
         }
         
         // Format target and rate
