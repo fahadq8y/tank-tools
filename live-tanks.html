@@ -21,6 +21,9 @@
     .nav-user{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;backdrop-filter:blur(10px)}
     .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#4CAF50,#45a049);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
     .logout-btn{background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.5);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;transition:all 0.3s ease}
+    .font-controls{display:flex;gap:5px;margin-right:10px}
+    .font-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;transition:all 0.3s ease;min-width:30px}
+    .font-btn:hover{background:rgba(255,255,255,0.3);transform:translateY(-1px)}
     .page-header{text-align:center;margin-bottom:30px}
     .page-title{font-size:2.5rem;margin-bottom:10px;background:linear-gradient(45deg,#ff4444,#ff6666);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -155,6 +158,10 @@
         <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
       </div>
       <div class="nav-user" id="navUser">
+        <div class="font-controls">
+          <button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
+          <button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+        </div>
         <div class="user-avatar" id="userAvatar">U</div>
         <div id="userName">User</div>
         <button class="logout-btn" onclick="logout()">Logout</button>
@@ -911,6 +918,51 @@
       localStorage.setItem('tanktools_activities', JSON.stringify(activities));
     }
 
+    // Font size control functions
+    let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size') || '14');
+    
+    function increaseFontSize() {
+      if (currentFontSize < 20) {
+        currentFontSize += 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size', currentFontSize);
+        showMessage(`📈 Font size increased to ${currentFontSize}px`, 'info');
+      }
+    }
+    
+    function decreaseFontSize() {
+      if (currentFontSize > 10) {
+        currentFontSize -= 2;
+        applyFontSize();
+        localStorage.setItem('tanktools_font_size', currentFontSize);
+        showMessage(`📉 Font size decreased to ${currentFontSize}px`, 'info');
+      }
+    }
+    
+    function applyFontSize() {
+      const style = document.createElement('style');
+      style.id = 'dynamic-font-style';
+      
+      const existingStyle = document.getElementById('dynamic-font-style');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      style.textContent = `
+        .tanks-table { font-size: ${currentFontSize}px !important; }
+        .tanks-table th { font-size: ${currentFontSize}px !important; }
+        .tank-number { font-size: ${currentFontSize + 1}px !important; }
+        .product-badge { font-size: ${currentFontSize - 2}px !important; }
+        .status-badge { font-size: ${currentFontSize - 3}px !important; }
+        .action-btn { font-size: ${currentFontSize - 3}px !important; }
+      `;
+      
+      document.head.appendChild(style);
+    }
+    
+    // Apply saved font size on page load
+    applyFontSize();
+
     // Make functions globally available
     window.openAddModal = openAddModal;
     window.closeAddModal = closeAddModal;
@@ -920,6 +972,8 @@
     window.deleteTank = deleteTank;
     window.logout = logout;
     window.goToLogin = goToLogin;
+    window.increaseFontSize = increaseFontSize;
+    window.decreaseFontSize = decreaseFontSize;
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
