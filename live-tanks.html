@@ -685,9 +685,30 @@
           remainingText = `${daysRemaining}d ${remainingHours}h`;
         }
         
-        // Format target and rate
-        const targetText = tank.targetValue ? `${tank.targetValue} ${tank.targetType || ''}` : '-';
-        const rateText = tank.rate ? `${tank.rate} ${tank.rateUnit || 'bbl'}/hr` : '-';
+        // Format target and rate with abbreviations
+        let targetText = '-';
+        if (tank.targetValue) {
+          let targetUnit = '';
+          if (tank.targetType === 'level') {
+            targetUnit = 'M';
+          } else if (tank.targetType === 'pumpable' || tank.targetType === 'ullage') {
+            targetUnit = 'B';
+          }
+          targetText = `${tank.targetValue} ${targetUnit}`;
+        }
+        
+        let rateText = '-';
+        if (tank.rate) {
+          let rateUnit = '';
+          if (tank.rateUnit === 'bbl') {
+            rateUnit = 'B/h';
+          } else if (tank.rateUnit === 'm3') {
+            rateUnit = 'm³';
+          } else if (tank.rateUnit === 'mtr') {
+            rateUnit = 'M';
+          }
+          rateText = `${tank.rate} ${rateUnit}`;
+        }
         
         html += `
           <tr class="${rowClass}">
@@ -749,16 +770,24 @@
           <span class="tank-detail-value">${tank.tankNumber}</span>
         </div>
         <div class="tank-detail-row">
-          <span class="tank-detail-label">🛢️ Product:</span>
+          <span class="tank-detail-label">🛢️ Product Type:</span>
           <span class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></span>
         </div>
         <div class="tank-detail-row">
-          <span class="tank-detail-label">🎯 Target:</span>
-          <span class="tank-detail-value">${tank.targetValue ? `${tank.targetValue} ${tank.targetType || ''}` : '-'}</span>
+          <span class="tank-detail-label">📊 Target Value:</span>
+          <span class="tank-detail-value">${tank.targetValue || '-'}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">🎯 Target Type:</span>
+          <span class="tank-detail-value">${tank.targetType || '-'}</span>
         </div>
         <div class="tank-detail-row">
           <span class="tank-detail-label">⚡ Flow Rate:</span>
-          <span class="tank-detail-value">${tank.rate ? `${tank.rate} ${tank.rateUnit || 'bbl'}/hr` : '-'}</span>
+          <span class="tank-detail-value">${tank.rate || '-'}</span>
+        </div>
+        <div class="tank-detail-row">
+          <span class="tank-detail-label">📏 Rate Unit:</span>
+          <span class="tank-detail-value">${tank.rateUnit || '-'}</span>
         </div>
         <div class="tank-detail-row">
           <span class="tank-detail-label">📅 Finish Date:</span>
