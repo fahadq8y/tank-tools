@@ -192,13 +192,13 @@ async function loadData(){if(!currentUser)return;try{const doc=await getDoc(wind
 function setupDark(){let dark=localStorage.getItem('darkMode')==='true';const btn=document.getElementById('darkModeButton');function update(){if(dark){document.body.style.background='linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)),url("background.jpg")';btn.innerHTML='☀️'}else{document.body.style.background='linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url("background.jpg")';btn.innerHTML='🌙'}}btn.addEventListener('click',()=>{dark=!dark;localStorage.setItem('darkMode',dark);update()});update()}
 document.addEventListener('input',e=>{if(e.target.matches('#tankInput,#level,#target,#flowrate'))clearTimeout(window.saveTimeout),window.saveTimeout=setTimeout(saveData,2000)});
 // Font size control functions
-let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size') || '16');
+let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size_index') || '16');
 
 function increaseFontSize() {
   if (currentFontSize < 24) {
     currentFontSize += 2;
     applyFontSize();
-    localStorage.setItem('tanktools_font_size', currentFontSize);
+    localStorage.setItem('tanktools_font_size_index', currentFontSize);
     showFontMessage(`📈 Font size increased to ${currentFontSize}px`);
   }
 }
@@ -207,7 +207,7 @@ function decreaseFontSize() {
   if (currentFontSize > 12) {
     currentFontSize -= 2;
     applyFontSize();
-    localStorage.setItem('tanktools_font_size', currentFontSize);
+    localStorage.setItem('tanktools_font_size_index', currentFontSize);
     showFontMessage(`📉 Font size decreased to ${currentFontSize}px`);
   }
 }

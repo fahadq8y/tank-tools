@@ -919,13 +919,13 @@
     }
 
     // Font size control functions
-    let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size') || '14');
+    let currentFontSize = parseInt(localStorage.getItem('tanktools_font_size_livetanks') || '14');
     
     function increaseFontSize() {
       if (currentFontSize < 20) {
         currentFontSize += 2;
         applyFontSize();
-        localStorage.setItem('tanktools_font_size', currentFontSize);
+        localStorage.setItem('tanktools_font_size_livetanks', currentFontSize);
         showMessage(`📈 Font size increased to ${currentFontSize}px`, 'info');
       }
     }
@@ -934,7 +934,7 @@
       if (currentFontSize > 10) {
         currentFontSize -= 2;
         applyFontSize();
-        localStorage.setItem('tanktools_font_size', currentFontSize);
+        localStorage.setItem('tanktools_font_size_livetanks', currentFontSize);
         showMessage(`📉 Font size decreased to ${currentFontSize}px`, 'info');
       }
     }
