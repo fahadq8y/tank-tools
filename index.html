@@ -163,6 +163,30 @@ input,select{background:rgba(255,255,255,0.9);border-radius:12px;border:none;col
 </select>
 </div>
 <div class="form-group">
+<label class="form-label">🎯 Target Type:</label>
+<select class="form-select" id="ltTargetType" required>
+<option value="">Select Target Type</option>
+<option value="pumpable">Pumpable</option>
+<option value="ullage">Ullage</option>
+<option value="level">Level</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">📊 Target Value:</label>
+<input type="number" class="form-input" id="ltTargetValue" placeholder="Enter target value" required>
+</div>
+<div class="form-group">
+<label class="form-label">⚡ Flow Rate:</label>
+<div style="display:flex;gap:10px">
+<input type="number" class="form-input" id="ltRate" placeholder="Rate" required style="flex:2">
+<select class="form-select" id="ltRateUnit" required style="flex:1">
+<option value="bbl">bbl/hr</option>
+<option value="m3">m³/hr</option>
+<option value="mtr">meter/hr</option>
+</select>
+</div>
+</div>
+<div class="form-group">
 <label class="form-label">📅 Finish Date:</label>
 <input type="text" class="form-input" id="ltDate" readonly style="background:#f5f5f5">
 </div>
@@ -203,7 +227,7 @@ function isSameShift(now,finish){const getShift=h=>{const m=h.getHours()*60+h.ge
 window.openLTModal=()=>{if(!calcData){alert('❌ Please calculate tank finish time first!');return}document.getElementById('ltTank').value=calcData.tankNumber;document.getElementById('ltDate').value=calcData.finishDate;document.getElementById('ltTime').value=calcData.finishTime;document.getElementById('ltDept').value='';document.getElementById('ltProduct').innerHTML='<option value="">Select Product</option>';document.getElementById('ltNotes').value='';document.getElementById('ltModal').classList.add('show')};
 window.closeLTModal=()=>document.getElementById('ltModal').classList.remove('show');
 window.updateLTProducts=()=>{const dept=document.getElementById('ltDept').value,sel=document.getElementById('ltProduct');sel.innerHTML='<option value="">Select Product</option>';if(dept&&products[dept])products[dept].forEach(p=>{const opt=document.createElement('option');opt.value=p;opt.textContent=p;sel.appendChild(opt)})};
-document.getElementById('ltForm').addEventListener('submit',async function(e){e.preventDefault();const dept=document.getElementById('ltDept').value,tank=document.getElementById('ltTank').value,product=document.getElementById('ltProduct').value,date=document.getElementById('ltDate').value,time=document.getElementById('ltTime').value,notes=document.getElementById('ltNotes').value;if(!dept||!product){alert('❌ Please select department and product!');return}try{await addDoc(collection(db,'liveTanks'),{department:dept,tankNumber:tank,product:product,addedBy:currentUser.username,userName:currentUser.fullName||currentUser.username,finishTime:time,finishDate:date,finishDateTime:new Date(date+' '+time),addedAt:serverTimestamp(),status:'active',notes:notes,source:'PBCR_Calculator'});alert(`✅ Tank ${tank} added to Live Tanks!`);closeLTModal()}catch(err){alert('❌ Error: '+err.message)}});
+document.getElementById('ltForm').addEventListener('submit',async function(e){e.preventDefault();const dept=document.getElementById('ltDept').value,tank=document.getElementById('ltTank').value,product=document.getElementById('ltProduct').value,targetType=document.getElementById('ltTargetType').value,targetValue=document.getElementById('ltTargetValue').value,rate=document.getElementById('ltRate').value,rateUnit=document.getElementById('ltRateUnit').value,date=document.getElementById('ltDate').value,time=document.getElementById('ltTime').value,notes=document.getElementById('ltNotes').value;if(!dept||!product||!targetType||!targetValue||!rate){alert('❌ Please fill all required fields!');return}try{await addDoc(collection(db,'liveTanks'),{department:dept,tankNumber:tank,product:product,targetType:targetType,targetValue:parseFloat(targetValue),rate:parseFloat(rate),rateUnit:rateUnit,addedBy:currentUser.username,userName:currentUser.fullName||currentUser.username,finishTime:time,finishDate:date,finishDateTime:new Date(date+' '+time),addedAt:serverTimestamp(),status:'active',notes:notes,source:'PBCR_Calculator'});alert(`✅ Tank ${tank} added to Live Tanks!`);closeLTModal()}catch(err){alert('❌ Error: '+err.message)}});
 window.addToTable=()=>{const tankNum=document.getElementById("tankInput").value,output=document.getElementById("output").innerHTML;if(!tankNum||!output.includes("Finish Time"))return;const timeMatch=output.match(/Finish Time: (.*?)<br>/),dateMatch=output.match(/Finish Date: (.*?)($|<br>)/);if(!timeMatch||!dateMatch)return;const time=timeMatch[1].trim(),date=dateMatch[1].trim(),table=document.querySelector("#tankTable tbody"),newRowData={tankNum,date,time,finishDateTime:new Date(date+" "+time)};const existingRows=Array.from(table.rows).map(row=>({row:row,tankNum:row.cells[0].textContent,date:row.cells[1].textContent,time:row.cells[2].textContent,finishDateTime:new Date(row.cells[1].textContent+" "+row.cells[2].textContent)}));existingRows.push(newRowData);existingRows.sort((a,b)=>a.finishDateTime-b.finishDateTime);table.innerHTML='';existingRows.forEach(item=>{const row=table.insertRow();row.insertCell().textContent=item.tankNum;row.insertCell().textContent=item.date;row.insertCell().textContent=item.time;const cell4=row.insertCell(),delBtn=document.createElement("button");delBtn.innerHTML="🗑️";delBtn.style.cssText="background:none;border:none;cursor:pointer;font-size:16px";delBtn.onclick=()=>{row.remove();saveData()};cell4.appendChild(delBtn)});saveData()};
 async function saveData(){if(!currentUser)return;try{await setDoc(doc(db,'userTables',currentUser.username),{pbcrData:{tankInput:document.getElementById('tankInput').value,level:document.getElementById('level').value,target:document.getElementById('target').value,mode:document.getElementById('mode').value,flowrate:document.getElementById('flowrate').value,flowUnit:document.getElementById('flowUnit').value},pbcrTables:Array.from(document.querySelector('#tankTable tbody').rows).map(row=>({tankNum:row.cells[0].textContent,date:row.cells[1].textContent,time:row.cells[2].textContent}))},{merge:true})}catch{}}
 async function loadData(){if(!currentUser)return;try{const doc=await getDoc(window.doc(db,'userTables',currentUser.username));if(doc.exists()){const data=doc.data();if(data.pbcrData){const d=data.pbcrData;document.getElementById('tankInput').value=d.tankInput||'';document.getElementById('level').value=d.level||'';document.getElementById('target').value=d.target||'';document.getElementById('mode').value=d.mode||'pumpable';document.getElementById('flowrate').value=d.flowrate||'';document.getElementById('flowUnit').value=d.flowUnit||'bbl';if(d.tankInput)loadTank()}if(data.pbcrTables){data.pbcrTables.forEach(item=>{const row=document.querySelector('#tankTable tbody').insertRow();row.insertCell().textContent=item.tankNum;row.insertCell().textContent=item.date;row.insertCell().textContent=item.time;const cell4=row.insertCell(),delBtn=document.createElement('button');delBtn.innerHTML='🗑️';delBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:16px';delBtn.onclick=()=>{row.remove();saveData()};cell4.appendChild(delBtn)})}}}catch{}}
