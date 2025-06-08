@@ -330,6 +330,33 @@
         </div>
         
         <div class="form-group">
+          <label class="form-label">🎯 Target Type:</label>
+          <select class="form-select" id="editTargetType" onchange="calculateEditTime()" required>
+            <option value="">Select Target Type</option>
+            <option value="pumpable">Pumpable</option>
+            <option value="ullage">Ullage</option>
+            <option value="level">Level</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">📊 Target Value:</label>
+          <input type="number" step="any" class="form-input" id="editTargetValue" placeholder="Enter target value" onchange="calculateEditTime()" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">⚡ Flow Rate:</label>
+          <div style="display:flex;gap:10px">
+            <input type="number" step="any" class="form-input" id="editRate" placeholder="Rate" onchange="calculateEditTime()" required style="flex:2">
+            <select class="form-select" id="editRateUnit" onchange="calculateEditTime()" required style="flex:1">
+              <option value="bbl/hr">bbl/hr</option>
+              <option value="m3/hr">m³/hr</option>
+              <option value="mtr/hr">mtr/hr</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
           <label class="form-label">📅 Finish Date:</label>
           <input type="date" class="form-input" id="editFinishDate" required>
         </div>
@@ -895,6 +922,10 @@
         // Fill edit form
         document.getElementById('editDepartment').value = tank.department;
         document.getElementById('editTankNumber').value = tank.tankNumber;
+        document.getElementById('editTargetType').value = tank.targetType || '';
+        document.getElementById('editTargetValue').value = tank.targetValue || '';
+        document.getElementById('editRate').value = tank.rate || '';
+        document.getElementById('editRateUnit').value = tank.rateUnit || 'bbl/hr';
         document.getElementById('editFinishDate').value = tank.finishDate;
         document.getElementById('editFinishTime').value = tank.finishTime;
         document.getElementById('editNotes').value = tank.notes || '';
@@ -925,6 +956,63 @@
       document.getElementById('editTankModal').classList.remove('show');
       document.getElementById('editTankForm').reset();
       currentEditingTank = null;
+    }
+
+    // Calculate edit time function
+    function calculateEditTime() {
+      const targetType = document.getElementById('editTargetType').value;
+      const targetValue = parseFloat(document.getElementById('editTargetValue').value);
+      const rate = parseFloat(document.getElementById('editRate').value);
+      const rateUnit = document.getElementById('editRateUnit').value;
+      const tankNumber = document.getElementById('editTankNumber').value;
+      
+      if (!targetType || !targetValue || !rate || !tankNumber) return;
+      
+      // Get tank data from tanks object (same as PBCR)
+      const tankData = tanks[tankNumber];
+      if (!tankData) return;
+      
+      const c = tankData.comment; // capacity factor
+      const m = tankData.min;     // minimum level
+      const x = tankData.max;     // maximum level
+      
+      // Assume current level (you might want to get this from somewhere)
+      const currentLevel = 3.0; // Default or get from form
+      
+      // Calculate target level based on type
+      let targetLevel = 0;
+      if (targetType === "pumpable") {
+        targetLevel = (targetValue / c) + m;
+      } else if (targetType === "ullage") {
+        targetLevel = x - (targetValue / c);
+      } else if (targetType === "level") {
+        targetLevel = targetValue;
+      }
+      
+      // Calculate difference
+      const levelDiff = Math.abs(targetLevel - currentLevel);
+      
+      // Calculate time based on rate unit
+      let timeHours = 0;
+      if (rateUnit === "mtr/hr") {
+        timeHours = levelDiff / rate;
+      } else {
+        const volumeDiff = levelDiff * c;
+        const flowRate = rateUnit === "m3/hr" ? rate * 6.28 : rate;
+        timeHours = volumeDiff / flowRate;
+      }
+      
+      if (timeHours > 0) {
+        const now = new Date();
+        const finishTime = new Date(now.getTime() + timeHours * 3600000);
+        
+        // Update date and time fields
+        const finishDate = `${finishTime.getFullYear()}-${String(finishTime.getMonth()+1).padStart(2,'0')}-${String(finishTime.getDate()).padStart(2,'0')}`;
+        const finishTimeStr = `${String(finishTime.getHours()).padStart(2,'0')}:${String(finishTime.getMinutes()).padStart(2,'0')}`;
+        
+        document.getElementById('editFinishDate').value = finishDate;
+        document.getElementById('editFinishTime').value = finishTimeStr;
+      }
     }
 
     async function deleteTank(tankId) {
@@ -991,6 +1079,10 @@
       
       const tankNumber = document.getElementById('editTankNumber').value;
       const product = document.getElementById('editProduct').value;
+      const targetType = document.getElementById('editTargetType').value;
+      const targetValue = document.getElementById('editTargetValue').value;
+      const rate = document.getElementById('editRate').value;
+      const rateUnit = document.getElementById('editRateUnit').value;
       const finishDate = document.getElementById('editFinishDate').value;
       const finishTime = document.getElementById('editFinishTime').value;
       const notes = document.getElementById('editNotes').value;
@@ -1001,6 +1093,10 @@
         const updateData = {
           tankNumber: tankNumber,
           product: product,
+          targetType: targetType,
+          targetValue: parseFloat(targetValue),
+          rate: parseFloat(rate),
+          rateUnit: rateUnit,
           finishTime: finishTime,
           finishDate: finishDate,
           finishDateTime: finishDateTime,
