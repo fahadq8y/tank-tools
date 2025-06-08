@@ -18,7 +18,10 @@
     .nav-btn:hover{background:rgba(255,255,255,0.2);transform:translateY(-2px)}
     .logout-btn{background:rgba(255,0,0,0.2);border-color:rgba(255,0,0,0.5)}
     .logout-btn:hover{background:rgba(255,0,0,0.4)}
-    .font-controls{display:flex;gap:5px;margin-right:10px}
+    .user-section{display:flex;flex-direction:column;gap:8px}
+    .user-top{display:flex;align-items:center;gap:10px}
+    .user-controls{display:flex;align-items:center;gap:10px;justify-content:space-between}
+    .font-controls{display:flex;gap:5px}
     .font-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;transition:all 0.3s ease;min-width:30px}
     .font-btn:hover{background:rgba(255,255,255,0.3);transform:translateY(-1px)}
     .container{max-width:1400px;margin:20px auto;padding:0 20px}
@@ -117,16 +120,22 @@
         <a href="NMOGASBL.html" class="nav-btn">🔧 NMOGAS</a>
         <a href="live-tanks.html" class="nav-btn">🔴 Live Tanks</a>
       </div>
-      <div class="font-controls">
-        <button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
-        <button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+      <div class="user-section">
+        <div class="user-top">
+          <div class="user-avatar" id="userAvatar">F</div>
+          <div>
+            <div id="userName" style="font-weight:bold">Loading...</div>
+            <div id="userEmail" style="font-size:0.8rem;opacity:0.7">Loading...</div>
+          </div>
+        </div>
+        <div class="user-controls">
+          <div class="font-controls">
+            <button class="font-btn" onclick="decreaseFontSize()" title="تصغير الخط">-</button>
+            <button class="font-btn" onclick="increaseFontSize()" title="تكبير الخط">+</button>
+          </div>
+          <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
       </div>
-      <div class="user-avatar" id="userAvatar">F</div>
-      <div>
-        <div id="userName" style="font-weight:bold">Loading...</div>
-        <div id="userEmail" style="font-size:0.8rem;opacity:0.7">Loading...</div>
-      </div>
-      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
 
