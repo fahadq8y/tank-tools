@@ -30,7 +30,7 @@
     .page-subtitle{font-size:1.2rem;opacity:0.8}
     .container{max-width:100%;margin:0 auto}
     .section{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid rgba(255,255,255,0.2)}
-    .section-title{font-size:1.4rem;font-weight:bold;display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid rgba(255,255,255,0.2)}
+    .section-title{font-size:1.4rem;font-weight:bold;display:flex;align-items:center;gap:10px;margin-bottom:20px;margin-top:30px;padding-bottom:15px;border-bottom:2px solid rgba(255,255,255,0.2)}
     .department-badge{padding:5px 15px;border-radius:20px;font-size:0.9rem;font-weight:bold}
     .badge-pbcr{background:linear-gradient(45deg,#4CAF50,#45a049);color:white}
     .badge-washery{background:linear-gradient(45deg,#2196F3,#1976D2);color:white}
@@ -180,53 +180,47 @@
       <div id="messageContainer"></div>
 
       <!-- PBCR Department -->
-      <div class="section">
-        <div class="section-title">
-          <span class="department-badge badge-pbcr">PBCR Department</span>
-          <span class="tank-count" id="pbcrCount">(0 tanks)</span>
-          <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none;margin-left:auto">
-            ➕ Add PBCR Tank
-          </button>
-        </div>
-        <div id="pbcrContainer">
-          <div class="loading">
-            <div class="loading-spinner"></div>
-            <div>Loading PBCR tanks...</div>
-          </div>
+      <div class="section-title">
+        <span class="department-badge badge-pbcr">PBCR Department</span>
+        <span class="tank-count" id="pbcrCount">(0 tanks)</span>
+        <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none;margin-left:auto">
+          ➕ Add PBCR Tank
+        </button>
+      </div>
+      <div id="pbcrContainer">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <div>Loading PBCR tanks...</div>
         </div>
       </div>
 
       <!-- WASHERY Department -->
-      <div class="section">
-        <div class="section-title">
-          <span class="department-badge badge-washery">WASHERY Department</span>
-          <span class="tank-count" id="washeryCount">(0 tanks)</span>
-          <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none;margin-left:auto">
-            ➕ Add WASHERY Tank
-          </button>
-        </div>
-        <div id="washeryContainer">
-          <div class="loading">
-            <div class="loading-spinner"></div>
-            <div>Loading WASHERY tanks...</div>
-          </div>
+      <div class="section-title">
+        <span class="department-badge badge-washery">WASHERY Department</span>
+        <span class="tank-count" id="washeryCount">(0 tanks)</span>
+        <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none;margin-left:auto">
+          ➕ Add WASHERY Tank
+        </button>
+      </div>
+      <div id="washeryContainer">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <div>Loading WASHERY tanks...</div>
         </div>
       </div>
 
       <!-- PLCR Department -->
-      <div class="section">
-        <div class="section-title">
-          <span class="department-badge badge-plcr">PLCR Department</span>
-          <span class="tank-count" id="plcrCount">(0 tanks)</span>
-          <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none;margin-left:auto">
-            ➕ Add PLCR Tank
-          </button>
-        </div>
-        <div id="plcrContainer">
-          <div class="loading">
-            <div class="loading-spinner"></div>
-            <div>Loading PLCR tanks...</div>
-          </div>
+      <div class="section-title">
+        <span class="department-badge badge-plcr">PLCR Department</span>
+        <span class="tank-count" id="plcrCount">(0 tanks)</span>
+        <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none;margin-left:auto">
+          ➕ Add PLCR Tank
+        </button>
+      </div>
+      <div id="plcrContainer">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <div>Loading PLCR tanks...</div>
         </div>
       </div>
     </div>
