@@ -988,7 +988,7 @@
         document.getElementById('editTargetType').value = tank.targetType || '';
         document.getElementById('editTargetValue').value = tank.targetValue || '';
         document.getElementById('editCurrentLevel').value = '';
-        document.getElementById('editPreviousLevel').value = tank.currentLevel || tank.targetValue || '';
+        document.getElementById('editPreviousLevel').value = tank.currentLevel || '';
         document.getElementById('editRate').value = tank.rate || '';
         document.getElementById('editRateUnit').value = tank.rateUnit || 'bbl/hr';
         document.getElementById('editFinishDate').value = tank.finishDate;
@@ -1208,8 +1208,8 @@
           product: product,
           targetType: targetType,
           targetValue: parseFloat(targetValue),
-          currentLevel: currentLevel ? parseFloat(currentLevel) : null,
           previousLevel: parseFloat(previousLevel),
+          currentLevel: currentLevel ? parseFloat(currentLevel) : currentEditingTank.currentLevel,
           rate: parseFloat(rate),
           rateUnit: rateUnit,
           finishTime: finishTime,
