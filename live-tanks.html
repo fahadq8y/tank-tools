@@ -952,16 +952,24 @@
         const tank = window.currentTanks?.find(t => t.id === tankId);
         document.getElementById('historyModalTitle').textContent = `📊 Tank ${tank?.tankNumber || ''} History`;
         
-        // Query tank history from Firebase
-        const historyQuery = query(
-          collection(db, 'tankHistory'),
-          where('tankId', '==', tankId),
-          orderBy('timestamp', 'desc')
-        );
+        // Get tank document from Firebase
+        const tankDoc = await getDoc(doc(db, 'liveTanks', tankId));
         
-        const historySnapshot = await getDocs(historyQuery);
+        if (!tankDoc.exists()) {
+          document.getElementById('historyContent').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #f44336;">
+              <div style="font-size: 3rem; margin-bottom: 20px;">❌</div>
+              <h3>Tank Not Found</h3>
+              <p>Unable to find tank data.</p>
+            </div>
+          `;
+          return;
+        }
         
-        if (historySnapshot.empty) {
+        const tankData = tankDoc.data();
+        const history = tankData.history || [];
+        
+        if (history.length === 0) {
           document.getElementById('historyContent').innerHTML = `
             <div style="text-align: center; padding: 40px; color: #666;">
               <div style="font-size: 3rem; margin-bottom: 20px;">📋</div>
@@ -972,11 +980,19 @@
           return;
         }
         
+        // Sort history by timestamp (newest first)
+        const sortedHistory = history.sort((a, b) => {
+          const timeA = a.timestamp?.seconds || 0;
+          const timeB = b.timestamp?.seconds || 0;
+          return timeB - timeA;
+        });
+        
         let historyHTML = '<div class="history-timeline">';
         
-        historySnapshot.forEach((doc) => {
-          const history = doc.data();
-          const timestamp = new Date(history.timestamp.seconds * 1000);
+        sortedHistory.forEach((historyItem) => {
+          const timestamp = historyItem.timestamp?.seconds ? 
+            new Date(historyItem.timestamp.seconds * 1000) : 
+            new Date();
           const dateStr = timestamp.toLocaleDateString('en-GB');
           const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
           
@@ -984,16 +1000,16 @@
             <div class="history-item">
               <div class="history-header">
                 <div class="history-date">📅 ${dateStr} ⏰ ${timeStr}</div>
-                <div class="history-user">👤 ${history.modifiedBy}</div>
+                <div class="history-user">👤 ${historyItem.modifiedBy || 'Unknown'}</div>
               </div>
-              <div class="history-action">${getActionIcon(history.action)} ${history.action}</div>
-              ${history.changes ? `
+              <div class="history-action">${getActionIcon(historyItem.action)} ${historyItem.action}</div>
+              ${historyItem.changes ? `
                 <div class="history-changes">
-                  ${formatChanges(history.changes)}
+                  ${formatChanges(historyItem.changes)}
                 </div>
               ` : ''}
-              ${history.notes ? `
-                <div class="history-notes">📝 ${history.notes}</div>
+              ${historyItem.notes ? `
+                <div class="history-notes">📝 ${historyItem.notes}</div>
               ` : ''}
             </div>
           `;
@@ -1348,19 +1364,8 @@
         // Get tank info before deletion for history
         const tank = window.currentTanks?.find(t => t.id === tankId);
         
+        // No need to save deletion history since tank is being deleted
         await deleteDoc(doc(db, 'liveTanks', tankId));
-        
-        // Save deletion history
-        if (tank) {
-          await addDoc(collection(db, 'tankHistory'), {
-            tankId: tankId,
-            tankNumber: tank.tankNumber,
-            action: 'Tank Deleted',
-            modifiedBy: currentUser.username,
-            timestamp: serverTimestamp(),
-            notes: `Tank ${tank.tankNumber} was deleted`
-          });
-        }
         
         await addActivity('live_tank_deleted', currentUser.username);
         showMessage('✅ تم حذف التانك!', 'success');
@@ -1401,7 +1406,13 @@
           finishDateTime: finishDateTime,
           addedAt: serverTimestamp(),
           status: 'active',
-          notes: notes
+          notes: notes,
+          history: [{
+            action: 'Tank Created',
+            modifiedBy: currentUser.username,
+            timestamp: serverTimestamp(),
+            notes: `Tank ${tankNumber} created in ${department}`
+          }]
         };
         
         await addDoc(collection(db, 'liveTanks'), tankData);
@@ -1472,20 +1483,25 @@
           lastLevelUpdate: currentLevel ? serverTimestamp() : currentEditingTank.lastLevelUpdate
         };
         
-        await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
-        
-        // Save history record
+        // Add history record to tank's history array
         if (Object.keys(changes).length > 0) {
-          await addDoc(collection(db, 'tankHistory'), {
-            tankId: currentEditingTank.id,
-            tankNumber: tankNumber,
+          const historyRecord = {
             action: currentLevel ? 'Level Updated' : 'Tank Updated',
             changes: changes,
             modifiedBy: currentUser.username,
             timestamp: serverTimestamp(),
             notes: notes
-          });
+          };
+          
+          // Get current history array and add new record
+          const currentHistory = currentEditingTank.history || [];
+          currentHistory.push(historyRecord);
+          
+          // Update tank with new history
+          updateData.history = currentHistory;
         }
+        
+        await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
         
         await addActivity('live_tank_updated', currentUser.username);
         showMessage('✅ تم التعديل!', 'success');
