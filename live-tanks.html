@@ -107,9 +107,12 @@
     .tank-details-content{background:rgba(255,255,255,0.95);padding:25px;border-radius:15px;max-width:450px;width:90%;color:#003366;max-height:90vh;overflow-y:auto}
     .tank-details-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #ddd}
     .tank-details-title{font-size:1.4rem;font-weight:bold;color:#003366}
-    .tank-detail-row{display:flex;justify-content:space-between;margin-bottom:12px;padding:8px 0;border-bottom:1px solid #eee}
-    .tank-detail-label{font-weight:600;color:#666;flex:1}
-    .tank-detail-value{flex:1;text-align:right;color:#003366}
+    .tank-detail-section{margin-bottom:20px}
+    .tank-detail-single{padding:15px;background:rgba(240,248,255,0.8);border-radius:10px;border-left:4px solid #2196F3}
+    .tank-detail-dual{display:flex;gap:15px}
+    .tank-detail-item{flex:1;padding:15px;background:rgba(240,248,255,0.8);border-radius:10px;border-left:4px solid #2196F3}
+    .tank-detail-label{font-size:0.9rem;font-weight:600;color:#666;margin-bottom:8px;display:block}
+    .tank-detail-value{font-size:1rem;color:#003366;font-weight:500;word-break:break-word}
     .tank-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;padding-top:15px;border-top:2px solid #eee}
     .modal-buttons{display:flex;gap:15px;justify-content:flex-end;margin-top:25px}
     .message{padding:15px 20px;border-radius:10px;margin-bottom:20px;font-weight:500;border-left:5px solid}
@@ -780,76 +783,116 @@
       
       document.getElementById('tankDetailsTitle').textContent = `Tank ${tank.tankNumber} Details`;
       
+      // Format last edit info
+      let lastEditInfo = 'No edits yet';
+      if (tank.lastModified && tank.modifiedBy) {
+        const editDate = new Date(tank.lastModified.seconds * 1000);
+        const editDateStr = String(editDate.getDate()).padStart(2, '0') + '-' + String(editDate.getMonth() + 1).padStart(2, '0');
+        const editTimeStr = editDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        lastEditInfo = `${editDateStr} ${editTimeStr} by ${tank.modifiedBy}`;
+      }
+
       const detailsHTML = `
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">🏭 Department:</span>
-          <span class="tank-detail-value">${tank.department}</span>
-        </div>
-        <div class="tank-detail-row" style="display:flex;gap:20px">
-          <div style="flex:1">
-            <span class="tank-detail-label">🏷️ Tank Number:</span>
-            <span class="tank-detail-value">${tank.tankNumber}</span>
-          </div>
-          <div style="flex:1">
-            <span class="tank-detail-label">🛢️ Product Type:</span>
-            <span class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></span>
+        <div class="tank-detail-section">
+          <div class="tank-detail-single">
+            <div class="tank-detail-label">🏭 Department</div>
+            <div class="tank-detail-value">${tank.department}</div>
           </div>
         </div>
-        <div class="tank-detail-row" style="display:flex;gap:20px">
-          <div style="flex:1">
-            <span class="tank-detail-label">📊 Target Value:</span>
-            <span class="tank-detail-value">${tank.targetValue || '-'}</span>
-          </div>
-          <div style="flex:1">
-            <span class="tank-detail-label">🎯 Target Type:</span>
-            <span class="tank-detail-value">${tank.targetType || '-'}</span>
-          </div>
-        </div>
-        <div class="tank-detail-row" style="display:flex;gap:20px">
-          <div style="flex:1">
-            <span class="tank-detail-label">⚡ Flow Rate:</span>
-            <span class="tank-detail-value">${tank.rate || '-'}</span>
-          </div>
-          <div style="flex:1">
-            <span class="tank-detail-label">📏 Rate Unit:</span>
-            <span class="tank-detail-value">${tank.rateUnit || '-'}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-dual">
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">🏷️ Tank Number</div>
+              <div class="tank-detail-value">${tank.tankNumber}</div>
+            </div>
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">🛢️ Product Type</div>
+              <div class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></div>
+            </div>
           </div>
         </div>
-        <div class="tank-detail-row" style="display:flex;gap:20px">
-          <div style="flex:1">
-            <span class="tank-detail-label">📅 Finish Date:</span>
-            <span class="tank-detail-value">${formattedDate}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-dual">
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">📊 Target Value</div>
+              <div class="tank-detail-value">${tank.targetValue || '-'}</div>
+            </div>
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">🎯 Target Type</div>
+              <div class="tank-detail-value">${tank.targetType || '-'}</div>
+            </div>
           </div>
-          <div style="flex:1">
-            <span class="tank-detail-label">⏰ Finish Time:</span>
-            <span class="tank-detail-value">${tank.finishTime}</span>
+        </div>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-dual">
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">⚡ Flow Rate</div>
+              <div class="tank-detail-value">${tank.rate || '-'}</div>
+            </div>
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">📏 Rate Unit</div>
+              <div class="tank-detail-value">${tank.rateUnit || '-'}</div>
+            </div>
           </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">🔄 Last Edit:</span>
-          <span class="tank-detail-value">${tank.lastModified ? new Date(tank.lastModified.seconds * 1000).toLocaleString() : 'No edits'} ${tank.modifiedBy ? `by ${tank.modifiedBy}` : ''}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-dual">
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">📅 Finish Date</div>
+              <div class="tank-detail-value">${formattedDate}</div>
+            </div>
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">⏰ Finish Time</div>
+              <div class="tank-detail-value">${tank.finishTime}</div>
+            </div>
+          </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">📝 Notes:</span>
-          <span class="tank-detail-value">${tank.notes || 'No notes'}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-single">
+            <div class="tank-detail-label">🔄 Last Edit</div>
+            <div class="tank-detail-value">${lastEditInfo}</div>
+          </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">📊 History:</span>
-          <span class="tank-detail-value">
-            <button onclick="showTankHistory('${tank.id}')" style="background:#FF9800;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">📈 View History</button>
-          </span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-single">
+            <div class="tank-detail-label">📝 Notes</div>
+            <div class="tank-detail-value">${tank.notes || 'No notes'}</div>
+          </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">⏳ Remaining Time:</span>
-          <span class="tank-detail-value">${remainingText}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-single">
+            <div class="tank-detail-label">📊 History</div>
+            <div class="tank-detail-value">
+              <button class="btn btn-info" onclick="showTankHistory('${tank.id}')" style="padding: 8px 16px; font-size: 14px;">📈 View History</button>
+            </div>
+          </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">👤 Added By:</span>
-          <span class="tank-detail-value">${tank.addedBy}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-single">
+            <div class="tank-detail-label">⏳ Remaining Time</div>
+            <div class="tank-detail-value">${remainingText}</div>
+          </div>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">📊 Source:</span>
-          <span class="tank-detail-value">${tank.source || 'Manual'}</span>
+        
+        <div class="tank-detail-section">
+          <div class="tank-detail-dual">
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">👤 Added By</div>
+              <div class="tank-detail-value">${tank.addedBy}</div>
+            </div>
+            <div class="tank-detail-item">
+              <div class="tank-detail-label">📊 Source</div>
+              <div class="tank-detail-value">${tank.source || 'Manual'}</div>
+            </div>
+          </div>
         </div>
         
         ${permissions.canEdit ? `
@@ -865,7 +908,7 @@
 
     // Show Tank History Function
     window.showTankHistory = function(tankId) {
-      alert('🚧 Tank History feature coming soon!\n\nThis will show:\n• All edit timestamps\n• Level changes over time\n• Rate changes\n• Who made each edit');
+      showMessage('📊 History feature will be available soon!', 'info');
     }
 
     window.closeTankDetails = function() {
