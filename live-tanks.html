@@ -349,7 +349,7 @@
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
             <label class="form-label">📏 Current Level:</label>
-            <input type="number" step="any" class="form-input" id="editCurrentLevel" placeholder="Enter current level" onchange="calculateActualRate()">
+            <input type="number" step="any" class="form-input" id="editCurrentLevel" placeholder="Enter current level" oninput="calculateActualRate()">
           </div>
           <div class="form-group" style="flex:1">
             <label class="form-label">📋 Previous Level:</label>
@@ -364,7 +364,11 @@
           </div>
           <div class="form-group" style="flex:1">
             <label class="form-label">📏 Rate Unit:</label>
-            <input type="text" class="form-input" id="editRateUnit" readonly style="background:#f5f5f5">
+            <select class="form-select" id="editRateUnit" onchange="calculateEditTime()" required>
+              <option value="bbl/hr">bbl/hr</option>
+              <option value="m3/hr">m³/hr</option>
+              <option value="mtr/hr">mtr/hr</option>
+            </select>
           </div>
         </div>
         
@@ -785,37 +789,59 @@
           <span class="tank-detail-label">🏭 Department:</span>
           <span class="tank-detail-value">${tank.department}</span>
         </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">🏷️ Tank Number:</span>
-          <span class="tank-detail-value">${tank.tankNumber}</span>
+        <div class="tank-detail-row" style="display:flex;gap:20px">
+          <div style="flex:1">
+            <span class="tank-detail-label">🏷️ Tank Number:</span>
+            <span class="tank-detail-value">${tank.tankNumber}</span>
+          </div>
+          <div style="flex:1">
+            <span class="tank-detail-label">🛢️ Product Type:</span>
+            <span class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></span>
+          </div>
+        </div>
+        <div class="tank-detail-row" style="display:flex;gap:20px">
+          <div style="flex:1">
+            <span class="tank-detail-label">📊 Target Value:</span>
+            <span class="tank-detail-value">${tank.targetValue || '-'}</span>
+          </div>
+          <div style="flex:1">
+            <span class="tank-detail-label">🎯 Target Type:</span>
+            <span class="tank-detail-value">${tank.targetType || '-'}</span>
+          </div>
+        </div>
+        <div class="tank-detail-row" style="display:flex;gap:20px">
+          <div style="flex:1">
+            <span class="tank-detail-label">⚡ Flow Rate:</span>
+            <span class="tank-detail-value">${tank.rate || '-'}</span>
+          </div>
+          <div style="flex:1">
+            <span class="tank-detail-label">📏 Rate Unit:</span>
+            <span class="tank-detail-value">${tank.rateUnit || '-'}</span>
+          </div>
+        </div>
+        <div class="tank-detail-row" style="display:flex;gap:20px">
+          <div style="flex:1">
+            <span class="tank-detail-label">📅 Finish Date:</span>
+            <span class="tank-detail-value">${formattedDate}</span>
+          </div>
+          <div style="flex:1">
+            <span class="tank-detail-label">⏰ Finish Time:</span>
+            <span class="tank-detail-value">${tank.finishTime}</span>
+          </div>
         </div>
         <div class="tank-detail-row">
-          <span class="tank-detail-label">🛢️ Product Type:</span>
-          <span class="tank-detail-value"><span class="product-badge ${getProductClass(tank.product)}">${tank.product}</span></span>
+          <span class="tank-detail-label">🔄 Last Edit:</span>
+          <span class="tank-detail-value">${tank.lastModified ? new Date(tank.lastModified.seconds * 1000).toLocaleString() : 'No edits'} ${tank.modifiedBy ? `by ${tank.modifiedBy}` : ''}</span>
         </div>
         <div class="tank-detail-row">
-          <span class="tank-detail-label">📊 Target Value:</span>
-          <span class="tank-detail-value">${tank.targetValue || '-'}</span>
+          <span class="tank-detail-label">📝 Notes:</span>
+          <span class="tank-detail-value">${tank.notes || 'No notes'}</span>
         </div>
         <div class="tank-detail-row">
-          <span class="tank-detail-label">🎯 Target Type:</span>
-          <span class="tank-detail-value">${tank.targetType || '-'}</span>
-        </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">⚡ Flow Rate:</span>
-          <span class="tank-detail-value">${tank.rate || '-'}</span>
-        </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">📏 Rate Unit:</span>
-          <span class="tank-detail-value">${tank.rateUnit || '-'}</span>
-        </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">📅 Finish Date:</span>
-          <span class="tank-detail-value">${formattedDate}</span>
-        </div>
-        <div class="tank-detail-row">
-          <span class="tank-detail-label">⏰ Finish Time:</span>
-          <span class="tank-detail-value">${tank.finishTime}</span>
+          <span class="tank-detail-label">📊 History:</span>
+          <span class="tank-detail-value">
+            <button onclick="showTankHistory('${tank.id}')" style="background:#FF9800;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">📈 View History</button>
+          </span>
         </div>
         <div class="tank-detail-row">
           <span class="tank-detail-label">⏳ Remaining Time:</span>
@@ -841,9 +867,13 @@
           </div>
         ` : ''}
       `;
-      
-      document.getElementById('tankDetailsBody').innerHTML = detailsHTML;
+            document.getElementById('tankDetailsContent').innerHTML = detailsHTML;
       document.getElementById('tankDetailsModal').classList.add('show');
+    }
+
+    // Show Tank History Function
+    window.showTankHistory = function(tankId) {
+      alert('🚧 Tank History feature coming soon!\n\nThis will show:\n• All edit timestamps\n• Level changes over time\n• Rate changes\n• Who made each edit');
     }
 
     window.closeTankDetails = function() {
@@ -1023,7 +1053,6 @@
     function calculateActualRate() {
       const currentLevel = parseFloat(document.getElementById('editCurrentLevel').value);
       const previousLevel = parseFloat(document.getElementById('editPreviousLevel').value);
-      const rateUnit = document.getElementById('editRateUnit').value;
       
       if (!currentLevel || !previousLevel || !currentEditingTank) return;
       
@@ -1046,24 +1075,13 @@
       
       if (!tankData) return;
       
-      const c = tankData.comment; // capacity factor (bbl per meter)
+      const c = tankData.comment; // capacity factor
       
-      // Convert level difference to volume based on rate unit
-      let volumeDiff = Math.abs(levelDiff * c); // This gives bbl
-      let actualRate;
+      // Convert level difference to volume
+      const volumeDiff = Math.abs(levelDiff * c);
       
-      // Convert to appropriate unit based on rateUnit
-      if (rateUnit === 'm3/hr' || rateUnit === 'm³/hr') {
-        // Convert bbl to m³ (1 bbl = 0.158987 m³)
-        volumeDiff = volumeDiff * 0.158987;
-        actualRate = volumeDiff / timeDiffHours;
-      } else if (rateUnit === 'mtr/hr' || rateUnit === 'meter/hr') {
-        // For meter/hr, we use level difference directly
-        actualRate = Math.abs(levelDiff) / timeDiffHours;
-      } else {
-        // Default bbl/hr
-        actualRate = volumeDiff / timeDiffHours;
-      }
+      // Calculate actual rate (volume per hour)
+      const actualRate = volumeDiff / timeDiffHours;
       
       // Update rate field
       document.getElementById('editRate').value = Math.round(actualRate);
