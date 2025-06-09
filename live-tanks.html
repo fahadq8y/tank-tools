@@ -114,6 +114,21 @@
     .tank-detail-label{font-size:0.9rem;font-weight:600;color:#666;margin-bottom:8px;display:block}
     .tank-detail-value{font-size:1rem;color:#003366;font-weight:500;word-break:break-word}
     .tank-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;padding-top:15px;border-top:2px solid #eee}
+    .history-timeline{max-height:500px;overflow-y:auto;padding:10px}
+    .history-item{background:rgba(248,249,250,0.9);border-radius:10px;padding:15px;margin-bottom:15px;border-left:4px solid #28a745}
+    .history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .history-date{font-size:0.9rem;color:#666;font-weight:500}
+    .history-user{font-size:0.9rem;color:#007bff;font-weight:600}
+    .history-action{font-size:1rem;font-weight:600;color:#28a745;margin-bottom:10px}
+    .history-changes{background:rgba(255,255,255,0.8);border-radius:8px;padding:10px;margin-bottom:10px}
+    .changes-grid{display:grid;gap:8px}
+    .change-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #eee}
+    .change-field{font-weight:600;color:#666;min-width:120px}
+    .change-values{display:flex;align-items:center;gap:10px}
+    .old-value{color:#dc3545;text-decoration:line-through;opacity:0.7}
+    .arrow{color:#6c757d;font-weight:bold}
+    .new-value{color:#28a745;font-weight:600}
+    .history-notes{background:rgba(255,248,220,0.8);border-radius:6px;padding:8px;font-style:italic;color:#856404}
     .modal-buttons{display:flex;gap:15px;justify-content:flex-end;margin-top:25px}
     .message{padding:15px 20px;border-radius:10px;margin-bottom:20px;font-weight:500;border-left:5px solid}
     .message.success{background:rgba(76,175,80,0.2);border-color:#4CAF50;color:#4CAF50}
@@ -395,10 +410,26 @@
     </div>
   </div>
 
+  <!-- Tank History Modal -->
+  <div id="tankHistoryModal" class="modal">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="historyModalTitle">📊 Tank History</h3>
+        <button class="close-btn" onclick="closeTankHistory()">&times;</button>
+      </div>
+      <div id="historyContent">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          Loading history...
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyD7lJcoY33FEC9d6eWy67QIO9SV4lS24pg",
@@ -424,7 +455,7 @@
     window.query = query;
     window.orderBy = orderBy;
     window.onSnapshot = onSnapshot;
-    window.where = where;
+    window.getDocs = getDocs;
 
     console.log('🔥 Firebase initialized for Live Tanks!');
   </script>
@@ -907,8 +938,134 @@
     }
 
     // Show Tank History Function
-    window.showTankHistory = function(tankId) {
-      showMessage('📊 History feature will be available soon!', 'info');
+    window.showTankHistory = async function(tankId) {
+      try {
+        document.getElementById('tankHistoryModal').classList.add('show');
+        document.getElementById('historyContent').innerHTML = `
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            Loading history...
+          </div>
+        `;
+        
+        // Get tank info for title
+        const tank = window.currentTanks?.find(t => t.id === tankId);
+        document.getElementById('historyModalTitle').textContent = `📊 Tank ${tank?.tankNumber || ''} History`;
+        
+        // Query tank history from Firebase
+        const historyQuery = query(
+          collection(db, 'tankHistory'),
+          where('tankId', '==', tankId),
+          orderBy('timestamp', 'desc')
+        );
+        
+        const historySnapshot = await getDocs(historyQuery);
+        
+        if (historySnapshot.empty) {
+          document.getElementById('historyContent').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #666;">
+              <div style="font-size: 3rem; margin-bottom: 20px;">📋</div>
+              <h3>No History Found</h3>
+              <p>This tank has no recorded changes yet.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        let historyHTML = '<div class="history-timeline">';
+        
+        historySnapshot.forEach((doc) => {
+          const history = doc.data();
+          const timestamp = new Date(history.timestamp.seconds * 1000);
+          const dateStr = timestamp.toLocaleDateString('en-GB');
+          const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+          
+          historyHTML += `
+            <div class="history-item">
+              <div class="history-header">
+                <div class="history-date">📅 ${dateStr} ⏰ ${timeStr}</div>
+                <div class="history-user">👤 ${history.modifiedBy}</div>
+              </div>
+              <div class="history-action">${getActionIcon(history.action)} ${history.action}</div>
+              ${history.changes ? `
+                <div class="history-changes">
+                  ${formatChanges(history.changes)}
+                </div>
+              ` : ''}
+              ${history.notes ? `
+                <div class="history-notes">📝 ${history.notes}</div>
+              ` : ''}
+            </div>
+          `;
+        });
+        
+        historyHTML += '</div>';
+        document.getElementById('historyContent').innerHTML = historyHTML;
+        
+      } catch (error) {
+        console.error('Error loading tank history:', error);
+        document.getElementById('historyContent').innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #f44336;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">❌</div>
+            <h3>Error Loading History</h3>
+            <p>Unable to load tank history. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Close Tank History Modal
+    window.closeTankHistory = function() {
+      document.getElementById('tankHistoryModal').classList.remove('show');
+    }
+    
+    // Helper function to get action icon
+    function getActionIcon(action) {
+      const icons = {
+        'Tank Created': '🆕',
+        'Tank Updated': '✏️',
+        'Level Updated': '📊',
+        'Rate Recalculated': '⚡',
+        'Tank Deleted': '🗑️'
+      };
+      return icons[action] || '📝';
+    }
+    
+    // Helper function to format changes
+    function formatChanges(changes) {
+      let html = '<div class="changes-grid">';
+      
+      for (const [field, change] of Object.entries(changes)) {
+        const fieldName = getFieldDisplayName(field);
+        html += `
+          <div class="change-item">
+            <div class="change-field">${fieldName}:</div>
+            <div class="change-values">
+              <span class="old-value">${change.from || '-'}</span>
+              <span class="arrow">→</span>
+              <span class="new-value">${change.to || '-'}</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Helper function to get field display name
+    function getFieldDisplayName(field) {
+      const fieldNames = {
+        'currentLevel': 'Current Level',
+        'rate': 'Flow Rate',
+        'rateUnit': 'Rate Unit',
+        'finishDate': 'Finish Date',
+        'finishTime': 'Finish Time',
+        'notes': 'Notes',
+        'targetValue': 'Target Value',
+        'targetType': 'Target Type'
+      };
+      return fieldNames[field] || field;
     }
 
     window.closeTankDetails = function() {
@@ -1188,7 +1345,22 @@
       }
       
       try {
+        // Get tank info before deletion for history
+        const tank = window.currentTanks?.find(t => t.id === tankId);
+        
         await deleteDoc(doc(db, 'liveTanks', tankId));
+        
+        // Save deletion history
+        if (tank) {
+          await addDoc(collection(db, 'tankHistory'), {
+            tankId: tankId,
+            tankNumber: tank.tankNumber,
+            action: 'Tank Deleted',
+            modifiedBy: currentUser.username,
+            timestamp: serverTimestamp(),
+            notes: `Tank ${tank.tankNumber} was deleted`
+          });
+        }
         
         await addActivity('live_tank_deleted', currentUser.username);
         showMessage('✅ تم حذف التانك!', 'success');
@@ -1264,6 +1436,24 @@
       try {
         const finishDateTime = new Date(finishDate + ' ' + finishTime);
         
+        // Track changes for history
+        const changes = {};
+        if (currentLevel && currentLevel !== currentEditingTank.currentLevel) {
+          changes.currentLevel = { from: currentEditingTank.currentLevel, to: parseFloat(currentLevel) };
+        }
+        if (rate !== currentEditingTank.rate) {
+          changes.rate = { from: currentEditingTank.rate, to: parseFloat(rate) };
+        }
+        if (finishDate !== currentEditingTank.finishDate) {
+          changes.finishDate = { from: currentEditingTank.finishDate, to: finishDate };
+        }
+        if (finishTime !== currentEditingTank.finishTime) {
+          changes.finishTime = { from: currentEditingTank.finishTime, to: finishTime };
+        }
+        if (notes !== currentEditingTank.notes) {
+          changes.notes = { from: currentEditingTank.notes, to: notes };
+        }
+        
         const updateData = {
           tankNumber: tankNumber,
           product: product,
@@ -1283,6 +1473,19 @@
         };
         
         await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
+        
+        // Save history record
+        if (Object.keys(changes).length > 0) {
+          await addDoc(collection(db, 'tankHistory'), {
+            tankId: currentEditingTank.id,
+            tankNumber: tankNumber,
+            action: currentLevel ? 'Level Updated' : 'Tank Updated',
+            changes: changes,
+            modifiedBy: currentUser.username,
+            timestamp: serverTimestamp(),
+            notes: notes
+          });
+        }
         
         await addActivity('live_tank_updated', currentUser.username);
         showMessage('✅ تم التعديل!', 'success');
