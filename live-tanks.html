@@ -348,6 +348,17 @@
         
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Current Level:</label>
+            <input type="number" step="any" class="form-input" id="editCurrentLevel" placeholder="Enter current level" onchange="calculateActualRate()">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📋 Previous Level:</label>
+            <input type="number" step="any" class="form-input" id="editPreviousLevel" readonly style="background:#f5f5f5">
+          </div>
+        </div>
+        
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
             <label class="form-label">⚡ Flow Rate:</label>
             <input type="number" step="any" class="form-input" id="editRate" placeholder="Rate" onchange="calculateEditTime()" required>
           </div>
@@ -424,6 +435,9 @@
     let currentUser = null;
     let currentEditingTank = null;
     let unsubscribe = null;
+
+    // Tank specifications data
+    const tanks = {"225":{comment:12879,min:3.353,max:15.24},"226":{comment:12879,min:3.353,max:15.24},"227":{comment:11327,min:2,max:17.95},"253":{comment:10781,min:2,max:17.093},"254":{comment:12288,min:2,max:14.96},"255":{comment:12287,min:2,max:14.96},"256":{comment:12287,min:2,max:14.96},"260":{comment:2249,min:2,max:13},"272":{comment:7217,min:2,max:15.309},"273":{comment:4198,min:2,max:13.468},"274":{comment:4198,min:2,max:13.458},"275":{comment:9563,min:2,max:17.897},"276":{comment:7236,min:2,max:15.442},"277":{comment:4188,min:2,max:13.714},"278":{comment:9506,min:1.98,max:17.89},"279":{comment:4118,min:1.98,max:15.977},"301":{comment:7756,min:3.048,max:18.54},"302":{comment:7756,min:3.048,max:18.54},"303":{comment:6070,min:2.59,max:14.173},"304":{comment:6070,min:2.59,max:14.173},"305":{comment:7171,min:0.533,max:18.797},"450":{comment:3155,min:2,max:14.2},"451":{comment:930,min:2,max:13},"452":{comment:4587,min:2,max:13},"453":{comment:5067,min:2,max:17.8},"454":{comment:1653,min:2,max:11.36},"455":{comment:1654,min:2,max:11.36},"456":{comment:11574,min:2.68,max:13.41},"457":{comment:9697,min:5.4,max:16.45},"458":{comment:9697,min:5.4,max:16.45},"459":{comment:9466,min:2,max:14.35},"460":{comment:14213,min:2,max:17.65},"461":{comment:14213,min:2,max:17.653},"462":{comment:12354,min:2,max:16.46},"463":{comment:9578,min:2,max:17.89},"464":{comment:9578,min:2,max:17.889},"465":{comment:9572,min:2,max:17.89},"467":{comment:12375,min:2,max:17.771},"468":{comment:12375,min:2,max:17.771},"469":{comment:12375,min:2,max:17.771},"470":{comment:12375,min:2,max:17.77},"503":{comment:2888,min:2.13,max:10.97},"504":{comment:2888,min:2.13,max:10.97},"506":{comment:930,min:0.92,max:14.33},"507":{comment:413,min:2,max:6.5},"508":{comment:1130,min:1.67,max:12.65},"509":{comment:1130,min:1.67,max:12.65},"510":{comment:529,min:2,max:10.363},"511":{comment:4531,min:0.198,max:9},"512":{comment:2939,min:0.92,max:11.6},"514":{comment:2942,min:0.92,max:12},"515":{comment:2942,min:0.92,max:12},"520":{comment:4142,min:1.88,max:14.29},"521":{comment:4142,min:1.88,max:14.29},"522":{comment:11990,min:1.61,max:15.6},"531":{comment:12377,min:2,max:17.77},"532":{comment:12377,min:2,max:17.772},"533":{comment:12377,min:2,max:17.772},"534":{comment:12377,min:2,max:17.772},"600":{comment:9490,min:2,max:13.3},"601":{comment:9490,min:2,max:13.3},"602":{comment:9512,min:2,max:13.73},"603":{comment:11695,min:2,max:13.325},"605":{comment:12964,min:2,max:14.325},"608":{comment:1060,min:2,max:11.887},"620":{comment:11981,min:1.65,max:16.5},"621":{comment:11981,min:1.65,max:16.5},"622":{comment:5019,min:2,max:15.76},"623":{comment:5050,min:1.6,max:15.76},"633":{comment:412,min:2,max:6},"634":{comment:412,min:2,max:6},"651":{comment:6543,min:2,max:13.325},"652":{comment:6543,min:2,max:13.32},"661":{comment:12354,min:2,max:17.759},"662":{comment:5074,min:2,max:14.802},"663":{comment:1507,min:2,max:10.23},"664":{comment:7250,min:2,max:15.22},"665":{comment:7250,min:2,max:15.22},"667":{comment:12278,min:2,max:17.922},"668":{comment:16858,min:2,max:18.165},"669":{comment:16858,min:2,max:18.17},"670":{comment:16856,min:2,max:18.165},"671":{comment:12863,min:2,max:16.45},"672":{comment:13046,min:2,max:16.45},"703":{comment:12931,min:2,max:14.88},"705":{comment:12931,min:2,max:14.88},"725":{comment:1080,min:0.914,max:11.887},"751":{comment:12834,min:2,max:15.1},"752":{comment:12834,min:2,max:15.1},"753":{comment:12834,min:2,max:15.1},"754":{comment:12834,min:2,max:15.1},"755":{comment:12834,min:2,max:15.1},"756":{comment:12962,min:2,max:15.1},"757":{comment:10989,min:2,max:17.8},"761":{comment:20546,min:2,max:14.2},"762":{comment:20546,min:2,max:18.798},"820":{comment:16656,min:1.6,max:18.48},"821":{comment:16656,min:1.6,max:18.48},"822":{comment:16856,min:1.6,max:18.48},"831":{comment:11297,min:2,max:18.41},"832":{comment:11297,min:2,max:18.409},"833":{comment:7279,min:3.25,max:18.012},"834":{comment:7279,min:3.25,max:18.012},"835":{comment:7305,min:2,max:15.226},"836":{comment:7305,min:2,max:15.226},"900":{comment:2644,min:1.6,max:11.9},"901":{comment:2692,min:2,max:12.02},"760":{comment:20546,min:2,max:18.798},"702":{comment:12931,min:2,max:16.15},"758":{comment:20546,min:2,max:14.5},"759":{comment:20546,min:2,max:14.5}};
 
     // Updated Product types by department
     const productsByDepartment = {
@@ -973,6 +987,8 @@
         document.getElementById('editTankNumber').value = tank.tankNumber;
         document.getElementById('editTargetType').value = tank.targetType || '';
         document.getElementById('editTargetValue').value = tank.targetValue || '';
+        document.getElementById('editCurrentLevel').value = '';
+        document.getElementById('editPreviousLevel').value = tank.currentLevel || tank.targetValue || '';
         document.getElementById('editRate').value = tank.rate || '';
         document.getElementById('editRateUnit').value = tank.rateUnit || 'bbl/hr';
         document.getElementById('editFinishDate').value = tank.finishDate;
@@ -1005,6 +1021,47 @@
       document.getElementById('editTankModal').classList.remove('show');
       document.getElementById('editTankForm').reset();
       currentEditingTank = null;
+    }
+
+    // Calculate actual rate based on level difference and time
+    function calculateActualRate() {
+      const currentLevel = parseFloat(document.getElementById('editCurrentLevel').value);
+      const previousLevel = parseFloat(document.getElementById('editPreviousLevel').value);
+      
+      if (!currentLevel || !previousLevel || !currentEditingTank) return;
+      
+      // Get time difference
+      const now = new Date();
+      const lastUpdateTime = currentEditingTank.lastLevelUpdate ? 
+        new Date(currentEditingTank.lastLevelUpdate.seconds * 1000) : 
+        new Date(currentEditingTank.addedAt.seconds * 1000);
+      
+      const timeDiffHours = (now - lastUpdateTime) / (1000 * 60 * 60);
+      
+      if (timeDiffHours <= 0) return;
+      
+      // Calculate level difference (previous - current for consumption)
+      const levelDiff = previousLevel - currentLevel;
+      
+      // Get tank data for capacity calculation
+      const tankNumber = document.getElementById('editTankNumber').value;
+      const tankData = tanks[tankNumber];
+      
+      if (!tankData) return;
+      
+      const c = tankData.comment; // capacity factor
+      
+      // Convert level difference to volume
+      const volumeDiff = Math.abs(levelDiff * c);
+      
+      // Calculate actual rate (volume per hour)
+      const actualRate = volumeDiff / timeDiffHours;
+      
+      // Update rate field
+      document.getElementById('editRate').value = Math.round(actualRate);
+      
+      // Recalculate finish time
+      calculateEditTime();
     }
 
     // Calculate edit time function
@@ -1135,6 +1192,8 @@
       const product = document.getElementById('editProduct').value;
       const targetType = document.getElementById('editTargetType').value;
       const targetValue = document.getElementById('editTargetValue').value;
+      const currentLevel = document.getElementById('editCurrentLevel').value;
+      const previousLevel = document.getElementById('editPreviousLevel').value;
       const rate = document.getElementById('editRate').value;
       const rateUnit = document.getElementById('editRateUnit').value;
       const finishDate = document.getElementById('editFinishDate').value;
@@ -1149,6 +1208,8 @@
           product: product,
           targetType: targetType,
           targetValue: parseFloat(targetValue),
+          currentLevel: currentLevel ? parseFloat(currentLevel) : null,
+          previousLevel: parseFloat(previousLevel),
           rate: parseFloat(rate),
           rateUnit: rateUnit,
           finishTime: finishTime,
@@ -1156,7 +1217,8 @@
           finishDateTime: finishDateTime,
           notes: notes,
           lastModified: serverTimestamp(),
-          modifiedBy: currentUser.username
+          modifiedBy: currentUser.username,
+          lastLevelUpdate: currentLevel ? serverTimestamp() : currentEditingTank.lastLevelUpdate
         };
         
         await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
