@@ -982,8 +982,8 @@
         
         // Sort history by timestamp (newest first)
         const sortedHistory = history.sort((a, b) => {
-          const timeA = a.timestamp?.seconds || 0;
-          const timeB = b.timestamp?.seconds || 0;
+          const timeA = a.timestamp?.seconds || (a.timestamp instanceof Date ? a.timestamp.getTime() / 1000 : new Date(a.timestamp).getTime() / 1000);
+          const timeB = b.timestamp?.seconds || (b.timestamp instanceof Date ? b.timestamp.getTime() / 1000 : new Date(b.timestamp).getTime() / 1000);
           return timeB - timeA;
         });
         
@@ -992,7 +992,7 @@
         sortedHistory.forEach((historyItem) => {
           const timestamp = historyItem.timestamp?.seconds ? 
             new Date(historyItem.timestamp.seconds * 1000) : 
-            new Date();
+            (historyItem.timestamp instanceof Date ? historyItem.timestamp : new Date(historyItem.timestamp));
           const dateStr = timestamp.toLocaleDateString('en-GB');
           const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
           
@@ -1483,23 +1483,25 @@
           lastLevelUpdate: currentLevel ? serverTimestamp() : currentEditingTank.lastLevelUpdate
         };
         
-        // Add history record to tank's history array
+        // Always add history record for any edit
+        const historyRecord = {
+          action: currentLevel ? 'Level Updated' : 'Tank Updated',
+          modifiedBy: currentUser.username,
+          timestamp: new Date(),
+          notes: notes || 'Tank updated'
+        };
+        
+        // Add changes if any
         if (Object.keys(changes).length > 0) {
-          const historyRecord = {
-            action: currentLevel ? 'Level Updated' : 'Tank Updated',
-            changes: changes,
-            modifiedBy: currentUser.username,
-            timestamp: serverTimestamp(),
-            notes: notes
-          };
-          
-          // Get current history array and add new record
-          const currentHistory = currentEditingTank.history || [];
-          currentHistory.push(historyRecord);
-          
-          // Update tank with new history
-          updateData.history = currentHistory;
+          historyRecord.changes = changes;
         }
+        
+        // Get current history array and add new record
+        const currentHistory = currentEditingTank.history || [];
+        currentHistory.push(historyRecord);
+        
+        // Always update history
+        updateData.history = currentHistory;
         
         await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
         
