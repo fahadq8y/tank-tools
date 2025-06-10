@@ -232,7 +232,12 @@ function initApp(){document.getElementById('mainContent').style.display='block';
 function loadUser(){if(!currentUser)return;document.getElementById('userName').textContent=currentUser.username;document.getElementById('userAvatar').textContent=(currentUser.fullName||currentUser.username).charAt(0).toUpperCase();if(currentUser.username==='fam030'||currentUser.role==='admin')document.getElementById('adminLink').style.display='inline-block';const roles=["admin","panel_operator","supervisor","section_head","operator","planning"];if(roles.includes(currentUser.role))document.getElementById('liveTanksLink').style.display='inline-block'}
 window.logout=()=>{sessionStorage.removeItem('tanktools_session');localStorage.removeItem('tanktools_current_user');window.location.href='login.html'};
 window.loadTank=()=>{const id=document.getElementById("tankInput").value.trim();if(tanks[id]){c=tanks[id].comment;m=tanks[id].min;x=tanks[id].max}else{c=m=x=0}calculate()};
-window.calculate=()=>{const level=parseFloat(document.getElementById("level").value||0),target=parseFloat(document.getElementById("target").value||0),flowRaw=parseFloat(document.getElementById("flowrate").value||0),unit=document.getElementById("flowUnit").value,mode=document.getElementById("mode").value;const available=document.getElementById("availablePumpable"),ullageDiv=document.getElementById("currentUllage"),levelEst=document.getElementById("levelEstimate"),valueDiff=document.getElementById("valueDiff"),output=document.getElementById("output"),calendar=document.getElementById("calendarLink");calcData=null;document.getElementById('liveTanksBtn').style.display='none';if(!c||isNaN(level)){available.innerText=ullageDiv.innerText=valueDiff.innerText=levelEst.innerText=output.innerHTML="";return}const availablePumpable=(level-m)*c,currentUllage=(x-level)*c;available.innerText=`Available Pumpable: ${availablePumpable.toFixed(2)} bbl`;ullageDiv.innerText=`Current Ullage: ${currentUllage.toFixed(2)} bbl`;if(!isNaN(target)){let estLevel=0;if(mode==="pumpable")estLevel=(target/c)+m;else if(mode==="ullage")estLevel=x-(target/c);else if(mode==="level")estLevel=target;const levelDiff=estLevel-level;let estText=`Level Estimate: ${estLevel.toFixed(2)} m\nLevel Difference: ${levelDiff.toFixed(2)} m`;if(estLevel>=x-0.5||estLevel<m){levelEst.style.color="#ff5555";estText+=`\nHigh Level = ${x.toFixed(2)} m`}else{levelEst.style.color="#00ffff"}levelEst.innerText=estText;let diff=0;if(mode==="pumpable"){diff=target-availablePumpable;valueDiff.innerText=`Difference: ${diff.toLocaleString()} bbl`}else if(mode==="ullage"){diff=currentUllage-target;valueDiff.innerText=`To leave ${target.toLocaleString()} bbl ullage, fill: ${diff.toLocaleString()} bbl`}else if(mode==="level"){const meters=level-target;diff=meters*c;valueDiff.innerText=`Level Difference: ${Math.abs(meters).toFixed(2)} m`}const flow=unit==="m3"?flowRaw*6.28:unit==="mtr"?flowRaw:flowRaw;let time=0;if(unit==="mtr"&&mode!=="level"){time=Math.abs(diff/c)/flowRaw}else if(mode==="level"&&unit==="mtr"){time=Math.abs(level-target)/flowRaw}else{time=Math.abs(diff)/flow}if(!isNaN(time)&&time>0){const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000);let ft,fd;try{ft=finish.toLocaleTimeString('en-GB',{hour:"2-digit",minute:"2-digit",hour12:false});fd=finish.toLocaleDateString('en-GB')}catch{ft=`${finish.getHours().toString().padStart(2,'0')}:${finish.getMinutes().toString().padStart(2,'0')}`;fd=`${finish.getDate()}/${finish.getMonth()+1}/${finish.getFullYear()}`}output.innerHTML=`Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;const s=new Date(finish.getTime()-600000),e=new Date(s.getTime()+900000);calendar.href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+${document.getElementById("tankInput").value||"Tank"}+Reminder&dates=${s.toISOString().replace(/[-:]|\.\d{3}/g,"")}/${e.toISOString().replace(/[-:]|\.\d{3}/g,"")}`;output.style.color=isSameShift(now,finish)?"red":"lightgreen";calcData={tankNumber:document.getElementById("tankInput").value,finishDate:`${finish.getFullYear()}-${String(finish.getMonth()+1).padStart(2,'0')}-${String(finish.getDate()).padStart(2,'0')}`,finishTime:ft};if(currentUser&&["admin","panel_operator"].includes(currentUser.role))document.getElementById('liveTanksBtn').style.display='inline-flex'}}saveData()};
+window.calculate=()=>{const level=parseFloat(document.getElementById("level").value||0),target=parseFloat(document.getElementById("target").value||0),flowRaw=parseFloat(document.getElementById("flowrate").value||0),unit=document.getElementById("flowUnit").value,mode=document.getElementById("mode").value;const available=document.getElementById("availablePumpable"),ullageDiv=document.getElementById("currentUllage"),levelEst=document.getElementById("levelEstimate"),valueDiff=document.getElementById("valueDiff"),output=document.getElementById("output"),calendar=document.getElementById("calendarLink");calcData=null;document.getElementById('liveTanksBtn').style.display='none';if(!c||isNaN(level)){available.innerText=ullageDiv.innerText=valueDiff.innerText=levelEst.innerText=output.innerHTML="";return}const availablePumpable=(level-m)*c,currentUllage=(x-level)*c;available.innerText=`Available Pumpable: ${availablePumpable.toFixed(2)} bbl`;ullageDiv.innerText=`Current Ullage: ${currentUllage.toFixed(2)} bbl`;if(!isNaN(target)){let estLevel=0;if(mode==="pumpable")estLevel=(target/c)+m;else if(mode==="ullage")estLevel=x-(target/c);else if(mode==="level")estLevel=target;const levelDiff=estLevel-level;let estText=`Level Estimate: ${estLevel.toFixed(2)} m\nLevel Difference: ${levelDiff.toFixed(2)} m`;if(estLevel>=x-0.5||estLevel<m){levelEst.style.color="#ff5555";estText+=`\nHigh Level = ${x.toFixed(2)} m`}else{levelEst.style.color="#00ffff"}levelEst.innerText=estText;let diff=0;if(mode==="pumpable"){diff=target-availablePumpable;valueDiff.innerText=`Difference: ${diff.toLocaleString()} bbl`}else if(mode==="ullage"){diff=currentUllage-target;valueDiff.innerText=`To leave ${target.toLocaleString()} bbl ullage, fill: ${diff.toLocaleString()} bbl`}else if(mode==="level"){const meters=level-target;diff=meters*c;valueDiff.innerText=`Level Difference: ${Math.abs(meters).toFixed(2)} m`}const flow=unit==="m3"?flowRaw*6.28:unit==="mtr"?flowRaw:flowRaw;let time=0;if(unit==="mtr"&&mode!=="level"){time=Math.abs(diff/c)/flowRaw}else if(mode==="level"&&unit==="mtr"){time=Math.abs(level-target)/flowRaw}else{time=Math.abs(diff)/flow}if(!isNaN(time)&&time>0){const hrs=Math.floor(time),mins=Math.round((time%1)*60),now=new Date(),finish=new Date(now.getTime()+time*3600000);let ft,fd;try{ft=finish.toLocaleTimeString('en-GB',{hour:"2-digit",minute:"2-digit",hour12:false});fd=finish.toLocaleDateString('en-GB')}catch{ft=`${finish.getHours().toString().padStart(2,'0')}:${finish.getMinutes().toString().padStart(2,'0')}`;fd=`${finish.getDate()}/${finish.getMonth()+1}/${finish.getFullYear()}`}output.innerHTML=`Time Needed: ${hrs} hr ${mins} min<br>Finish Time: ${ft}<br>Finish Date: ${fd}`;const s=new Date(finish.getTime()-600000),e=new Date(s.getTime()+900000);calendar.href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tank+${document.getElementById("tankInput").value||"Tank"}+Reminder&dates=${s.toISOString().replace(/[-:]|\.\d{3}/g,"")}/${e.toISOString().replace(/[-:]|\.\d{3}/g,"")}`;output.style.color=isSameShift(now,finish)?"red":"lightgreen";calcData={tankNumber:document.getElementById("tankInput").value,finishDate:`${finish.getFullYear()}-${String(finish.getMonth()+1).padStart(2,'0')}-${String(finish.getDate()).padStart(2,'0')}`,finishTime:ft};if(currentUser&&["admin","panel_operator"].includes(currentUser.role))document.getElementById('liveTanksBtn').style.display='inline-flex';
+  // Log calculation activity
+  if(currentUser && document.getElementById("tankInput").value) {
+    logPBCRCalculation(document.getElementById("tankInput").value, hrs, mins, ft, fd);
+  }
+}}saveData()};
 function isSameShift(now,finish){const getShift=h=>{const m=h.getHours()*60+h.getMinutes();return m>=360&&m<840?"morning":m>=840&&m<1320?"evening":"night"};const currentShift=getShift(now),finishShift=getShift(finish);if(currentShift!==finishShift)return false;if(currentShift==="night"){const nowHour=now.getHours(),finishHour=finish.getHours();if(nowHour>=0&&nowHour<6){if(finishHour>=0&&finishHour<6)return Math.floor((finish.getTime()-now.getTime())/(24*60*60*1000))<=1;else if(finishHour>=22)return Math.floor((finish.getTime()-now.getTime())/(24*60*60*1000))===0}else if(nowHour>=22){if(finishHour>=22)return now.toDateString()===finish.toDateString();else if(finishHour>=0&&finishHour<6)return Math.floor((finish.getTime()-now.getTime())/(24*60*60*1000))===1}return false}return now.toDateString()===finish.toDateString()}
 window.openLTModal=()=>{if(!calcData){alert('❌ Please calculate tank finish time first!');return}
   // Fill basic data
@@ -327,7 +332,7 @@ applyFontSize();
 window.increaseFontSize = increaseFontSize;
 window.decreaseFontSize = decreaseFontSize;
 
-console.log('%c🔥 PBCR Live Tanks Integration v4.1','color:green;font-size:16px;font-weight:bold');
+console.log('%c🔥 PBCR Live Tanks Integration v4.2','color:green;font-size:16px;font-weight:bold');
 
 // Calendar Help Function
 function showCalendarHelp() {
@@ -373,6 +378,35 @@ function showCalendarHelp() {
 
 window.showCalendarHelp = showCalendarHelp;
 
+// PBCR Calculation Activity Logging
+async function logPBCRCalculation(tankNumber, hours, minutes, finishTime, finishDate) {
+  if (!currentUser) return;
+  try {
+    const userIP = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip).catch(() => 'Unknown');
+    const timestamp = new Date();
+    const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = timestamp.toLocaleDateString('en-GB');
+    
+    const detailedAction = `تم حساب Tank ${tankNumber} في PBCR Calculator - النتيجة: ${hours}h ${minutes}m (انتهاء: ${finishTime} - ${finishDate}) بواسطة ${currentUser.username} في ${timeStr} - ${dateStr}`;
+    
+    await addDoc(collection(db, 'activities'), {
+      action: detailedAction,
+      originalAction: 'pbcr_calculation',
+      username: currentUser.username,
+      tankNumber: tankNumber,
+      calculationResult: `${hours}h ${minutes}m`,
+      finishTime: finishTime,
+      finishDate: finishDate,
+      timestamp: serverTimestamp(),
+      ip: userIP,
+      userAgent: navigator.userAgent.substring(0, 100),
+      page: 'pbcr-calculator'
+    });
+  } catch (error) {
+    console.error('Error logging PBCR calculation:', error);
+  }
+}
+
 // Live Tanks Help Function
 function showLiveTanksHelp() {
   alert('🔴 Add to Live Tanks:\n\nAdds your tank to the live monitoring system.\nAll users can see when your tank will finish.\nUseful for coordination between shifts and departments.\n\nNote: Requires panel operator or admin access.');
@@ -388,7 +422,7 @@ window.showTableHelp = showTableHelp;
 </script>
 
 <footer>
-  By <a href="#" class="whatsapp-link" onclick="window.open('https://wa.me/96555222550','_blank'); return false;">Fahad - 17877</a> – Version v4.1
+  By <a href="#" class="whatsapp-link" onclick="window.open('https://wa.me/96555222550','_blank'); return false;">Fahad - 17877</a> – Version v4.2
   <br><small style="color:#999;font-size:10px;margin-top:5px;display:block">📱 WhatsApp: +965 55222550</small>
 </footer>
 

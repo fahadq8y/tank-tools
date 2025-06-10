@@ -148,6 +148,11 @@
     @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
     .tank-count{font-size:0.9rem;opacity:0.8;margin-left:10px}
     .urgency-indicator{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:1.2rem;animation:blink 1s infinite}
+    .section-header{transition:all 0.3s ease;position:relative;overflow:hidden}
+    .section-header:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15)!important}
+    .section-header:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.5s ease}
+    .section-header:hover:before{left:100%}
+    .add-tank-btn:hover{transform:translateY(-3px)!important;box-shadow:0 6px 20px rgba(255,215,0,0.4)!important}
     @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0.3}}
     @media (max-width:768px){
       .nav-bar{flex-direction:column;gap:15px;padding:15px}
@@ -210,12 +215,18 @@
       <div id="messageContainer"></div>
 
       <!-- PBCR Department -->
-      <div class="section-title">
-        <span class="department-badge badge-pbcr">PBCR Department</span>
-        <span class="tank-count" id="pbcrCount">(0 tanks)</span>
-        <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none;margin-left:auto">
-          ➕ Add PBCR Tank
-        </button>
+      <div class="section-header" style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(69, 160, 73, 0.05)); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(76, 175, 80, 0.2); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 12px 24px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            🏭 <span>PBCR Department</span>
+          </div>
+          <div style="background: linear-gradient(45deg, #66BB6A, #4CAF50); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1rem; font-weight: bold; box-shadow: 0 3px 10px rgba(76, 175, 80, 0.25); border: 2px solid rgba(255,255,255,0.15); min-width: 100px; text-align: center;" id="pbcrCount">
+            (0 tanks)
+          </div>
+          <button class="add-tank-btn" id="addPBCRBtn" onclick="openAddModal('PBCR')" style="display:none; background: linear-gradient(45deg, #FFD700, #FFA500); color: #003366; border: none; padding: 12px 24px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            ➕ <span>Add PBCR Tank</span>
+          </button>
+        </div>
       </div>
       <div id="pbcrContainer">
         <div class="loading">
@@ -225,12 +236,18 @@
       </div>
 
       <!-- WASHERY Department -->
-      <div class="section-title">
-        <span class="department-badge badge-washery">WASHERY Department</span>
-        <span class="tank-count" id="washeryCount">(0 tanks)</span>
-        <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none;margin-left:auto">
-          ➕ Add WASHERY Tank
-        </button>
+      <div class="section-header" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(25, 118, 210, 0.05)); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(33, 150, 243, 0.2); box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div style="background: linear-gradient(45deg, #2196F3, #1976D2); color: white; padding: 12px 24px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            🌊 <span>WASHERY Department</span>
+          </div>
+          <div style="background: linear-gradient(45deg, #42A5F5, #2196F3); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1rem; font-weight: bold; box-shadow: 0 3px 10px rgba(33, 150, 243, 0.25); border: 2px solid rgba(255,255,255,0.15); min-width: 100px; text-align: center;" id="washeryCount">
+            (0 tanks)
+          </div>
+          <button class="add-tank-btn" id="addWasheryBtn" onclick="openAddModal('WASHERY')" style="display:none; background: linear-gradient(45deg, #FFD700, #FFA500); color: #003366; border: none; padding: 12px 24px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            ➕ <span>Add WASHERY Tank</span>
+          </button>
+        </div>
       </div>
       <div id="washeryContainer">
         <div class="loading">
@@ -240,12 +257,18 @@
       </div>
 
       <!-- PLCR Department -->
-      <div class="section-title">
-        <span class="department-badge badge-plcr">PLCR Department</span>
-        <span class="tank-count" id="plcrCount">(0 tanks)</span>
-        <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none;margin-left:auto">
-          ➕ Add PLCR Tank
-        </button>
+      <div class="section-header" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(245, 124, 0, 0.05)); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255, 152, 0, 0.2); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div style="background: linear-gradient(45deg, #ff9800, #f57c00); color: white; padding: 12px 24px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            ⚙️ <span>PLCR Department</span>
+          </div>
+          <div style="background: linear-gradient(45deg, #FFB74D, #ff9800); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1rem; font-weight: bold; box-shadow: 0 3px 10px rgba(255, 152, 0, 0.25); border: 2px solid rgba(255,255,255,0.15); min-width: 100px; text-align: center;" id="plcrCount">
+            (0 tanks)
+          </div>
+          <button class="add-tank-btn" id="addPLCRBtn" onclick="openAddModal('PLCR')" style="display:none; background: linear-gradient(45deg, #FFD700, #FFA500); color: #003366; border: none; padding: 12px 24px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+            ➕ <span>Add PLCR Tank</span>
+          </button>
+        </div>
       </div>
       <div id="plcrContainer">
         <div class="loading">
@@ -277,9 +300,10 @@
         <button class="close-btn" onclick="closeAddModal()">&times;</button>
       </div>
       <form id="addTankForm">
+        <!-- السطر الأول: القسم -->
         <div class="form-group">
           <label class="form-label">🏭 Department:</label>
-          <select class="form-select" id="addDepartment" onchange="updateProductOptions()" disabled>
+          <select class="form-select" id="addDepartment" onchange="updateProductOptions()" required>
             <option value="">Select Department</option>
             <option value="PBCR">PBCR</option>
             <option value="WASHERY">WASHERY</option>
@@ -287,28 +311,74 @@
           </select>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">🏷️ Tank Number:</label>
-          <input type="number" class="form-input" id="addTankNumber" placeholder="e.g. 225" required>
+        <!-- السطر الثاني: رقم التانك + المنتج -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🏷️ Tank Number:</label>
+            <input type="number" class="form-input" id="addTankNumber" placeholder="e.g. 225" onchange="updateAddRateUnit()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🛢️ Product Type:</label>
+            <select class="form-select" id="addProduct" required>
+              <option value="">Select Product</option>
+            </select>
+          </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">🛢️ Product Type:</label>
-          <select class="form-select" id="addProduct" required>
-            <option value="">Select Product</option>
-          </select>
+        <!-- السطر الثالث: Current Level + meter -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Current Level:</label>
+            <input type="number" step="any" class="form-input" id="addCurrentLevel" placeholder="Enter current level" onchange="calculateAddTime()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Unit:</label>
+            <input type="text" class="form-input" value="meter" readonly style="background:#f5f5f5;color:#666">
+          </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">📅 Finish Date:</label>
-          <input type="date" class="form-input" id="addFinishDate" required>
+        <!-- السطر الرابع: Target Value + Target Type -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📊 Target Value:</label>
+            <input type="number" step="any" class="form-input" id="addTargetValue" placeholder="Enter target value" onchange="calculateAddTime()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">🎯 Target Type:</label>
+            <select class="form-select" id="addTargetType" onchange="calculateAddTime()" required>
+              <option value="">Select Target Type</option>
+              <option value="pumpable">Pumpable</option>
+              <option value="ullage">Ullage</option>
+              <option value="level">Level</option>
+            </select>
+          </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">⏰ Finish Time:</label>
-          <input type="time" class="form-input" id="addFinishTime" required>
+        <!-- السطر الخامس: Flow Rate + Rate Unit -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">⚡ Flow Rate:</label>
+            <input type="number" step="any" class="form-input" id="addRate" placeholder="Rate" onchange="calculateAddTime()" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Rate Unit:</label>
+            <input type="text" class="form-input" id="addRateUnit" readonly style="background:#f5f5f5" value="bbl/hr">
+          </div>
         </div>
         
+        <!-- السطر السادس: التاريخ + الوقت -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📅 Finish Date:</label>
+            <input type="date" class="form-input" id="addFinishDate" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">⏰ Finish Time:</label>
+            <input type="time" class="form-input" id="addFinishTime" required>
+          </div>
+        </div>
+        
+        <!-- السطر السابع: Notes -->
         <div class="form-group">
           <label class="form-label">📝 Notes (Optional):</label>
           <textarea class="form-textarea" id="addNotes" placeholder="Additional information..."></textarea>
@@ -330,11 +400,13 @@
         <button class="close-btn" onclick="closeEditModal()">&times;</button>
       </div>
       <form id="editTankForm">
+        <!-- السطر الأول: القسم -->
         <div class="form-group">
           <label class="form-label">🏭 Department:</label>
-          <input type="text" class="form-input" id="editDepartment" readonly>
+          <input type="text" class="form-input" id="editDepartment" readonly style="background:#f5f5f5">
         </div>
         
+        <!-- السطر الثاني: رقم التانك + المنتج -->
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
             <label class="form-label">🏷️ Tank Number:</label>
@@ -348,6 +420,19 @@
           </div>
         </div>
         
+        <!-- السطر الثالث: Current Level + meter -->
+        <div class="form-row" style="display:flex;gap:10px">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Current Level:</label>
+            <input type="number" step="any" class="form-input" id="editCurrentLevel" placeholder="Enter current level" oninput="calculateActualRate()">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">📏 Unit:</label>
+            <input type="text" class="form-input" value="meter" readonly style="background:#f5f5f5;color:#666">
+          </div>
+        </div>
+        
+        <!-- السطر الرابع: Target Value + Target Type -->
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
             <label class="form-label">📊 Target Value:</label>
@@ -364,17 +449,7 @@
           </div>
         </div>
         
-        <div class="form-row" style="display:flex;gap:10px">
-          <div class="form-group" style="flex:1">
-            <label class="form-label">📏 Current Level:</label>
-            <input type="number" step="any" class="form-input" id="editCurrentLevel" placeholder="Enter current level" oninput="calculateActualRate()">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label class="form-label">📋 Previous Level:</label>
-            <input type="number" step="any" class="form-input" id="editPreviousLevel" readonly style="background:#f5f5f5">
-          </div>
-        </div>
-        
+        <!-- السطر الخامس: Flow Rate + Rate Unit -->
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
             <label class="form-label">⚡ Flow Rate:</label>
@@ -386,6 +461,7 @@
           </div>
         </div>
         
+        <!-- السطر السادس: التاريخ + الوقت -->
         <div class="form-row" style="display:flex;gap:10px">
           <div class="form-group" style="flex:1">
             <label class="form-label">📅 Finish Date:</label>
@@ -397,14 +473,19 @@
           </div>
         </div>
         
+        <!-- السطر السابع: Notes -->
         <div class="form-group">
           <label class="form-label">📝 Notes:</label>
           <textarea class="form-textarea" id="editNotes" placeholder="Additional information..."></textarea>
         </div>
         
+        <!-- Previous Level (مخفي للمرجع) -->
+        <input type="hidden" id="editPreviousLevel">
+        
         <div class="modal-buttons">
           <button type="button" class="btn btn-secondary" onclick="closeEditModal()">❌ Cancel</button>
           <button type="submit" class="btn btn-primary">💾 Update Tank</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteTank()">🗑️ Delete Tank</button>
         </div>
       </form>
     </div>
@@ -1178,10 +1259,12 @@
     }
 
     function openAddModal(department) {
+      console.log('🚀 Opening add modal for department:', department);
       document.getElementById('addModalTitle').textContent = `➕ Add ${department} Tank`;
       document.getElementById('addDepartment').value = department;
       updateProductOptions();
       document.getElementById('addTankModal').classList.add('show');
+      console.log('✅ Modal opened, department set to:', department);
     }
 
     function closeAddModal() {
@@ -1193,15 +1276,21 @@
       const department = document.getElementById('addDepartment').value;
       const productSelect = document.getElementById('addProduct');
       
+      console.log('🔄 Updating product options for department:', department);
+      
       productSelect.innerHTML = '<option value="">Select Product</option>';
       
       if (department && productsByDepartment[department]) {
+        console.log('📋 Available products:', productsByDepartment[department]);
         productsByDepartment[department].forEach(product => {
           const option = document.createElement('option');
           option.value = product;
           option.textContent = product;
           productSelect.appendChild(option);
         });
+        console.log('✅ Product options updated');
+      } else {
+        console.log('❌ No department selected or no products found');
       }
     }
 
@@ -1367,7 +1456,7 @@
         // No need to save deletion history since tank is being deleted
         await deleteDoc(doc(db, 'liveTanks', tankId));
         
-        await addActivity('live_tank_deleted', currentUser.username);
+        await addActivity('live_tank_deleted', currentUser.username, tank);
         showMessage('✅ تم حذف التانك!', 'success');
         
         // Auto close modal after 1 second
@@ -1385,20 +1474,65 @@
     document.getElementById('addTankForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      console.log('🚀 Starting tank addition...');
+      
       const department = document.getElementById('addDepartment').value;
       const tankNumber = document.getElementById('addTankNumber').value;
       const product = document.getElementById('addProduct').value;
+      const targetValue = document.getElementById('addTargetValue').value;
+      const targetType = document.getElementById('addTargetType').value;
+      const currentLevel = document.getElementById('addCurrentLevel').value;
+      const rate = document.getElementById('addRate').value;
+      const rateUnit = document.getElementById('addRateUnit').value;
       const finishDate = document.getElementById('addFinishDate').value;
       const finishTime = document.getElementById('addFinishTime').value;
       const notes = document.getElementById('addNotes').value;
       
+      console.log('📋 Form data:', { department, tankNumber, product, targetValue, targetType, currentLevel, rate, rateUnit, finishDate, finishTime });
+      
+      // Validation
+      if (!department) {
+        showMessage('❌ Please select a department!', 'error');
+        return;
+      }
+      if (!tankNumber) {
+        showMessage('❌ Please enter tank number!', 'error');
+        return;
+      }
+      if (!product) {
+        showMessage('❌ Please select a product!', 'error');
+        return;
+      }
+      if (!targetValue || !targetType) {
+        showMessage('❌ Please set target value and type!', 'error');
+        return;
+      }
+      if (!currentLevel) {
+        showMessage('❌ Please enter current level!', 'error');
+        return;
+      }
+      if (!rate || !rateUnit) {
+        showMessage('❌ Please enter flow rate!', 'error');
+        return;
+      }
+      if (!finishDate || !finishTime) {
+        showMessage('❌ Please set finish date and time!', 'error');
+        return;
+      }
+      
       try {
+        console.log('💾 Saving to Firebase...');
         const finishDateTime = new Date(finishDate + ' ' + finishTime);
         
         const tankData = {
           department: department,
           tankNumber: tankNumber,
           product: product,
+          targetValue: parseFloat(targetValue),
+          targetType: targetType,
+          currentLevel: parseFloat(currentLevel),
+          rate: parseFloat(rate),
+          rateUnit: rateUnit,
           addedBy: currentUser.username,
           userName: currentUser.fullName || currentUser.username,
           finishTime: finishTime,
@@ -1410,19 +1544,29 @@
           history: [{
             action: 'Tank Created',
             modifiedBy: currentUser.username,
-            timestamp: serverTimestamp(),
+            timestamp: new Date(),
             notes: `Tank ${tankNumber} created in ${department}`
           }]
         };
         
-        await addDoc(collection(db, 'liveTanks'), tankData);
+        console.log('📊 Tank data:', tankData);
         
-        await addActivity('live_tank_added', currentUser.username);
+        await addDoc(collection(db, 'liveTanks'), tankData);
+        console.log('✅ Tank saved to Firebase');
+        
+        await addActivity('live_tank_added', currentUser.username, tankData);
+        console.log('✅ Activity logged');
+        
         showMessage('✅ Tank added successfully!', 'success');
-        closeAddModal();
+        
+        // إغلاق القائمة تلقائياً بعد الإضافة
+        setTimeout(() => {
+          closeAddModal();
+          window.location.reload();
+        }, 1000);
         
       } catch (error) {
-        console.error('Error adding tank:', error);
+        console.error('❌ Error adding tank:', error);
         showMessage('❌ Error adding tank: ' + error.message, 'error');
       }
     });
@@ -1468,19 +1612,19 @@
         const updateData = {
           tankNumber: tankNumber,
           product: product,
-          targetType: targetType,
-          targetValue: parseFloat(targetValue),
-          previousLevel: parseFloat(previousLevel),
-          currentLevel: currentLevel ? parseFloat(currentLevel) : currentEditingTank.currentLevel,
-          rate: parseFloat(rate),
-          rateUnit: rateUnit,
+          targetType: targetType || null,
+          targetValue: targetValue ? parseFloat(targetValue) : null,
+          previousLevel: previousLevel ? parseFloat(previousLevel) : null,
+          currentLevel: currentLevel ? parseFloat(currentLevel) : (currentEditingTank.currentLevel || null),
+          rate: rate ? parseFloat(rate) : null,
+          rateUnit: rateUnit || null,
           finishTime: finishTime,
           finishDate: finishDate,
           finishDateTime: finishDateTime,
-          notes: notes,
+          notes: notes || '',
           lastModified: serverTimestamp(),
           modifiedBy: currentUser.username,
-          lastLevelUpdate: currentLevel ? serverTimestamp() : currentEditingTank.lastLevelUpdate
+          lastLevelUpdate: currentLevel ? serverTimestamp() : (currentEditingTank.lastLevelUpdate || null)
         };
         
         // Always add history record for any edit
@@ -1505,13 +1649,13 @@
         
         await updateDoc(doc(db, 'liveTanks', currentEditingTank.id), updateData);
         
-        await addActivity('live_tank_updated', currentUser.username);
-        showMessage('✅ تم التعديل!', 'success');
+        await addActivity('live_tank_updated', currentUser.username, currentEditingTank, changes);
+        showMessage('✅ Tank updated successfully!', 'success');
         
-        // Auto close modal after 1 second
+        // إغلاق القائمة تلقائياً بعد التعديل
         setTimeout(() => {
           closeEditModal();
-          closeTankDetails();
+          window.location.reload();
         }, 1000);
         
       } catch (error) {
@@ -1531,15 +1675,78 @@
       }, 2000);
     }
 
-    async function addActivity(action, username) {
+    async function addActivity(action, username, tankData = null, changes = null) {
       try {
-        await addDoc(collection(db, 'activities'), {
-          action: action,
+        const userIP = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip).catch(() => 'Unknown');
+        const timestamp = new Date();
+        const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = timestamp.toLocaleDateString('en-GB');
+        
+        let detailedAction = action;
+        let activityDetails = null;
+        
+        if (action === 'live_tank_added') {
+          const lastTank = tankData || window.currentTanks?.[window.currentTanks.length - 1];
+          if (lastTank) {
+            detailedAction = `Tank ${lastTank.tankNumber} - Added`;
+            activityDetails = {
+              tankNumber: lastTank.tankNumber,
+              department: lastTank.department,
+              product: lastTank.product,
+              action: 'added',
+              details: `New tank created in ${lastTank.department}`
+            };
+          } else {
+            detailedAction = `New Tank - Added`;
+          }
+        } else if (action === 'live_tank_updated') {
+          if (tankData && changes) {
+            detailedAction = `Tank ${tankData.tankNumber} - Updated`;
+            activityDetails = {
+              tankNumber: tankData.tankNumber,
+              department: tankData.department,
+              action: 'updated',
+              changes: changes,
+              details: Object.keys(changes).map(key => {
+                const change = changes[key];
+                return `${key}: ${change.from} → ${change.to}`;
+              }).join(', ')
+            };
+          } else {
+            detailedAction = `Tank - Updated`;
+          }
+        } else if (action === 'live_tank_deleted') {
+          if (tankData) {
+            detailedAction = `Tank ${tankData.tankNumber} - Deleted`;
+            activityDetails = {
+              tankNumber: tankData.tankNumber,
+              department: tankData.department,
+              action: 'deleted',
+              details: `Tank removed from ${tankData.department}`
+            };
+          } else {
+            detailedAction = `Tank - Deleted`;
+          }
+        } else if (action === 'live_tanks_accessed') {
+          detailedAction = `Live Tanks Access`;
+        }
+        
+        const activityData = {
+          action: detailedAction,
+          originalAction: action,
           username: username,
           timestamp: serverTimestamp(),
-          ip: 'live-tanks-page',
-          userAgent: navigator.userAgent.substring(0, 100)
-        });
+          ip: userIP,
+          userAgent: navigator.userAgent.substring(0, 100),
+          page: 'live-tanks'
+        };
+        
+        // Add detailed information if available
+        if (activityDetails) {
+          activityData.details = activityDetails;
+        }
+        
+        await addDoc(collection(db, 'activities'), activityData);
       } catch (error) {
         console.error('Error adding activity:', error);
       }
@@ -1618,12 +1825,113 @@
     // Apply saved font size on page load
     applyFontSize();
 
+    // Add Tank calculation functions
+    function updateAddRateUnit() {
+      const tankNumber = document.getElementById('addTankNumber').value;
+      const rateUnitField = document.getElementById('addRateUnit');
+      
+      if (tankNumber && tanks[tankNumber]) {
+        // Set default rate unit based on tank data (same as PBCR logic)
+        rateUnitField.value = 'bbl/hr';
+      }
+    }
+
+    function calculateAddTime() {
+      const targetType = document.getElementById('addTargetType').value;
+      const targetValue = parseFloat(document.getElementById('addTargetValue').value);
+      const currentLevel = parseFloat(document.getElementById('addCurrentLevel').value);
+      const rate = parseFloat(document.getElementById('addRate').value);
+      const rateUnit = document.getElementById('addRateUnit').value;
+      const tankNumber = document.getElementById('addTankNumber').value;
+      
+      if (!targetType || !targetValue || !currentLevel || !rate || !tankNumber) return;
+      
+      // Get tank data from tanks object
+      const tankData = tanks[tankNumber];
+      if (!tankData) return;
+      
+      const c = tankData.comment; // capacity factor
+      const m = tankData.min;     // minimum level
+      const x = tankData.max;     // maximum level
+      
+      // Calculate target level based on type
+      let targetLevel = 0;
+      if (targetType === "pumpable") {
+        targetLevel = (targetValue / c) + m;
+      } else if (targetType === "ullage") {
+        targetLevel = x - (targetValue / c);
+      } else if (targetType === "level") {
+        targetLevel = targetValue;
+      }
+      
+      // Calculate difference
+      const levelDiff = Math.abs(targetLevel - currentLevel);
+      
+      // Calculate time based on rate unit
+      let timeHours = 0;
+      if (rateUnit === "mtr/hr") {
+        timeHours = levelDiff / rate;
+      } else {
+        const volumeDiff = levelDiff * c;
+        const flowRate = rateUnit === "m3/hr" ? rate * 6.28 : rate;
+        timeHours = volumeDiff / flowRate;
+      }
+      
+      if (timeHours > 0) {
+        const now = new Date();
+        const finishTime = new Date(now.getTime() + timeHours * 3600000);
+        
+        // Update date and time fields
+        const finishDate = `${finishTime.getFullYear()}-${String(finishTime.getMonth()+1).padStart(2,'0')}-${String(finishTime.getDate()).padStart(2,'0')}`;
+        const finishTimeStr = `${String(finishTime.getHours()).padStart(2,'0')}:${String(finishTime.getMinutes()).padStart(2,'0')}`;
+        
+        document.getElementById('addFinishDate').value = finishDate;
+        document.getElementById('addFinishTime').value = finishTimeStr;
+      }
+    }
+
+    // إضافة function تأكيد الحذف
+    function confirmDeleteTank() {
+      if (!currentEditingTank) return;
+      
+      const tankNumber = currentEditingTank.tankNumber;
+      const department = currentEditingTank.department;
+      
+      if (confirm(`⚠️ هل أنت متأكد من حذف التانك ${tankNumber} في قسم ${department}؟\n\nهذا الإجراء لا يمكن التراجع عنه!`)) {
+        deleteTankConfirmed();
+      }
+    }
+    
+    async function deleteTankConfirmed() {
+      if (!currentEditingTank) return;
+      
+      try {
+        await deleteDoc(doc(db, 'liveTanks', currentEditingTank.id));
+        
+        await addActivity('live_tank_deleted', currentUser.username, currentEditingTank);
+        showMessage('✅ Tank deleted successfully!', 'success');
+        
+        // إغلاق القائمة تلقائياً بعد الحذف
+        setTimeout(() => {
+          closeEditModal();
+          window.location.reload();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Error deleting tank:', error);
+        showMessage('❌ Error deleting tank: ' + error.message, 'error');
+      }
+    }
+
     // Make functions globally available
     window.openAddModal = openAddModal;
     window.closeAddModal = closeAddModal;
     window.updateProductOptions = updateProductOptions;
+    window.updateAddRateUnit = updateAddRateUnit;
+    window.calculateAddTime = calculateAddTime;
     window.editTank = editTank;
     window.closeEditModal = closeEditModal;
+    window.confirmDeleteTank = confirmDeleteTank;
     window.deleteTank = deleteTank;
     window.logout = logout;
     window.goToLogin = goToLogin;
@@ -1635,7 +1943,7 @@
       if (unsubscribe) unsubscribe();
     });
 
-    console.log('%c🔴 LIVE TANKS - UPDATED TABLE DESIGN', 'color:red;font-size:16px;font-weight:bold');
+    console.log('%c🔴 LIVE TANKS v4.2 - UPDATED TABLE DESIGN', 'color:red;font-size:16px;font-weight:bold');
     console.log('%cDeveloper: Fahad - 17877', 'color:green;font-size:14px');
     console.log('%cProduct-based sorting with urgency indicators', 'color:blue;font-size:14px');
   </script>

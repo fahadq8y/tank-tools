@@ -123,7 +123,7 @@
     </div>
 
     <div id="messageContainer"></div>
-    <div class="footer"><strong>🔥 Firebase Powered</strong><br>By <strong>Fahad - 17877</strong> | Version v4.1<br><small>Real-time cloud database</small></div>
+    <div class="footer"><strong>🔥 Firebase Powered</strong><br>By <strong>Fahad - 17877</strong> | Version v4.2<br><small>Real-time cloud database</small></div>
   </div>
 
   <!-- Firebase SDK -->
@@ -602,14 +602,34 @@
     // Add activity to Firebase
     async function addActivity(action, username) {
       try {
+        const userIP = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip).catch(() => 'Unknown');
+        const timestamp = new Date();
+        const timeStr = timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = timestamp.toLocaleDateString('en-GB');
+        
+        let detailedAction = action;
+        if (action === 'user_login') {
+          detailedAction = `تم دخول المستخدم ${username} إلى النظام في ${timeStr} - ${dateStr}`;
+        } else if (action === 'admin_login') {
+          detailedAction = `تم دخول الأدمن ${username} إلى النظام في ${timeStr} - ${dateStr}`;
+        } else if (action === 'failed_login_attempt') {
+          detailedAction = `محاولة دخول فاشلة للمستخدم ${username} في ${timeStr} - ${dateStr}`;
+        } else if (action === 'user_registered') {
+          detailedAction = `تم تسجيل مستخدم جديد: ${username} في ${timeStr} - ${dateStr}`;
+        } else if (action === 'password_reset_requested') {
+          detailedAction = `طلب إعادة تعيين كلمة المرور للمستخدم ${username} في ${timeStr} - ${dateStr}`;
+        }
+        
         await addDoc(collection(db, 'activities'), {
-          action: action,
+          action: detailedAction,
+          originalAction: action,
           username: username,
           timestamp: serverTimestamp(),
-          ip: 'login-page',
-          userAgent: navigator.userAgent.substring(0, 100)
+          ip: userIP,
+          userAgent: navigator.userAgent.substring(0, 100),
+          page: 'login'
         });
-        console.log('✅ Activity logged:', action, username);
+        console.log('✅ Activity logged:', detailedAction);
       } catch (error) {
         console.error('❌ Error logging activity:', error);
       }
