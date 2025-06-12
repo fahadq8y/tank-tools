@@ -1310,7 +1310,16 @@
         document.getElementById('editTankNumber').value = tank.tankNumber;
         document.getElementById('editTargetType').value = tank.targetType || '';
         document.getElementById('editTargetValue').value = tank.targetValue || '';
-        document.getElementById('editCurrentLevel').value = '';
+        
+        // Auto-fill current level from saved data
+        if (tank.currentLevel) {
+          document.getElementById('editCurrentLevel').value = tank.currentLevel;
+          console.log('✅ Auto-filled current level:', tank.currentLevel);
+        } else {
+          document.getElementById('editCurrentLevel').value = '';
+          console.log('⚠️ No current level found in tank data');
+        }
+        
         document.getElementById('editPreviousLevel').value = tank.currentLevel || '';
         document.getElementById('editRate').value = tank.rate || '';
         document.getElementById('editRateUnit').value = tank.rateUnit || 'bbl/hr';
@@ -1332,6 +1341,11 @@
           });
         }
         
+        // Trigger calculation after form is filled
+        setTimeout(() => {
+          calculateEditTime();
+        }, 100);
+        
         document.getElementById('editTankModal').classList.add('show');
         
       } catch (error) {
@@ -1350,8 +1364,15 @@
     function calculateActualRate() {
       const currentLevel = parseFloat(document.getElementById('editCurrentLevel').value);
       const previousLevel = parseFloat(document.getElementById('editPreviousLevel').value);
+      const rateUnit = document.getElementById('editRateUnit').value;
       
       if (!currentLevel || !previousLevel || !currentEditingTank) return;
+      
+      console.log('📊 Calculating actual rate:', {
+        currentLevel,
+        previousLevel,
+        rateUnit
+      });
       
       // Get time difference
       const now = new Date();
@@ -1364,7 +1385,10 @@
       if (timeDiffHours <= 0) return;
       
       // Calculate level difference (previous - current for consumption)
-      const levelDiff = previousLevel - currentLevel;
+      const levelDiff = Math.abs(previousLevel - currentLevel);
+      
+      console.log('📏 Level difference:', levelDiff, 'meters');
+      console.log('⏰ Time difference:', timeDiffHours, 'hours');
       
       // Get tank data for capacity calculation
       const tankNumber = document.getElementById('editTankNumber').value;
@@ -1374,14 +1398,35 @@
       
       const c = tankData.comment; // capacity factor
       
-      // Convert level difference to volume
-      const volumeDiff = Math.abs(levelDiff * c);
+      let actualRate = 0;
       
-      // Calculate actual rate (volume per hour)
-      const actualRate = volumeDiff / timeDiffHours;
+      // Calculate rate based on the selected unit
+      if (rateUnit === "mtr/hr") {
+        // Rate in meters per hour
+        actualRate = levelDiff / timeDiffHours;
+        console.log('📐 Calculated rate (mtr/hr):', actualRate);
+      } else if (rateUnit === "m3/hr" || rateUnit === "m3" || rateUnit === "m³/hr" || rateUnit === "m³") {
+        // Rate in cubic meters per hour
+        // First calculate volume in barrels
+        const volumeDiffBarrels = levelDiff * c;
+        const rateBarrels = volumeDiffBarrels / timeDiffHours;
+        // Convert from barrels to m³ (1 barrel = 6.28 m³ approximately)
+        actualRate = rateBarrels / 6.28;
+        console.log('🧊 Volume in barrels:', volumeDiffBarrels);
+        console.log('🧊 Rate in barrels:', rateBarrels);
+        console.log('🧊 Rate Unit detected:', rateUnit);
+        console.log('🧊 Calculated rate (m³/hr):', actualRate);
+      } else {
+        // Default: bbl/hr (barrels per hour)
+        const volumeDiff = levelDiff * c;
+        actualRate = volumeDiff / timeDiffHours;
+        console.log('🛢️ Calculated rate (bbl/hr):', actualRate);
+      }
       
       // Update rate field
       document.getElementById('editRate').value = Math.round(actualRate);
+      
+      console.log('✅ Rate updated to:', Math.round(actualRate), rateUnit);
       
       // Recalculate finish time
       calculateEditTime();
@@ -1405,10 +1450,41 @@
       const m = tankData.min;     // minimum level
       const x = tankData.max;     // maximum level
       
-      // Assume current level (you might want to get this from somewhere)
-      const currentLevel = 3.0; // Default or get from form
+      // Get current level from form or use saved data
+      let currentLevel = parseFloat(document.getElementById('editCurrentLevel').value);
       
-      // Calculate target level based on type
+      // If no current level in form, use the saved current level from tank data
+      if (!currentLevel && currentEditingTank && currentEditingTank.currentLevel) {
+        currentLevel = currentEditingTank.currentLevel;
+        // Auto-fill the form field
+        document.getElementById('editCurrentLevel').value = currentLevel;
+      }
+      
+      // If still no current level, try to get from tank data
+      if (!currentLevel && tankData.currentLevel) {
+        currentLevel = tankData.currentLevel;
+        document.getElementById('editCurrentLevel').value = currentLevel;
+      }
+      
+      // If still no current level, cannot calculate
+      if (!currentLevel) {
+        console.log('⚠️ Cannot calculate time - no current level available');
+        return;
+      }
+      
+      console.log('📊 Calculation data:', {
+        tankNumber,
+        currentLevel,
+        targetValue,
+        targetType,
+        rate,
+        rateUnit,
+        capacityFactor: c,
+        minLevel: m,
+        maxLevel: x
+      });
+      
+      // Calculate target level based on type (same as PBCR)
       let targetLevel = 0;
       if (targetType === "pumpable") {
         targetLevel = (targetValue / c) + m;
@@ -1418,18 +1494,24 @@
         targetLevel = targetValue;
       }
       
+      console.log('🎯 Target level calculated:', targetLevel);
+      
       // Calculate difference
       const levelDiff = Math.abs(targetLevel - currentLevel);
+      console.log('📏 Level difference:', levelDiff);
       
-      // Calculate time based on rate unit
+      // Calculate time based on rate unit (same as PBCR)
       let timeHours = 0;
       if (rateUnit === "mtr/hr") {
         timeHours = levelDiff / rate;
       } else {
         const volumeDiff = levelDiff * c;
-        const flowRate = rateUnit === "m3/hr" ? rate * 6.28 : rate;
+        // Check for all m³ variations
+        const flowRate = (rateUnit === "m3/hr" || rateUnit === "m3" || rateUnit === "m³/hr" || rateUnit === "m³") ? rate * 6.28 : rate;
         timeHours = volumeDiff / flowRate;
       }
+      
+      console.log('⏰ Time calculated (hours):', timeHours);
       
       if (timeHours > 0) {
         const now = new Date();
@@ -1441,6 +1523,8 @@
         
         document.getElementById('editFinishDate').value = finishDate;
         document.getElementById('editFinishTime').value = finishTimeStr;
+        
+        console.log('✅ Finish time updated:', finishDate, finishTimeStr);
       }
     }
 
