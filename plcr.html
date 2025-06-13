@@ -7,6 +7,7 @@
   <link href="icon.png" rel="icon" type="image/png"/>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#003366">
+  <script src="permissions.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:Arial,sans-serif;margin:0;padding:20px;background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;direction:ltr;min-height:100vh}
@@ -103,7 +104,7 @@
         <a class="nav-link" href="index.html">PBCR</a>
         <a class="nav-link active" href="plcr.html">PLCR</a>
         <a class="nav-link" href="NMOGASBL.html">NMOGAS</a>
-        <a class="nav-link" href="live-tanks.html" id="liveTanksLink" style="display:none">🔴 Live Tanks</a>
+        <a class="nav-link" href="live-tanks.html" id="live-tanks-btn" style="display:none">🔴 Live Tanks</a>
         <a class="nav-admin" href="dashboard.html" id="adminLink" style="display:none">🔐 Dashboard</a>
       </div>
       <div class="nav-user" id="navUser">
@@ -275,7 +276,7 @@
       const userNameElement = document.getElementById('userName');
       const userAvatarElement = document.getElementById('userAvatar');
       const adminLinkElement = document.getElementById('adminLink');
-      const liveTanksLinkElement = document.getElementById('liveTanksLink');
+      const liveTanksLinkElement = document.getElementById('live-tanks-btn');
       
       if(userNameElement) {
         userNameElement.textContent = currentUser.username;

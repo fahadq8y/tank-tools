@@ -7,7 +7,6 @@
   <link href="icon.png" rel="icon" type="image/png"/>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#003366">
-  <script src="permissions.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('background.jpg');background-size:cover;background-position:center;background-attachment:fixed;color:white;font-family:Arial,sans-serif;padding:20px;min-height:100vh}
@@ -612,50 +611,32 @@
       checkLoginStatus();
     });
 
-    async function checkLoginStatus() {
+    function checkLoginStatus() {
+      const session = sessionStorage.getItem('tanktools_session');
+      const userData = localStorage.getItem('tanktools_current_user');
+      
+      if (session !== 'active' || !userData) {
+        showAccessDenied();
+        return;
+      }
+      
       try {
-        console.log('🔐 Checking login status for Live Tanks...');
-        
-        // استخدام دالة getCurrentUser من permissions.js
-        const user = await getCurrentUser();
-        
-        if (!user) {
-          console.log('checkLoginStatus: No current user, showing access denied');
+        currentUser = JSON.parse(userData);
+        if (!canUserAccessLiveTanks()) {
           showAccessDenied();
           return;
         }
         
-        currentUser = user;
-        console.log('checkLoginStatus: Current user:', user);
-        
-        // استخدام دالة hasPermission من permissions.js للتحقق من صلاحية الوصول
-        const canViewLiveTanks = await hasPermission('canViewLiveTanks');
-        
-        console.log('checkLoginStatus: Can view Live Tanks:', canViewLiveTanks);
-        
-        if (!canViewLiveTanks) {
-          console.log('checkLoginStatus: User cannot view Live Tanks, showing access denied');
-          showAccessDenied();
-          return;
-        }
-        
-        console.log('✅ Login status check passed, initializing app');
         initializeApp();
-        await logActivity('live_tanks_accessed', currentUser.username);
+        logActivity('live_tanks_accessed', currentUser.username);
       } catch (error) {
-        console.error('❌ Error checking login status:', error);
         showAccessDenied();
       }
     }
 
-    async function canUserAccessLiveTanks() {
-      try {
-        // استخدام دالة hasPermission من permissions.js للتحقق من صلاحية الوصول
-        return await hasPermission('canViewLiveTanks');
-      } catch (error) {
-        console.error('❌ Error checking Live Tanks access permission:', error);
-        return false;
-      }
+    function canUserAccessLiveTanks() {
+      const allowedRoles = ["admin", "panel_operator", "supervisor", "section_head", "operator", "planning"];
+      return allowedRoles.includes(currentUser.role);
     }
 
     function showAccessDenied() {
@@ -692,62 +673,19 @@
       }
     }
 
-    async function setupPermissions() {
-      try {
-        console.log('🔐 Setting up Live Tanks permissions...');
-        
-        // الحصول على بيانات المستخدم الحالي
-        const user = await getCurrentUser();
-        if (!user) {
-          console.error('setupPermissions: No current user found');
-          return;
+    function setupPermissions() {
+      const permissions = rolePermissions[currentUser.role] || { canView: true, canAdd: false, canEdit: false, canDelete: false };
+      
+      // Show/hide add buttons
+      const addButtons = ['addPBCRBtn', 'addWasheryBtn', 'addPLCRBtn'];
+      addButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (permissions.canAdd) {
+          btn.style.display = 'flex';
+        } else {
+          btn.style.display = 'none';
         }
-        
-        console.log('setupPermissions: Current user:', user);
-        
-        // استخدام دالة hasPermission من permissions.js
-        const canAddToLiveTanks = await hasPermission('canAddToLiveTanks');
-        const canEditLiveTanks = await hasPermission('canEditLiveTanks');
-        const canDeleteFromLiveTanks = await hasPermission('canDeleteFromLiveTanks');
-        
-        console.log('🔐 Live Tanks permissions:', {
-          canAddToLiveTanks,
-          canEditLiveTanks,
-          canDeleteFromLiveTanks
-        });
-        
-        // Show/hide add buttons based on permissions
-        const addButtons = ['addPBCRBtn', 'addWasheryBtn', 'addPLCRBtn'];
-        addButtons.forEach(btnId => {
-          const btn = document.getElementById(btnId);
-          if (btn) {
-            if (canAddToLiveTanks) {
-              btn.style.display = 'flex';
-              btn.disabled = false;
-            } else {
-              btn.style.display = 'none';
-              btn.disabled = true;
-            }
-          }
-        });
-        
-        // تخزين الصلاحيات في متغير عام للاستخدام في أماكن أخرى
-        window.userLiveTanksPermissions = {
-          canAdd: canAddToLiveTanks,
-          canEdit: canEditLiveTanks,
-          canDelete: canDeleteFromLiveTanks
-        };
-        
-        console.log('✅ Live Tanks permissions setup completed');
-      } catch (error) {
-        console.error('❌ Error setting up Live Tanks permissions:', error);
-        // Fallback: hide all action buttons if permissions check fails
-        window.userLiveTanksPermissions = {
-          canAdd: false,
-          canEdit: false,
-          canDelete: false
-        };
-      }
+      });
     }
 
     async function loadLiveTanks() {
@@ -805,7 +743,7 @@
       });
     }
 
-    async function displayTanksInTable(containerId, tanks) {
+    function displayTanksInTable(containerId, tanks) {
       const container = document.getElementById(containerId);
       
       if (tanks.length === 0) {
@@ -847,18 +785,13 @@
             <tbody>
         `;
       
-      // استخدام الصلاحيات المخزنة من setupPermissions
-      const permissions = window.userLiveTanksPermissions || {
-        canAdd: false,
-        canEdit: false,
-        canDelete: false
-      };
-      
-      // معالجة كل تانك في حلقة
       tanks.forEach(tank => {
         const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
         const urgencyLevel = getUrgencyLevel(finishDateTime);
         const rowClass = getRowClass(urgencyLevel);
+        const urgencyIcon = getUrgencyIcon(urgencyLevel);
+        
+        const permissions = rolePermissions[currentUser.role] || {};
         
         // Format date to DD-MM
         const dateObj = new Date(tank.finishDate);
@@ -931,12 +864,9 @@
     }
 
     // Tank Details Functions
-    window.showTankDetails = async function(tankId) {
+    window.showTankDetails = function(tankId) {
       const tank = window.currentTanks?.find(t => t.id === tankId);
       if (!tank) return;
-      
-      // تحديث الصلاحيات قبل عرض التفاصيل
-      await setupPermissions();
       
       const finishDateTime = new Date(tank.finishDate + ' ' + tank.finishTime);
       const dateObj = new Date(tank.finishDate);
@@ -961,12 +891,7 @@
         remainingText = `${daysRemaining}d ${remainingHours}h`;
       }
       
-      // استخدام الصلاحيات المحدثة من setupPermissions
-      const permissions = window.userLiveTanksPermissions || {
-        canAdd: false,
-        canEdit: false,
-        canDelete: false
-      };
+      const permissions = rolePermissions[currentUser.role] || {};
       
       document.getElementById('tankDetailsTitle').textContent = `Tank ${tank.tankNumber} Details`;
       
@@ -1082,10 +1007,12 @@
           </div>
         </div>
         
-        <div class="tank-actions">
-          ${permissions.canEdit ? `<button class="btn btn-primary" onclick="editTank('${tank.id}')">✏️ Edit Tank</button>` : ''}
-          ${permissions.canDelete ? `<button class="btn btn-danger" onclick="deleteTank('${tank.id}')">🗑️ Delete Tank</button>` : ''}
-        </div>
+        ${permissions.canEdit ? `
+          <div class="tank-actions">
+            <button class="btn btn-primary" onclick="editTank('${tank.id}')">✏️ Edit Tank</button>
+            <button class="btn btn-danger" onclick="deleteTank('${tank.id}')">🗑️ Delete Tank</button>
+          </div>
+        ` : ''}
       `;
       document.getElementById('tankDetailsBody').innerHTML = detailsHTML;
       document.getElementById('tankDetailsModal').classList.add('show');
@@ -1515,89 +1442,65 @@
       
       if (!targetType || !targetValue || !rate || !tankNumber) return;
       
-      // Get tank data from tanks object (same as PBCR)
       const tankData = tanks[tankNumber];
       if (!tankData) return;
       
-      const c = tankData.comment; // capacity factor
-      const m = tankData.min;     // minimum level
-      const x = tankData.max;     // maximum level
+      const c = tankData.comment;
+      const m = tankData.min;
+      const x = tankData.max;
       
-      // Get current level from form or use saved data
       let currentLevel = parseFloat(document.getElementById('editCurrentLevel').value);
       
-      // If no current level in form, use the saved current level from tank data
       if (!currentLevel && currentEditingTank && currentEditingTank.currentLevel) {
         currentLevel = currentEditingTank.currentLevel;
-        // Auto-fill the form field
         document.getElementById('editCurrentLevel').value = currentLevel;
       }
       
-      // If still no current level, try to get from tank data
       if (!currentLevel && tankData.currentLevel) {
         currentLevel = tankData.currentLevel;
         document.getElementById('editCurrentLevel').value = currentLevel;
       }
       
-      // If still no current level, cannot calculate
       if (!currentLevel) {
         console.log('⚠️ Cannot calculate time - no current level available');
         return;
       }
       
-      console.log('📊 Calculation data:', {
-        tankNumber,
-        currentLevel,
-        targetValue,
-        targetType,
-        rate,
-        rateUnit,
-        capacityFactor: c,
-        minLevel: m,
-        maxLevel: x
-      });
-      
-      // Calculate target level based on type (same as PBCR)
-      let targetLevel = 0;
+      let estLevel = 0;
       if (targetType === "pumpable") {
-        targetLevel = (targetValue / c) + m;
+        estLevel = (targetValue / c) + m;
       } else if (targetType === "ullage") {
-        targetLevel = x - (targetValue / c);
+        estLevel = x - (targetValue / c);
       } else if (targetType === "level") {
-        targetLevel = targetValue;
+        estLevel = targetValue;
       }
       
-      console.log('🎯 Target level calculated:', targetLevel);
+      const levelDiff = estLevel - currentLevel;
       
-      // Calculate difference
-      const levelDiff = Math.abs(targetLevel - currentLevel);
-      console.log('📏 Level difference:', levelDiff);
+      const flowRaw = rate;
+      const unit = rateUnit === "m3" || rateUnit === "m³" ? "m3" : rateUnit === "mtr" ? "mtr" : "bbl";
       
-      // Calculate time based on rate unit (same as PBCR)
-      let timeHours = 0;
-      if (rateUnit === "mtr/hr") {
-        timeHours = levelDiff / rate;
+      const flow = unit === "m3" ? flowRaw * 6.28 : unit === "mtr" ? flowRaw : flowRaw;
+      
+      let time = 0;
+      if (unit === "mtr" && targetType !== "level") {
+        time = Math.abs(levelDiff * c / c) / flowRaw;
+      } else if (targetType === "level" && unit === "mtr") {
+        time = Math.abs(levelDiff) / flowRaw;
       } else {
-        const volumeDiff = levelDiff * c;
-        // Check for all m³ variations
-        const flowRate = (rateUnit === "m3/hr" || rateUnit === "m3" || rateUnit === "m³/hr" || rateUnit === "m³") ? rate * 6.28 : rate;
-        timeHours = volumeDiff / flowRate;
+        const diff = Math.abs(levelDiff * c);
+        time = diff / flow;
       }
       
-      console.log('⏰ Time calculated (hours):', timeHours);
-      
-      if (timeHours > 0) {
+      if (!isNaN(time) && time > 0) {
         const now = new Date();
-        const finishTime = new Date(now.getTime() + timeHours * 3600000);
+        const finish = new Date(now.getTime() + time * 3600000);
         
-        // Update date and time fields
-        const finishDate = `${finishTime.getFullYear()}-${String(finishTime.getMonth()+1).padStart(2,'0')}-${String(finishTime.getDate()).padStart(2,'0')}`;
-        const finishTimeStr = `${String(finishTime.getHours()).padStart(2,'0')}:${String(finishTime.getMinutes()).padStart(2,'0')}`;
+        const finishDate = `${finish.getFullYear()}-${String(finish.getMonth()+1).padStart(2,'0')}-${String(finish.getDate()).padStart(2,'0')}`;
+        const finishTimeStr = `${String(finish.getHours()).padStart(2,'0')}:${String(finish.getMinutes()).padStart(2,'0')}`;
         
         document.getElementById('editFinishDate').value = finishDate;
         document.getElementById('editFinishTime').value = finishTimeStr;
-        
-        console.log('✅ Finish time updated:', finishDate, finishTimeStr);
       }
     }
 
@@ -2003,44 +1906,45 @@
       
       if (!targetType || !targetValue || !currentLevel || !rate || !tankNumber) return;
       
-      // Get tank data from tanks object
       const tankData = tanks[tankNumber];
       if (!tankData) return;
       
-      const c = tankData.comment; // capacity factor
-      const m = tankData.min;     // minimum level
-      const x = tankData.max;     // maximum level
+      const c = tankData.comment;
+      const m = tankData.min;
+      const x = tankData.max;
       
-      // Calculate target level based on type
-      let targetLevel = 0;
+      let estLevel = 0;
       if (targetType === "pumpable") {
-        targetLevel = (targetValue / c) + m;
+        estLevel = (targetValue / c) + m;
       } else if (targetType === "ullage") {
-        targetLevel = x - (targetValue / c);
+        estLevel = x - (targetValue / c);
       } else if (targetType === "level") {
-        targetLevel = targetValue;
+        estLevel = targetValue;
       }
       
-      // Calculate difference
-      const levelDiff = Math.abs(targetLevel - currentLevel);
+      const levelDiff = estLevel - currentLevel;
       
-      // Calculate time based on rate unit
-      let timeHours = 0;
-      if (rateUnit === "mtr/hr") {
-        timeHours = levelDiff / rate;
+      const flowRaw = rate;
+      const unit = rateUnit === "m3/hr" ? "m3" : rateUnit === "mtr/hr" ? "mtr" : "bbl";
+      
+      const flow = unit === "m3" ? flowRaw * 6.28 : unit === "mtr" ? flowRaw : flowRaw;
+      
+      let time = 0;
+      if (unit === "mtr" && targetType !== "level") {
+        time = Math.abs(levelDiff * c / c) / flowRaw;
+      } else if (targetType === "level" && unit === "mtr") {
+        time = Math.abs(levelDiff) / flowRaw;
       } else {
-        const volumeDiff = levelDiff * c;
-        const flowRate = rateUnit === "m3/hr" ? rate * 6.28 : rate;
-        timeHours = volumeDiff / flowRate;
+        const diff = Math.abs(levelDiff * c);
+        time = diff / flow;
       }
       
-      if (timeHours > 0) {
+      if (!isNaN(time) && time > 0) {
         const now = new Date();
-        const finishTime = new Date(now.getTime() + timeHours * 3600000);
+        const finish = new Date(now.getTime() + time * 3600000);
         
-        // Update date and time fields
-        const finishDate = `${finishTime.getFullYear()}-${String(finishTime.getMonth()+1).padStart(2,'0')}-${String(finishTime.getDate()).padStart(2,'0')}`;
-        const finishTimeStr = `${String(finishTime.getHours()).padStart(2,'0')}:${String(finishTime.getMinutes()).padStart(2,'0')}`;
+        const finishDate = `${finish.getFullYear()}-${String(finish.getMonth()+1).padStart(2,'0')}-${String(finish.getDate()).padStart(2,'0')}`;
+        const finishTimeStr = `${String(finish.getHours()).padStart(2,'0')}:${String(finish.getMinutes()).padStart(2,'0')}`;
         
         document.getElementById('addFinishDate').value = finishDate;
         document.getElementById('addFinishTime').value = finishTimeStr;
