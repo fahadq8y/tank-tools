@@ -721,6 +721,13 @@ footer{margin-top:40px;color:#ccc;text-align:center}
 .whatsapp-link:hover{color:#128C7E;text-shadow:0 0 5px rgba(37,211,102,0.5);transform:scale(1.05)}
 </style>
 
+<script>
+// Register Service Worker for PWA
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
+</script>
+
 </body>
 </html>
 

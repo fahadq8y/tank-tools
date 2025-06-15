@@ -1218,14 +1218,21 @@
         (tank.finishDateTime.toDate ? tank.finishDateTime.toDate() : new Date(tank.finishDateTime)) :
         new Date(tank.finishDate + ' ' + tank.finishTime);
       
-      const reminderDate = finishDateTime.toISOString().split('T')[0].replace(/-/g, '');
-      const reminderTime = finishDateTime.toTimeString().slice(0, 5).replace(':', '') + '00';
+      // تصحيح التوقيت - استخدام التوقيت المحلي بدون تحويل UTC
+      const year = finishDateTime.getFullYear();
+      const month = String(finishDateTime.getMonth() + 1).padStart(2, '0');
+      const day = String(finishDateTime.getDate()).padStart(2, '0');
+      const hours = String(finishDateTime.getHours()).padStart(2, '0');
+      const minutes = String(finishDateTime.getMinutes()).padStart(2, '0');
+      
+      const reminderDate = `${year}${month}${day}`;
+      const reminderTime = `${hours}${minutes}00`;
       
       const eventTitle = `Tank ${tank.tankNumber} - ${tank.product} (${tank.department})`;
       const eventDetails = `Target: ${tank.targetValue || 'N/A'} ${tank.targetType || ''}\\nRate: ${tank.rate || 'N/A'} ${tank.rateUnit || ''}\\nNotes: ${tank.notes || 'No notes'}`;
       
-      // Create Google Calendar URL
-      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${reminderDate}T${reminderTime}Z/${reminderDate}T${reminderTime}Z&details=${encodeURIComponent(eventDetails)}&location=KNPC&sf=true&output=xml`;
+      // Create Google Calendar URL - بدون Z للتوقيت المحلي
+      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${reminderDate}T${reminderTime}/${reminderDate}T${reminderTime}&details=${encodeURIComponent(eventDetails)}&location=KNPC&sf=true&output=xml`;
       
       // Open in new window
       window.open(calendarUrl, '_blank');
@@ -2484,6 +2491,13 @@
     .whatsapp-link{color:#25D366;text-decoration:none;font-weight:bold;transition:all 0.3s ease;cursor:pointer}
     .whatsapp-link:hover{color:#128C7E;text-shadow:0 0 5px rgba(37,211,102,0.5);transform:scale(1.05)}
   </style>
+  
+  <script>
+  // Register Service Worker for PWA
+  if('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+  }
+  </script>
 </body>
 </html>
 
