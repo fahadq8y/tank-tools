@@ -1491,6 +1491,20 @@
       const finishTime = document.getElementById('editFinishTime').value;
       const notes = document.getElementById('editNotes').value;
       
+      // ✅ VALIDATION: Current Level is required
+      if (!currentLevel || currentLevel.trim() === '') {
+        alert('⚠️ Current Level is required!\n\nPlease enter the new current level before updating the tank.');
+        document.getElementById('editCurrentLevel').focus();
+        return;
+      }
+      
+      // Additional validation: Current Level must be a valid number
+      if (isNaN(parseFloat(currentLevel))) {
+        alert('⚠️ Current Level must be a valid number!\n\nPlease enter a numeric value for the current level.');
+        document.getElementById('editCurrentLevel').focus();
+        return;
+      }
+      
       try {
         const finishDateTime = new Date(finishDate + ' ' + finishTime);
         
