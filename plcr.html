@@ -417,7 +417,73 @@
     let currentUser=null;
     
     // Tank conversion data (compressed)
-    const tankConversions={"101":{factor:0.206,gross:7.746},"204":{factor:0.605,gross:7.266},"255":{factor:1.528,gross:9.047},"256":{factor:1.528,gross:9.047},"272":{factor:0.759,gross:9.506},"273":{factor:0.437,gross:9.506},"274":{factor:0.437,gross:9.506},"275":{factor:0.999,gross:8.874},"281":{factor:0.282,gross:7.881},"282":{factor:0.282,gross:7.881},"424":{factor:2.272,gross:9.843},"425":{factor:2.414,gross:9.047},"426":{factor:2.414,gross:9.047},"456":{factor:1.321,gross:8.873},"460":{factor:1.640,gross:8.860},"461":{factor:1.640,gross:8.860},"462":{factor:1.494,gross:8.874},"467":{factor:1.358,gross:9.054},"468":{factor:1.358,gross:9.054},"469":{factor:1.358,gross:9.054},"470":{factor:1.358,gross:9.054},"521":{factor:0.508,gross:8.168},"522":{factor:1.476,gross:8.168},"531":{factor:1.506,gross:8.168},"532":{factor:1.506,gross:8.168},"533":{factor:1.506,gross:8.168},"534":{factor:1.506,gross:8.168},"600":{factor:1.227,gross:7.736},"601":{factor:1.227,gross:7.736},"603":{factor:1.519,gross:7.700},"620":{factor:4.560,gross:7.640},"621":{factor:4.560,gross:7.640},"622":{factor:0.645,gross:7.764},"664":{factor:0.914,gross:7.727},"665":{factor:0.914,gross:7.727},"668":{factor:2.154,gross:7.740},"669":{factor:2.154,gross:7.740},"670":{factor:2.154,gross:7.740},"671":{factor:2.011,gross:7.830},"672":{factor:2.011,gross:7.830},"702":{factor:1.917,gross:6.763},"703":{factor:1.917,gross:6.763},"757":{factor:1.626,gross:7.000},"758":{factor:3.040,gross:6.787},"833":{factor:0.960,gross:7.768},"834":{factor:0.960,gross:7.768},"302":{factor:0.860,gross:7.758},"301":{factor:0.860,gross:7.758},"835":{factor:0.960,gross:7.748},"836":{factor:0.960,gross:7.748}};
+    const tankConversions={"101":{factor:0.206,gross:7.746},"204":{factor:0.605,gross:7.266},"221":{factor:0.737,gross:8.86},"253":{factor:1.128,gross:8.86},"255":{factor:1.528,gross:9.047},"256":{factor:1.528,gross:9.047},"272":{factor:0.759,gross:9.506},"273":{factor:0.437,gross:9.506},"274":{factor:0.437,gross:9.506},"275":{factor:0.999,gross:8.874},"278":{factor:0.99,gross:9.506},"279":{factor:0.455,gross:9.506},"281":{factor:0.282,gross:7.881},"282":{factor:0.282,gross:7.881},"424":{factor:2.272,gross:9.843},"425":{factor:2.414,gross:9.047},"426":{factor:2.414,gross:9.047},"456":{factor:1.321,gross:8.873},"460":{factor:1.640,gross:8.860},"461":{factor:1.640,gross:8.860},"462":{factor:1.494,gross:8.874},"467":{factor:1.358,gross:9.054},"468":{factor:1.358,gross:9.054},"469":{factor:1.358,gross:9.054},"470":{factor:1.358,gross:9.054},"521":{factor:0.508,gross:8.168},"522":{factor:1.476,gross:8.168},"531":{factor:1.506,gross:8.168},"532":{factor:1.506,gross:8.168},"533":{factor:1.506,gross:8.168},"534":{factor:1.506,gross:8.168},"600":{factor:1.227,gross:7.736},"601":{factor:1.227,gross:7.736},"603":{factor:1.519,gross:7.700},"620":{factor:4.560,gross:7.640},"621":{factor:4.560,gross:7.640},"622":{factor:0.645,gross:7.764},"664":{factor:0.914,gross:7.727},"665":{factor:0.914,gross:7.727},"668":{factor:2.154,gross:7.740},"669":{factor:2.154,gross:7.740},"670":{factor:2.154,gross:7.740},"671":{factor:2.011,gross:7.830},"672":{factor:2.011,gross:7.830},"702":{factor:1.917,gross:6.763},"703":{factor:1.917,gross:6.763},"757":{factor:1.626,gross:7.000},"758":{factor:3.040,gross:6.787},"833":{factor:0.960,gross:7.768},"834":{factor:0.960,gross:7.768},"302":{factor:0.860,gross:7.758},"301":{factor:0.860,gross:7.758},"835":{factor:0.960,gross:7.748},"836":{factor:0.960,gross:7.748}};
+
+    // Combined tank data (static + Firebase)
+    let allTankConversions = {...tankConversions};
+    
+    // Load additional tanks from Firebase
+    async function loadFirebaseTanks() {
+      try {
+        if (!window.db || !window.getDocs || !window.collection) {
+          console.log('Firebase not ready yet, retrying...');
+          setTimeout(loadFirebaseTanks, 1000);
+          return;
+        }
+        
+        const tanksRef = window.collection(window.db, 'tankData', 'plcr', 'tanks');
+        const snapshot = await window.getDocs(tanksRef);
+        
+        snapshot.forEach((doc) => {
+          const tankNumber = doc.id;
+          const tankData = doc.data();
+          
+          // Add to combined tank conversions if not already present
+          if (!allTankConversions[tankNumber] && tankData.factor && tankData.gross) {
+            allTankConversions[tankNumber] = {
+              factor: tankData.factor,
+              gross: tankData.gross
+            };
+            console.log(`Added tank ${tankNumber} from Firebase:`, tankData);
+          }
+        });
+        
+        console.log('Firebase tanks loaded successfully');
+        updateTankDropdown();
+        
+      } catch (error) {
+        console.error('Error loading Firebase tanks:', error);
+      }
+    }
+    
+    // Update tank dropdown with all available tanks
+    function updateTankDropdown() {
+      const tankSelect = document.getElementById('tankNumber');
+      if (!tankSelect) return;
+      
+      // Get current value to preserve selection
+      const currentValue = tankSelect.value;
+      
+      // Clear existing options except the first one
+      while (tankSelect.children.length > 1) {
+        tankSelect.removeChild(tankSelect.lastChild);
+      }
+      
+      // Add all tanks sorted by number
+      const sortedTanks = Object.keys(allTankConversions).sort((a, b) => parseInt(a) - parseInt(b));
+      
+      sortedTanks.forEach(tankNumber => {
+        const option = document.createElement('option');
+        option.value = tankNumber;
+        option.textContent = `Tank ${tankNumber}`;
+        tankSelect.appendChild(option);
+      });
+      
+      // Restore previous selection if still valid
+      if (currentValue && allTankConversions[currentValue]) {
+        tankSelect.value = currentValue;
+      }
+    }
 
     // Core Functions
     window.addEventListener('load',()=>checkLoginStatus());
@@ -439,6 +505,9 @@
       
       // التأكد من تحميل Firebase
       checkFirebaseReady();
+      
+      // Load Firebase tanks after Firebase is ready
+      setTimeout(loadFirebaseTanks, 2000);
     }
     
     // دالة للتأكد من تحميل Firebase
@@ -517,8 +586,8 @@
 
     window.calculate=()=>{
       const tk=document.getElementById("tk").value.trim(),value=parseFloat(document.getElementById("value").value),resultDiv=document.getElementById("result");
-      if(!tankConversions[tk]){resultDiv.textContent="Tank number not found in database.";return}
-      const tank=tankConversions[tk],mode=modeSelect.value;
+      if(!allTankConversions[tk]){resultDiv.textContent="Tank number not found in database.";return}
+      const tank=allTankConversions[tk],mode=modeSelect.value;
       let metricTon,barrels,level;
       switch(mode){
         case "levelToBarrels":
@@ -714,8 +783,8 @@
         const tk = document.getElementById("tk").value.trim();
         const currentLevel = parseFloat(document.getElementById("value").value);
         
-        if (tankConversions[tk] && !isNaN(currentLevel)) {
-          const tank = tankConversions[tk];
+        if (allTankConversions[tk] && !isNaN(currentLevel)) {
+          const tank = allTankConversions[tk];
           const currentWeight = currentLevel * tank.factor;
           
           // عرض الوزن الحالي في العنصر المخصص
@@ -741,14 +810,14 @@
       const amountToWithdraw = parseFloat(document.getElementById("amountToWithdraw").value);
       const withdrawalRate = parseFloat(document.getElementById("withdrawalRate").value);
       
-      if (!tankConversions[tk] || isNaN(currentLevel) || isNaN(amountToWithdraw) || isNaN(withdrawalRate)) {
+      if (!allTankConversions[tk] || isNaN(currentLevel) || isNaN(amountToWithdraw) || isNaN(withdrawalRate)) {
         document.getElementById('finalLevel').textContent = '';
         document.getElementById('timeNeeded').textContent = '';
         document.getElementById('finishTime').textContent = '';
         return;
       }
       
-      const tank = tankConversions[tk];
+      const tank = allTankConversions[tk];
       const currentWeight = currentLevel * tank.factor;
       const finalWeight = currentWeight - amountToWithdraw;
       const finalLevel = finalWeight / tank.factor;
