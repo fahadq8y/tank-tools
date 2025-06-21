@@ -1252,8 +1252,8 @@
       const eventTitle = `Tank ${tank.tankNumber} - ${tank.product} (${tank.department})`;
       const eventDetails = `Target: ${tank.targetValue || 'N/A'} ${tank.targetType || ''}\\nRate: ${tank.rate || 'N/A'} ${tank.rateUnit || ''}\\nNotes: ${tank.notes || 'No notes'}`;
       
-      // Create Google Calendar URL
-      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${reminderDate}T${reminderTime}Z/${reminderDate}T${reminderTime}Z&details=${encodeURIComponent(eventDetails)}&location=KNPC&sf=true&output=xml`;
+      // Create Google Calendar URL - Remove Z to use local time
+      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${reminderDate}T${reminderTime}/${reminderDate}T${reminderTime}&details=${encodeURIComponent(eventDetails)}&location=KNPC&sf=true&output=xml`;
       
       // Open in new window
       window.open(calendarUrl, '_blank');
